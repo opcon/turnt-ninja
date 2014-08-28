@@ -32,6 +32,7 @@ namespace BeatDetection
         Hexagon h;
 
         List<Hexagon> hexagons;
+        List<Hexagon> toRemove;
 
         Random random;
 
@@ -85,18 +86,25 @@ namespace BeatDetection
             stopWatch = new Stopwatch();
 
             hexagons = new List<Hexagon>();
+            toRemove = new List<Hexagon>();
 
             random = new Random();
 
             angles = new double[6];
             for (int i = 0; i < 6; i++)
 			{
-                angles[i] = (i+1) * (1.57) * (2.0/3.0);
+                angles[i] = (i+1) * (60) * (0.0174533);
 			}
 
             foreach (var b in detector.Beats)
             {
-                hexagons.Add(new Hexagon(b, 100){theta = angles[random.Next(5)]});
+                var start = random.Next(5);
+                for (int i = 0; i < 5; i++)
+                {
+                    //hexagons.Add(new Hexagon(b, 300) { theta = angles[start] + angles[((i+start)%6)] });
+                    hexagons.Add(new Hexagon(b, 300) { theta = angles[start] + i*angles[0] });
+                }
+                
             }
         }
 
@@ -140,27 +148,19 @@ namespace BeatDetection
             }
             if (waveOut.PlaybackState == PlaybackState.Playing)
             {
-                if (t > tNext)
+                foreach (var h in toRemove)
                 {
-                    foreach (var b in detector.Beats)
-                    {
-                        float d = (float)(time - b);
-                        if (d > 0f && d < 0.1f)
-                        {
-                            GL.ClearColor(Color.Green);
-                            beatShown = true;
-                            tNext = time + 0.1f;
-                            break;
-                        }
-                        if (beatShown)
-                        {
-                            GL.ClearColor(Color.CornflowerBlue);
-                            beatShown = false;
-                        }
-                    }
+                    hexagons.Remove(h);
+                    GL.ClearColor(Color.Green);
+                    tNext = time + 0.1f;
                 }
 
-                var toRemove = new List<Hexagon>();
+                if (t > tNext)
+                {
+                    GL.ClearColor(Color.CornflowerBlue);
+                }
+
+                toRemove.Clear();
                 foreach (var h in hexagons)
                 {
                     h.Update(e.Time);
@@ -168,13 +168,6 @@ namespace BeatDetection
                         toRemove.Add(h);
                 }
 
-                foreach (var h in toRemove)
-                {
-                    hexagons.Remove(h);
-                    GL.ClearColor(Color.Green);
-                    tNext = time + 0.1f
-
-                }
             }
         }
 

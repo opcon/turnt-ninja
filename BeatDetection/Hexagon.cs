@@ -19,14 +19,14 @@ namespace BeatDetection
         public double impactDistance;
         public double speed;
 
-        public Hexagon(double time, double sp, double distance = 10)
+        public Hexagon(double time, double sp, double distance = 100)
         {
             theta = 0;
             length = 1.57;
             width =  50;
             speed = sp;
 
-            r = (time * sp + distance + 5);
+            r = (time * sp + distance - 10);
 
             impactTime = time;
             impactDistance = distance;
