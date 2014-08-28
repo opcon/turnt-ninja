@@ -8,6 +8,8 @@ using NAudio;
 using NAudio.Wave;
 using System.Diagnostics;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BeatDetection
 {
@@ -24,8 +26,16 @@ namespace BeatDetection
         Stopwatch stopWatch;
         float tNext = 0;
         bool beatShown = false;
-        float correction = 0.09f;
+        float correction = 0.0f;
         float time = 0;
+
+        Hexagon h;
+
+        List<Hexagon> hexagons;
+
+        Random random;
+
+        double[] angles;
 
         public Game()
             : base(1024, 768)
@@ -73,6 +83,21 @@ namespace BeatDetection
             waveOut.Init(source);
 
             stopWatch = new Stopwatch();
+
+            hexagons = new List<Hexagon>();
+
+            random = new Random();
+
+            angles = new double[6];
+            for (int i = 0; i < 6; i++)
+			{
+                angles[i] = (i+1) * (1.57) * (2.0/3.0);
+			}
+
+            foreach (var b in detector.Beats)
+            {
+                hexagons.Add(new Hexagon(b, 100){theta = angles[random.Next(5)]});
+            }
         }
 
         #endregion
@@ -89,8 +114,8 @@ namespace BeatDetection
             GL.Viewport(0, 0, Width, Height);
 
             GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadIdentity();
-            GL.Ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 4.0);
+            var mat = Matrix4.CreateOrthographic(1024, 768, 0.0f, 4.0f);
+            GL.LoadMatrix(ref mat);
         }
 
         #endregion
@@ -104,31 +129,51 @@ namespace BeatDetection
         /// <remarks>There is no need to call the base implementation.</remarks>
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+
             var t = (float)stopWatch.Elapsed.TotalSeconds;
             time += (float)e.Time;
             if (waveOut.PlaybackState != PlaybackState.Playing)
             {
                 waveOut.Play();
-                time=0;
+                time = 0;
                 stopWatch.Start();
             }
-            if (waveOut.PlaybackState == PlaybackState.Playing && t > tNext)
+            if (waveOut.PlaybackState == PlaybackState.Playing)
             {
-                foreach (var b in detector.Beats)
+                if (t > tNext)
                 {
-                    float d = (float)(time - b);
-                    if (d > 0f && d < 0.1f)
+                    foreach (var b in detector.Beats)
                     {
-                        GL.ClearColor(Color.Green);
-                        beatShown = true;
-                        tNext = time + 0.1f;
-                        break;
+                        float d = (float)(time - b);
+                        if (d > 0f && d < 0.1f)
+                        {
+                            GL.ClearColor(Color.Green);
+                            beatShown = true;
+                            tNext = time + 0.1f;
+                            break;
+                        }
+                        if (beatShown)
+                        {
+                            GL.ClearColor(Color.CornflowerBlue);
+                            beatShown = false;
+                        }
                     }
-                    if (beatShown)
-                    {
-                        GL.ClearColor(Color.CornflowerBlue);
-                        beatShown = false;
-                    }
+                }
+
+                var toRemove = new List<Hexagon>();
+                foreach (var h in hexagons)
+                {
+                    h.Update(e.Time);
+                    if (h.r <= h.impactDistance)
+                        toRemove.Add(h);
+                }
+
+                foreach (var h in toRemove)
+                {
+                    hexagons.Remove(h);
+                    GL.ClearColor(Color.Green);
+                    tNext = time + 0.1f
+
                 }
             }
         }
@@ -145,6 +190,11 @@ namespace BeatDetection
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
+
+            foreach (var h in hexagons)
+            {
+                h.Draw(e.Time);
+            }
 
             this.SwapBuffers();
         }
