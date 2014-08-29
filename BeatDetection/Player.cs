@@ -23,7 +23,7 @@ namespace BeatDetection
             dtheta = 5;
             length = (10) * (0.0174533);
             width = 20;
-            r = 170;
+            r = 180;
         }
 
         public void Update(double time)

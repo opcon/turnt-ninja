@@ -20,7 +20,7 @@ namespace BeatDetection
     {
         OnsetDetector detector;
         AudioWrapper audio;
-        string audioFile = "./test.wav";
+        string audioFile = "./sun.wav";
         WaveOut waveOut;
         RawSourceWaveStream source;
         Stopwatch stopWatch;
@@ -41,6 +41,7 @@ namespace BeatDetection
         internal static bool focused = true;
 
         Player p;
+
 
         public Game()
             : base(1024, 768)
@@ -93,7 +94,7 @@ namespace BeatDetection
 
             GL.ClearColor(Color.CornflowerBlue);
             audio = new AudioWrapper(audioFile);
-            detector = new QMVampWrapper(audio, "./test3.csv", correction);
+            detector = new QMVampWrapper(audio, "./sun2.csv", correction);
             detector.DetectBeats();
 
             NAudio.Wave.WaveFormat fmt = new NAudio.Wave.WaveFormat(audio.AudioInfo.SampleRate, audio.AudioInfo.BitDepth, audio.AudioInfo.Channels);
@@ -120,7 +121,7 @@ namespace BeatDetection
                 for (int i = 0; i < 5; i++)
                 {
                     //hexagons.Add(new Hexagon(b, 300) { theta = angles[start] + angles[((i+start)%6)] });
-                    hexagonSides.Add(new HexagonSide(b, 300, angles[start] + i * angles[0] ));
+                    hexagonSides.Add(new HexagonSide(b, 300, angles[start] + i * angles[0] , 125));
                 }
                 //hexagons.Add(new Hexagon(b, 300) { theta = angles[0] });
                 //hexagons.Add(new Hexagon(b, 300) { theta = angles[1] });
@@ -129,7 +130,7 @@ namespace BeatDetection
                 
             }
 
-            hexagon = new Hexagon(6, 0, 1, 0);
+            hexagon = new Hexagon(6, 0, 1, 0, 80);
             p = new Player();
         }
 
@@ -192,6 +193,13 @@ namespace BeatDetection
                     h.Update(e.Time);
                     if (h.r <= h.impactDistance)
                         toRemove.Add(h);
+                    else if (((h.r - h.impactDistance) / h.speed) < (hexagon.pulseWidthMax / hexagon.pulseMultiplier))
+                        hexagon.pulsing = true;
+                }
+
+                if (toRemove.Count > 0)
+                {
+                    hexagon.Pulse(e.Time);
                 }
 
                 hexagon.Update(e.Time, false);

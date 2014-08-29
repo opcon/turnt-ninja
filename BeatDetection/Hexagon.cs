@@ -12,6 +12,12 @@ namespace BeatDetection
     {
         List<HexagonSide> Sides;
         static double[] angles;
+        public double pulseWidth = 0;
+        public double pulseWidthMax = 25;
+        public double pulseMultiplier = 200;
+        double width = 50;
+        int pulseDirection = 1;
+        public bool pulsing = false;
 
         public Hexagon(int numSides, double time, double sp, double startTheta, double distance = 100)
         {
@@ -28,6 +34,8 @@ namespace BeatDetection
             {
                 s.Update(time, updatePosition);
             }
+            if (pulsing == true)
+                Pulse(time);
         }
 
         public void Rotate(double amount)
@@ -54,6 +62,26 @@ namespace BeatDetection
             }
         }
 
+        public void Pulse(double time)
+        {
+            pulsing = true;
+            if (pulseWidth >= pulseWidthMax)
+                pulseDirection = -1;
+            pulseWidth += (pulseDirection) * (pulseMultiplier * time);
+
+            if (pulseWidth <= 0)
+            {
+                pulseWidth = 0;
+                pulsing = false;
+                pulseDirection = 1;
+            }
+
+            foreach (var s in Sides)
+            {
+                s.width = width + pulseWidth;
+            }
+        }
+
         static void GenerateAngles()
         {
             angles = new double[6];
@@ -63,12 +91,13 @@ namespace BeatDetection
                 angles[i] = (i + 1) * (60) * (0.0174533);
             }
         }
+
     }
 
     class HexagonSide
     {
         public double theta;
-        double width;
+        public double width;
         double length;
         public double r;
 
@@ -83,7 +112,7 @@ namespace BeatDetection
             width =  50;
             speed = sp;
 
-            r = (time * sp + distance + 70);
+            r = (time * sp + distance + 20);
 
             impactTime = time;
             impactDistance = distance;
