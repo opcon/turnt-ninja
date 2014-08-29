@@ -10,6 +10,63 @@ namespace BeatDetection
 {
     class Hexagon
     {
+        List<HexagonSide> Sides;
+        static double[] angles;
+
+        public Hexagon(int numSides, double time, double sp, double startTheta, double distance = 100)
+        {
+            if (angles == null)
+                GenerateAngles();
+            Sides = new List<HexagonSide>();
+
+            GenerateHexagonSides(numSides, time, sp, startTheta, distance);
+        }
+
+        public void Update(double time, bool updatePosition = true)
+        {
+            foreach (var s in Sides)
+            {
+                s.Update(time, updatePosition);
+            }
+        }
+
+        public void Rotate(double amount)
+        {
+            foreach (var s in Sides)
+            {
+                s.theta += amount;
+            }
+        }
+
+        public void Draw(double time)
+        {
+            foreach (var s in Sides)
+            {
+                s.Draw(time);
+            }
+        }
+
+        private void GenerateHexagonSides(int numSides, double time, double sp, double startTheta, double distance)
+        {
+            for (int i = 0; i < numSides; i++)
+            {
+                Sides.Add(new HexagonSide(time, sp, startTheta + i * angles[0], distance));
+            }
+        }
+
+        static void GenerateAngles()
+        {
+            angles = new double[6];
+
+            for (int i = 0; i < 6; i++)
+            {
+                angles[i] = (i + 1) * (60) * (0.0174533);
+            }
+        }
+    }
+
+    class HexagonSide
+    {
         public double theta;
         double width;
         double length;
@@ -19,23 +76,24 @@ namespace BeatDetection
         public double impactDistance;
         public double speed;
 
-        public Hexagon(double time, double sp, double distance = 100)
+        public HexagonSide(double time, double sp, double th, double distance = 100)
         {
-            theta = 0;
-            length = 1.57;
+            theta = th;
+            length = (60) * (0.0174533);
             width =  50;
             speed = sp;
 
-            r = (time * sp + distance - 10);
+            r = (time * sp + distance);
 
             impactTime = time;
             impactDistance = distance;
         }
 
-        public void Update(double time)
+        public void Update(double time, bool updatePosition = true)
         {
-            theta += time;
-            r -= (time * speed);
+            theta += time * 0.5;
+            if (updatePosition)
+                r -= (time * speed);
         }
 
         public void Draw(double time)

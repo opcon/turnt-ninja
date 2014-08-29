@@ -20,7 +20,7 @@ namespace BeatDetection
     {
         OnsetDetector detector;
         AudioWrapper audio;
-        string audioFile = "..\\..\\test.wav";
+        string audioFile = "./test.wav";
         WaveOut waveOut;
         RawSourceWaveStream source;
         Stopwatch stopWatch;
@@ -29,14 +29,16 @@ namespace BeatDetection
         float correction = 0.0f;
         float time = 0;
 
-        Hexagon h;
+        Hexagon hexagon;
 
-        List<Hexagon> hexagons;
-        List<Hexagon> toRemove;
+        List<HexagonSide> hexagonSides;
+        List<HexagonSide> toRemove;
 
         Random random;
 
         double[] angles;
+
+        internal static bool focused = true;
 
         public Game()
             : base(1024, 768)
@@ -65,6 +67,13 @@ namespace BeatDetection
 
         #endregion
 
+        protected override void OnKeyPress(KeyPressEventArgs e)
+        {
+            if (Focused)
+                InputSystem.KeyPressed(e);
+            base.OnKeyPress(e);
+        }
+
         #region OnLoad
 
         /// <summary>
@@ -73,9 +82,16 @@ namespace BeatDetection
         /// <param name="e">Not used.</param>
         protected override void OnLoad(EventArgs e)
         {
+            Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
+            Keyboard.KeyUp += (o, args) => InputSystem.KeyUp(args);
+            Mouse.ButtonDown += (o, args) => InputSystem.MouseDown(args);
+            Mouse.ButtonUp += (o, args) => InputSystem.MouseUp(args);
+            Mouse.WheelChanged += (o, args) => InputSystem.MouseWheelChanged(args);
+            Mouse.Move += (o, args) => InputSystem.MouseMoved(args);
+
             GL.ClearColor(Color.CornflowerBlue);
             audio = new AudioWrapper(audioFile);
-            detector = new QMVampWrapper(audio, @"../../test3.csv", correction);
+            detector = new QMVampWrapper(audio, "./test3.csv", correction);
             detector.DetectBeats();
 
             NAudio.Wave.WaveFormat fmt = new NAudio.Wave.WaveFormat(audio.AudioInfo.SampleRate, audio.AudioInfo.BitDepth, audio.AudioInfo.Channels);
@@ -85,8 +101,8 @@ namespace BeatDetection
 
             stopWatch = new Stopwatch();
 
-            hexagons = new List<Hexagon>();
-            toRemove = new List<Hexagon>();
+            hexagonSides = new List<HexagonSide>();
+            toRemove = new List<HexagonSide>();
 
             random = new Random();
 
@@ -96,16 +112,24 @@ namespace BeatDetection
                 angles[i] = (i+1) * (60) * (0.0174533);
 			}
 
-            foreach (var b in detector.Beats)
+            foreach (var b in detector.Beats.Where((value, index) => index % 1 == 0))
             {
                 var start = random.Next(5);
                 for (int i = 0; i < 5; i++)
                 {
                     //hexagons.Add(new Hexagon(b, 300) { theta = angles[start] + angles[((i+start)%6)] });
-                    hexagons.Add(new Hexagon(b, 300) { theta = angles[start] + i*angles[0] });
+                    hexagonSides.Add(new HexagonSide(b, 300, angles[start] + i * angles[0] ));
                 }
+                //hexagons.Add(new Hexagon(b, 300) { theta = angles[0] });
+                //hexagons.Add(new Hexagon(b, 300) { theta = angles[1] });
+                //hexagons.Add(new Hexagon(b, 300) { theta = angles[2] });
+                //hexagons.Add(new Hexagon(b, 300) { theta = angles[3] });
                 
             }
+
+            hexagon = new Hexagon(6, 0, 1, 0);
+
+            
         }
 
         #endregion
@@ -150,8 +174,8 @@ namespace BeatDetection
             {
                 foreach (var h in toRemove)
                 {
-                    hexagons.Remove(h);
-                    GL.ClearColor(Color.Green);
+                    hexagonSides.Remove(h);
+                    //GL.ClearColor(Color.Green);
                     tNext = time + 0.1f;
                 }
 
@@ -161,14 +185,22 @@ namespace BeatDetection
                 }
 
                 toRemove.Clear();
-                foreach (var h in hexagons)
+                foreach (var h in hexagonSides)
                 {
                     h.Update(e.Time);
                     if (h.r <= h.impactDistance)
                         toRemove.Add(h);
                 }
 
+                hexagon.Update(e.Time, false);
+                if (InputSystem.CurrentKeys.Contains(Key.Left))
+                    hexagon.Rotate(e.Time);
+                else if (InputSystem.CurrentKeys.Contains(Key.Right))
+                    hexagon.Rotate(-e.Time*1.5);
+
             }
+
+            InputSystem.Update();
         }
 
         #endregion
@@ -184,10 +216,12 @@ namespace BeatDetection
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            foreach (var h in hexagons)
+            foreach (var h in hexagonSides)
             {
                 h.Draw(e.Time);
             }
+
+            hexagon.Draw(e.Time);
 
             this.SwapBuffers();
         }
