@@ -83,7 +83,7 @@ namespace BeatDetection
             width =  50;
             speed = sp;
 
-            r = (time * sp + distance);
+            r = (time * sp + distance + 70);
 
             impactTime = time;
             impactDistance = distance;

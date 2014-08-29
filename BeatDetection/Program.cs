@@ -40,6 +40,8 @@ namespace BeatDetection
 
         internal static bool focused = true;
 
+        Player p;
+
         public Game()
             : base(1024, 768)
         {
@@ -128,8 +130,7 @@ namespace BeatDetection
             }
 
             hexagon = new Hexagon(6, 0, 1, 0);
-
-            
+            p = new Player();
         }
 
         #endregion
@@ -172,6 +173,7 @@ namespace BeatDetection
             }
             if (waveOut.PlaybackState == PlaybackState.Playing)
             {
+                p.Update(e.Time);
                 foreach (var h in toRemove)
                 {
                     hexagonSides.Remove(h);
@@ -193,10 +195,10 @@ namespace BeatDetection
                 }
 
                 hexagon.Update(e.Time, false);
-                if (InputSystem.CurrentKeys.Contains(Key.Left))
-                    hexagon.Rotate(e.Time);
-                else if (InputSystem.CurrentKeys.Contains(Key.Right))
-                    hexagon.Rotate(-e.Time*1.5);
+                //if (InputSystem.CurrentKeys.Contains(Key.Left))
+                //    hexagon.Rotate(e.Time);
+                //else if (InputSystem.CurrentKeys.Contains(Key.Right))
+                //    hexagon.Rotate(-e.Time*1.5);
 
             }
 
@@ -222,6 +224,7 @@ namespace BeatDetection
             }
 
             hexagon.Draw(e.Time);
+            p.Draw(e.Time);
 
             this.SwapBuffers();
         }
