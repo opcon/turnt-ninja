@@ -10,6 +10,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
+using System.Reflection;
 
 namespace BeatDetection
 {
@@ -21,6 +23,7 @@ namespace BeatDetection
         OnsetDetector detector;
         AudioWrapper audio;
         string audioFile = "./sun.wav";
+        string sonicAnnotator = @"D:\Patrick\Dropbox\Dev\Beat Detection Research\sonic-annotator-1.0-win32\sonic-annotator.exe";
         WaveOut waveOut;
         RawSourceWaveStream source;
         Stopwatch stopWatch;
@@ -70,7 +73,7 @@ namespace BeatDetection
 
         #endregion
 
-        protected override void OnKeyPress(KeyPressEventArgs e)
+        protected override void OnKeyPress(OpenTK.KeyPressEventArgs e)
         {
             if (Focused)
                 InputSystem.KeyPressed(e);
@@ -85,6 +88,22 @@ namespace BeatDetection
         /// <param name="e">Not used.</param>
         protected override void OnLoad(EventArgs e)
         {
+            string file = "";
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Multiselect = false;
+            ofd.Filter = "Audio Files (*.mp3, *.flac, *.wav)|*.mp3;*.flac;*.wav|All Files (*.*)|*.*";
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                file = ofd.FileName;
+                file = file.Replace(@"\", "/");
+                //file.Replace("\\", "/");
+            }
+            else
+            {
+                this.Exit();
+                return;
+            }
+
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
             Keyboard.KeyUp += (o, args) => InputSystem.KeyUp(args);
             Mouse.ButtonDown += (o, args) => InputSystem.MouseDown(args);
@@ -94,13 +113,21 @@ namespace BeatDetection
 
             GL.ClearColor(Color.CornflowerBlue);
             audio = new AudioWrapper(audioFile);
-            detector = new QMVampWrapper(audio, "./sun2.csv", correction);
+            //detector = new QMVampWrapper(audio, "./sun2.csv", correction);
+
+
+            detector = new QMVampWrapper(null, file, sonicAnnotator, correction);
+
             detector.DetectBeats();
 
-            NAudio.Wave.WaveFormat fmt = new NAudio.Wave.WaveFormat(audio.AudioInfo.SampleRate, audio.AudioInfo.BitDepth, audio.AudioInfo.Channels);
-            waveOut = new NAudio.Wave.WaveOut();
-            source = new NAudio.Wave.RawSourceWaveStream(new MemoryStream(audio.AudioBuffer), fmt);
-            waveOut.Init(source);
+            AudioFileReader audioReader = new AudioFileReader(file);
+            waveOut = new WaveOut();
+            waveOut.Init(audioReader);
+
+            //NAudio.Wave.WaveFormat fmt = new NAudio.Wave.WaveFormat(audio.AudioInfo.SampleRate, audio.AudioInfo.BitDepth, audio.AudioInfo.Channels);
+            //waveOut = new NAudio.Wave.WaveOut();
+            //source = new NAudio.Wave.RawSourceWaveStream(new MemoryStream(audio.AudioBuffer), fmt);
+            //waveOut.Init(source);
 
             stopWatch = new Stopwatch();
 
@@ -115,14 +142,26 @@ namespace BeatDetection
                 angles[i] = (i+1) * (60) * (0.0174533);
 			}
 
+            int prevStart = random.Next(5);
+            double prevTime = 0;
             foreach (var b in detector.Beats.Where((value, index) => index % 1 == 0))
             {
-                var start = random.Next(5);
+                int start = 0;
+                if (b - prevTime < 0.4)
+                {
+                    start = prevStart;
+                    prevTime = b;
+                }
+                else
+                {
+                    start = random.Next(5);
+                }
                 for (int i = 0; i < 5; i++)
                 {
                     //hexagons.Add(new Hexagon(b, 300) { theta = angles[start] + angles[((i+start)%6)] });
                     hexagonSides.Add(new HexagonSide(b, 300, angles[start] + i * angles[0] , 125));
                 }
+                prevTime = b;
                 //hexagons.Add(new Hexagon(b, 300) { theta = angles[0] });
                 //hexagons.Add(new Hexagon(b, 300) { theta = angles[1] });
                 //hexagons.Add(new Hexagon(b, 300) { theta = angles[2] });
@@ -252,6 +291,17 @@ namespace BeatDetection
                 // Get the title and category  of this example using reflection.
                 game.Title = "BeatTest";
                 game.Run(30.0, 0.0);
+            }
+        }
+
+        public static string AssemblyDirectory
+        {
+            get
+            {
+                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+                UriBuilder uri = new UriBuilder(codeBase);
+                string path = Uri.UnescapeDataString(uri.Path);
+                return Path.GetDirectoryName(path);
             }
         }
 
