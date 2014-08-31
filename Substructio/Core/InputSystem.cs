@@ -95,8 +95,9 @@ namespace Substructio.Core
 			return Mouse.GetState().IsButtonDown(button);
 		}
 
-		public static void Update()
+		public static void Update(bool focused)
 		{
+		    Focused = focused;
 			MouseWheelDelta = 0;
 			MousePreviousXY = MouseXY;
 			MouseXY = new Vector2(Mouse.GetState().X * 0.5f, -Mouse.GetState().Y * 0.5f);

@@ -1,9 +1,9 @@
 ﻿using System;
-using AwesomiumSharp;
+using Substructio.Core;
 
-namespace DownTrodden.Core
+namespace Substructio.GUI
 {
-    internal abstract class Screen
+    public abstract class Screen
     {
         #region Member Variables
 
@@ -43,7 +43,7 @@ namespace DownTrodden.Core
         /// The regular callback that shall be used to process events from awesomium
         /// </summary>
         /// <param name="e">The callback arguments</param>
-        public abstract void CallBack(JSCallbackEventArgs e);
+        public abstract void CallBack(GUICallbackEventArgs e);
 
         /// <summary>
         /// Called when your window is resized. Set your viewport here. It is also

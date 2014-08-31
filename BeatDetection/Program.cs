@@ -45,8 +45,6 @@ namespace BeatDetection
 
         double[] angles;
 
-        internal static bool focused = true;
-
         Player p;
 
         IWaveProvider prov;
@@ -278,7 +276,7 @@ namespace BeatDetection
 
             }
 
-            InputSystem.Update();
+            InputSystem.Update(this.Focused);
         }
 
         #endregion

@@ -3,9 +3,9 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 
-namespace DownTrodden.Core
+namespace Substructio.Core
 {
-    internal class Camera
+    public class Camera
     {
         #region Member Variables
 
@@ -45,6 +45,11 @@ namespace DownTrodden.Core
         public Matrix4 WorldProjectionMatrix;
         public Vector2 WorldTranslation;
 
+        public float PreferredWidth;
+        public float PreferredHeight;
+        public float WindowWidth;
+        public float WindowHeight;
+
         public bool SplitScreen;
 
         #endregion
@@ -54,20 +59,26 @@ namespace DownTrodden.Core
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public Camera()
+        public Camera(float prefWidth, float prefHeight, float windowWidth, float windowHeight, MouseDevice m)
         {
             OriginalBounds = CameraBounds = new Polygon();
             TargetScale = Scale = new Vector2(1f, 1f);
             MinimumScale = new Vector2(0.5f, 0.5f);
             MaximumScale = new Vector2(20, 20);
             CameraBox = new Polygon();
-            Mouse = Game.GameMouse;
-            UpdateResize();
+            Mouse = m;
+            UpdateResize(windowWidth, windowHeight);
+            PreferredWidth = prefWidth;
+            PreferredHeight = prefHeight;
         }
 
-        public void UpdateResize()
+        public void UpdateResize(float wWidth, float wHeight)
         {
-            ScreenSpaceMax = new Vector2(Game.PreferredWidth, Game.PreferredHeight);
+            //ScreenSpaceMax = new Vector2(pWidth, pHeight);
+            //PreferredWidth = pWidth;
+            //PreferredHeight = pHeight;
+            WindowWidth = wWidth;
+            WindowHeight = wHeight;
         }
 
         #endregion
@@ -78,16 +89,16 @@ namespace DownTrodden.Core
         {
             if (SplitScreen)
             {
-                WorldProjectionMatrix = Matrix4.CreateOrthographic((Game.PreferredWidth / 2) * Scale.X, Game.PreferredHeight * Scale.Y,
+                WorldProjectionMatrix = Matrix4.CreateOrthographic((PreferredWidth / 2) * Scale.X, PreferredHeight * Scale.Y,
                                                    -1.0f, 1.0f);
-                ScreenProjectionMatrix = Matrix4.CreateOrthographic(Game.PreferredWidth, Game.PreferredHeight, -1.0f, 1.0f);
+                ScreenProjectionMatrix = Matrix4.CreateOrthographic(PreferredWidth, PreferredHeight, -1.0f, 1.0f);
             }
 
             else
             {
-                WorldProjectionMatrix = Matrix4.CreateOrthographic(Game.PreferredWidth * Scale.X, Game.PreferredHeight * Scale.Y,
+                WorldProjectionMatrix = Matrix4.CreateOrthographic(PreferredWidth * Scale.X, PreferredHeight * Scale.Y,
                                                                    -1.0f, 1.0f);
-                ScreenProjectionMatrix = Matrix4.CreateOrthographic(Game.PreferredWidth, Game.PreferredHeight, -1.0f, 1.0f);
+                ScreenProjectionMatrix = Matrix4.CreateOrthographic(PreferredWidth, PreferredHeight, -1.0f, 1.0f);
             }
 
 
@@ -106,14 +117,14 @@ namespace DownTrodden.Core
         public void UpdateTargetTranslation()
         {
             //Initial translation
-            InitialTranslation.Y = -(Game.PreferredHeight/2);
-            InitialTranslation.X = -(Game.PreferredWidth/2);
+            InitialTranslation.Y = -(PreferredHeight/2);
+            InitialTranslation.X = -(PreferredWidth/2);
 
             //Center the player in X axis
-            TargetWorldTranslation.X = ((Game.PreferredWidth/2) - Center.X);
+            TargetWorldTranslation.X = ((PreferredWidth/2) - Center.X);
 
             //Center the player in Y axis
-            TargetWorldTranslation.Y = ((Game.PreferredHeight/2) - Center.Y);
+            TargetWorldTranslation.Y = ((PreferredHeight/2) - Center.Y);
 
             TargetWorldTranslation += InitialTranslation;
         }
@@ -129,11 +140,11 @@ namespace DownTrodden.Core
 
             if (bbox.Width > CameraBounds.Width && CameraBounds.Width >= CameraBounds.Height)
             {
-                TargetScale.X = CameraBounds.Width/(Game.PreferredWidth);
+                TargetScale.X = CameraBounds.Width/(PreferredWidth);
             }
             if (bbox.Height > CameraBounds.Height && CameraBounds.Height >= CameraBounds.Width)
             {
-                TargetScale.Y = CameraBounds.Height/(Game.PreferredHeight);
+                TargetScale.Y = CameraBounds.Height/(PreferredHeight);
             }
 
             if (TargetScale.Y > TargetScale.X)
@@ -175,14 +186,14 @@ namespace DownTrodden.Core
         {
             CameraBox.Clear();
 
-            CameraBox.Points.Add(new Vector2(-(Game.PreferredWidth/2) - TargetWorldTranslation.X,
-                                             -(Game.PreferredHeight/2) - TargetWorldTranslation.Y));
-            CameraBox.Points.Add(new Vector2((Game.PreferredWidth/2) - TargetWorldTranslation.X,
-                                             -(Game.PreferredHeight/2) - TargetWorldTranslation.Y));
-            CameraBox.Points.Add(new Vector2((Game.PreferredWidth/2) - TargetWorldTranslation.X,
-                                             (Game.PreferredHeight/2) - TargetWorldTranslation.Y));
-            CameraBox.Points.Add(new Vector2(-(Game.PreferredWidth/2) - TargetWorldTranslation.X,
-                                             (Game.PreferredHeight/2) - TargetWorldTranslation.Y));
+            CameraBox.Points.Add(new Vector2(-(PreferredWidth/2) - TargetWorldTranslation.X,
+                                             -(PreferredHeight/2) - TargetWorldTranslation.Y));
+            CameraBox.Points.Add(new Vector2((PreferredWidth/2) - TargetWorldTranslation.X,
+                                             -(PreferredHeight/2) - TargetWorldTranslation.Y));
+            CameraBox.Points.Add(new Vector2((PreferredWidth/2) - TargetWorldTranslation.X,
+                                             (PreferredHeight/2) - TargetWorldTranslation.Y));
+            CameraBox.Points.Add(new Vector2(-(PreferredWidth/2) - TargetWorldTranslation.X,
+                                             (PreferredHeight/2) - TargetWorldTranslation.Y));
         }
 
         public void SnapToCenter()
@@ -221,10 +232,10 @@ namespace DownTrodden.Core
         public Vector2 UnProjectMouse(bool world = true)
         {
             //Retrive mouse position
-            var mousePos = (new Vector3(Mouse.X, Game.WindowHeight - Mouse.Y, 0));
+            var mousePos = (new Vector3(Mouse.X, WindowHeight - Mouse.Y, 0));
 
             // Turn it into 0-1 screen coords 
-            mousePos = Vector3.Multiply(mousePos, new Vector3(1.0f/Game.WindowWidth, 1.0f/Game.WindowHeight, 0));
+            mousePos = Vector3.Multiply(mousePos, new Vector3(1.0f/WindowWidth, 1.0f/WindowHeight, 0));
 
             //And change that into -1 to 1 
             mousePos = (mousePos*2) - new Vector3(1, 1, 0);
@@ -343,7 +354,7 @@ namespace DownTrodden.Core
 
             m_OldMouseWheel = wheel;
 
-            //var s = (float)Game.PreferredWidth / (float)Game.WindowWidth;
+            //var s = (float)PreferredWidth / (float)Game.WindowWidth;
             //MouseWorldDelta = Vector2.Multiply(InputSystem.MouseDelta, s);
             //m_OldMousePosition = MouseWorldPosition;
         }

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenTK;
 using QuickFont;
+using Substructio.Core;
 
-namespace DownTrodden.Core
+namespace Substructio.GUI
 {
-    internal class ScreenManager
+    public class ScreenManager
     {
         #region Member Variables
 
@@ -16,21 +17,13 @@ namespace DownTrodden.Core
 
         private readonly List<Screen> ScreensToAdd;
         private readonly List<Screen> ScreensToRemove;
-        public static QFont m_Font;
 
-        private readonly Camera m_ScreenCamera;
         private bool InputScreenFound;
         public List<Screen> Screens;
 
-        public Camera ScreenCamera
-        {
-            get { return m_ScreenCamera; }
-        }
-
-        public static QFont Font
-        {
-            get { return m_Font; }
-        }
+        public Camera ScreenCamera { get; private set; }
+        public static QFont Font { get; private set; }
+        public GameWindow Game { get; private set; }
 
         #endregion
 
@@ -39,15 +32,15 @@ namespace DownTrodden.Core
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public ScreenManager()
+        public ScreenManager(GameWindow g, Camera c)
         {
+            Game = g;
             Screens = new List<Screen>();
             ScreensToAdd = new List<Screen>();
             ScreensToRemove = new List<Screen>();
-            m_Font = new QFont(Directories.LibrariesDirectory + Directories.TextFile, 18);
-            m_ScreenCamera = new Camera();
-            m_ScreenCamera.CameraBounds = new Polygon(Vector2.Zero, 1920, 1080);
-            m_ScreenCamera.Center = Vector2.Zero;
+            Font = new QFont(Directories.LibrariesDirectory + Directories.TextFile, 18);
+            ScreenCamera = c;
+            ScreenCamera.Center = Vector2.Zero;
         }
 
         #endregion
@@ -108,19 +101,19 @@ namespace DownTrodden.Core
                 }
             }
             InputScreenFound = false;
-            InputSystem.Update();
+            InputSystem.Update(Game.Focused);
         }
 
-        public static void DrawTextLine(string text, Vector2 position)
+        public void DrawTextLine(string text, Vector2 position)
         {
-            Utilities.TranslateTo(position);
+            Utilities.TranslateTo(position, ScreenCamera.PreferredWidth, ScreenCamera.PreferredHeight);
 
             Font.Print(text);
         }
 
         public void DrawProcessedText(ProcessedText pText, Vector2 position, QFont font)
         {
-            Utilities.TranslateTo(position);
+            Utilities.TranslateTo(position, ScreenCamera.PreferredWidth, ScreenCamera.PreferredHeight);
 
             font.Print(pText);
         }
@@ -143,7 +136,7 @@ namespace DownTrodden.Core
 
         public void Resize(EventArgs e)
         {
-            ScreenCamera.UpdateResize();
+            ScreenCamera.UpdateResize(Game.Width, Game.Height);
             foreach (Screen screen in Screens)
             {
                 screen.Resize(e);
