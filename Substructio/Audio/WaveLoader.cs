@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace BeatDetection
+namespace Substructio.Audio
 {
     public static class WaveLoader
     {

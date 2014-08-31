@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BeatDetection
+﻿namespace Substructio.Audio
 {
     public class AudioWrapper
     {

@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Input;
-using System;
-using System.Windows.Forms;
 
-namespace BeatDetection
+namespace Substructio.Core
 {
 	public static class InputSystem
 	{
@@ -25,6 +23,8 @@ namespace BeatDetection
 		public static Vector2 MouseDelta;
 		public static Vector2 MousePreviousXY, MouseXY;
 
+	    public static bool Focused = false;
+
 		#endregion
 
 		#region Constructors
@@ -35,13 +35,13 @@ namespace BeatDetection
 
 		public static void KeyPressed(OpenTK.KeyPressEventArgs e)
 		{
-			if (Game.focused)
+			if (Focused)
 				PressedChars.Add(e.KeyChar);
 		}
 
 		public static void KeyDown(KeyboardKeyEventArgs e)
 		{
-			if (Game.focused) {
+			if (Focused) {
 
 				if (!CurrentKeys.Contains(e.Key)) {
 					CurrentKeys.Add(e.Key);
@@ -54,7 +54,7 @@ namespace BeatDetection
 
 		public static void KeyUp(KeyboardKeyEventArgs e)
 		{
-			if (Game.focused) {
+			if (Focused) {
 				if (CurrentKeys.Contains(e.Key)) {
 					CurrentKeys.Remove(e.Key);
 				} 
@@ -63,7 +63,7 @@ namespace BeatDetection
 
 		public static void MouseDown(MouseButtonEventArgs e)
 		{
-			if (Game.focused) {
+			if (Focused) {
 				if (!CurrentButtons.Contains(e.Button)) {
 					CurrentButtons.Add(e.Button);
 				}
@@ -78,7 +78,7 @@ namespace BeatDetection
 
 		public static void MouseUp(MouseButtonEventArgs e)
 		{
-			if (Game.focused) {
+			if (Focused) {
 				if (CurrentButtons.Contains(e.Button)) {
 					CurrentButtons.Remove(e.Button);
 				} 

@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Drawing;
+using BeatDetection.Core;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
@@ -12,6 +13,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.Reflection;
+using Substructio.Audio;
+using Substructio.Core;
 using Wav2Flac;
 
 namespace BeatDetection
