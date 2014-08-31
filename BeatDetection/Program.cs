@@ -165,27 +165,27 @@ namespace BeatDetection
 
             int prevStart = random.Next(5);
             double prevTime = 0;
-            double extra = 0;
+            int c = 0;
             foreach (var b in detector.Beats.Where((value, index) => index % 1 == 0))
             {
                 var col = Color.White;
                 int start = 0;
                 if (b - prevTime < 0.4)
                 {
+                    c++;
                     //extra += (5) * (0.0174533);
                     start = prevStart;
-                    prevTime = b;
                     col = Color.Red;
                 }
                 else
                 {
                     start = random.Next(5);
-                    extra = 0;
+                    c = 0;
                 }
                 for (int i = 0; i < 5; i++)
                 {
                     //hexagons.Add(new Hexagon(b, 300) { theta = angles[start] + angles[((i+start)%6)] });
-                    hexagonSides.Add(new HexagonSide(b, 300, angles[start] + i * angles[0] + extra, 125) { colour = col });
+                    hexagonSides.Add(new HexagonSide(b, 300, angles[start % 6] + i * angles[0], 125) { colour = col });
                 }
                 prevTime = b;
                 prevStart = start;
