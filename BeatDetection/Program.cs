@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.Reflection;
+using Wav2Flac;
 
 namespace BeatDetection
 {
@@ -45,7 +46,7 @@ namespace BeatDetection
 
         Player p;
 
-
+        IWaveProvider prov;
         public Game()
             : base(1024, 768)
         {
@@ -113,16 +114,35 @@ namespace BeatDetection
 
             GL.ClearColor(Color.CornflowerBlue);
             audio = new AudioWrapper(audioFile);
-            //detector = new QMVampWrapper(audio, "./sun2.csv", correction);
 
 
             detector = new QMVampWrapper(null, file, sonicAnnotator, correction);
 
             detector.DetectBeats();
 
-            AudioFileReader audioReader = new AudioFileReader(file);
+
             waveOut = new WaveOut();
-            waveOut.Init(audioReader);
+
+            if (Path.GetExtension(file).Equals(".flac", StringComparison.CurrentCultureIgnoreCase))
+            {
+                var str = new MemoryStream();
+                WavWriter output = new WavWriter(str);
+                FlacReader fr = new FlacReader(file, output);
+                fr.Process();
+                str.Position = 0;
+
+                WaveFormat fmt = new WaveFormat(fr.inputSampleRate, fr.inputBitDepth, fr.inputChannels);
+                var s = new RawSourceWaveStream(str, fmt);
+                prov = s;
+                waveOut.Init(s);
+            }
+            else
+            {
+
+                AudioFileReader audioReader = new AudioFileReader(file);
+                prov = audioReader;
+                waveOut.Init(audioReader);
+            }
 
             //NAudio.Wave.WaveFormat fmt = new NAudio.Wave.WaveFormat(audio.AudioInfo.SampleRate, audio.AudioInfo.BitDepth, audio.AudioInfo.Channels);
             //waveOut = new NAudio.Wave.WaveOut();
@@ -144,24 +164,30 @@ namespace BeatDetection
 
             int prevStart = random.Next(5);
             double prevTime = 0;
+            double extra = 0;
             foreach (var b in detector.Beats.Where((value, index) => index % 1 == 0))
             {
+                var col = Color.White;
                 int start = 0;
                 if (b - prevTime < 0.4)
                 {
+                    //extra += (5) * (0.0174533);
                     start = prevStart;
                     prevTime = b;
+                    col = Color.Red;
                 }
                 else
                 {
                     start = random.Next(5);
+                    extra = 0;
                 }
                 for (int i = 0; i < 5; i++)
                 {
                     //hexagons.Add(new Hexagon(b, 300) { theta = angles[start] + angles[((i+start)%6)] });
-                    hexagonSides.Add(new HexagonSide(b, 300, angles[start] + i * angles[0] , 125));
+                    hexagonSides.Add(new HexagonSide(b, 300, angles[start] + i * angles[0] + extra, 125) { colour = col });
                 }
                 prevTime = b;
+                prevStart = start;
                 //hexagons.Add(new Hexagon(b, 300) { theta = angles[0] });
                 //hexagons.Add(new Hexagon(b, 300) { theta = angles[1] });
                 //hexagons.Add(new Hexagon(b, 300) { theta = angles[2] });

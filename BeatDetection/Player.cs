@@ -17,6 +17,8 @@ namespace BeatDetection
         double width;
         double r;
 
+        float score;
+
         public Player()
         {
             theta = 0;

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics;
 
 namespace BeatDetection
 {
@@ -14,7 +15,7 @@ namespace BeatDetection
         static double[] angles;
         public double pulseWidth = 0;
         public double pulseWidthMax = 25;
-        public double pulseMultiplier = 200;
+        public double pulseMultiplier = 150;
         double width = 50;
         int pulseDirection = 1;
         public bool pulsing = false;
@@ -105,6 +106,8 @@ namespace BeatDetection
         public double impactDistance;
         public double speed;
 
+        public Color4 colour = Color4.White;
+
         public HexagonSide(double time, double sp, double th, double distance = 100)
         {
             theta = th;
@@ -128,6 +131,7 @@ namespace BeatDetection
         public void Draw(double time)
         {
             GL.Begin(PrimitiveType.LineLoop);
+            GL.Color4(colour);
 
             GL.Vertex2(new Vector2d(r * Math.Cos(theta), r * Math.Sin(theta)));
             GL.Vertex2(new Vector2d(r * Math.Cos(theta + length), r * Math.Sin(theta + length)));
