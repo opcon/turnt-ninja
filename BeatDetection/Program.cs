@@ -3,6 +3,7 @@ using System;
 using System.Drawing;
 using BeatDetection.Core;
 using OpenTK;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using NAudio;
@@ -55,6 +56,7 @@ namespace BeatDetection
             : base(1024, 768)
         {
             KeyDown += Keyboard_KeyDown;
+            //this.VSync = VSyncMode.Off;
         }
 
         #region Keyboard_KeyDown
@@ -126,6 +128,8 @@ namespace BeatDetection
 
 
             waveOut = new WaveOut();
+            int hashCount = 10000;
+            byte[] hash = new byte[hashCount];
 
             if (Path.GetExtension(file).Equals(".flac", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -133,6 +137,8 @@ namespace BeatDetection
                 WavWriter output = new WavWriter(str);
                 FlacReader fr = new FlacReader(file, output);
                 fr.Process();
+                str.Position = 0;
+                str.Read(hash, 0, hashCount);
                 str.Position = 0;
 
                 WaveFormat fmt = new WaveFormat(fr.inputSampleRate, fr.inputBitDepth, fr.inputChannels);
@@ -144,6 +150,8 @@ namespace BeatDetection
             {
 
                 AudioFileReader audioReader = new AudioFileReader(file);
+                audioReader.Read(hash, 0, hashCount);
+                audioReader.Position = 0;
                 prov = audioReader;
                 waveOut.Init(audioReader);
             }
@@ -157,9 +165,6 @@ namespace BeatDetection
 
             hexagonSides = new List<HexagonSide>();
             toRemove = new List<HexagonSide>();
-
-            byte[] hash = new byte[10000];
-            prov.Read(hash, 0, 10000);
 
             var hashCode = CRC16.Instance().ComputeChecksum(hash);
 
@@ -222,7 +227,7 @@ namespace BeatDetection
             GL.Viewport(0, 0, Width, Height);
 
             GL.MatrixMode(MatrixMode.Projection);
-            var mat = Matrix4.CreateOrthographic(1024, 768, 0.0f, 4.0f);
+            var mat = Matrix4.CreateOrthographic(Width, Height, 0.0f, 4.0f);
             GL.LoadMatrix(ref mat);
         }
 
@@ -329,8 +334,8 @@ namespace BeatDetection
             using (Game game = new Game())
             {
                 // Get the title and category  of this example using reflection.
-                game.Title = "BeatTest";
-                game.Run(30.0, 0.0);
+                game.Title = "turnt-ninja";
+                game.Run(60.0, 0.0);
             }
         }
 
