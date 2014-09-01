@@ -19,22 +19,25 @@ namespace BeatDetection
         public Player()
         {
             theta = 0;
-            dtheta = 5;
+            dtheta = 7;
             length = (10) * (0.0174533);
             width = 20;
             r = 180;
+            Direction = 1;
         }
+
+        public int Direction { get; set; }
 
         public void Update(double time)
         {
-            theta += time * 0.5;
+            theta += time * 0.5 * Direction;
             if (InputSystem.CurrentKeys.Contains(Key.Left))
             {
                 theta += dtheta * time;
             }
             else if (InputSystem.CurrentKeys.Contains(Key.Right))
             {
-                theta -= dtheta * time*1.5;
+                theta -= dtheta * time*1;
             }
         }
 

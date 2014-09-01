@@ -16,6 +16,7 @@ using System.Reflection;
 using Substructio.Audio;
 using Substructio.Core;
 using Wav2Flac;
+using System.Security.Cryptography;
 
 namespace BeatDetection
 {
@@ -48,6 +49,8 @@ namespace BeatDetection
         Player p;
 
         IWaveProvider prov;
+
+        private int dir = 1;
         public Game()
             : base(1024, 768)
         {
@@ -155,7 +158,12 @@ namespace BeatDetection
             hexagonSides = new List<HexagonSide>();
             toRemove = new List<HexagonSide>();
 
-            random = new Random();
+            byte[] hash = new byte[10000];
+            prov.Read(hash, 0, 10000);
+
+            var hashCode = CRC16.Instance().ComputeChecksum(hash);
+
+            random = new Random(hashCode);
 
             angles = new double[6];
             for (int i = 0; i < 6; i++)
@@ -185,7 +193,7 @@ namespace BeatDetection
                 for (int i = 0; i < 5; i++)
                 {
                     //hexagons.Add(new Hexagon(b, 300) { theta = angles[start] + angles[((i+start)%6)] });
-                    hexagonSides.Add(new HexagonSide(b, 300, angles[start % 6] + i * angles[0], 125) { colour = col });
+                    hexagonSides.Add(new HexagonSide(b, 400, angles[start % 6] + i * angles[0], 125) { colour = col });
                 }
                 prevTime = b;
                 prevStart = start;
@@ -240,6 +248,8 @@ namespace BeatDetection
             }
             if (waveOut.PlaybackState == PlaybackState.Playing)
             {
+                p.Direction = dir;
+                hexagon.Direction = dir;
                 p.Update(e.Time);
                 foreach (var h in toRemove)
                 {
@@ -256,6 +266,7 @@ namespace BeatDetection
                 toRemove.Clear();
                 foreach (var h in hexagonSides)
                 {
+                    h.Direction = dir;
                     h.Update(e.Time);
                     if (h.r <= h.impactDistance)
                         toRemove.Add(h);
@@ -265,6 +276,8 @@ namespace BeatDetection
 
                 if (toRemove.Count > 0)
                 {
+                    var d = random.NextDouble();
+                    dir = d > 0.95 ? -dir : dir;
                     hexagon.Pulse(e.Time);
                 }
 

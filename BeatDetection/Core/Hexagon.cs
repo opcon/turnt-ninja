@@ -22,14 +22,18 @@ namespace BeatDetection.Core
             if (angles == null)
                 GenerateAngles();
             Sides = new List<HexagonSide>();
+            Direction = 1;
 
             GenerateHexagonSides(numSides, time, sp, startTheta, distance);
         }
+
+        public int Direction { get; set; }
 
         public void Update(double time, bool updatePosition = true)
         {
             foreach (var s in Sides)
             {
+                s.Direction = Direction;
                 s.Update(time, updatePosition);
             }
             if (pulsing == true)
@@ -116,11 +120,14 @@ namespace BeatDetection.Core
 
             impactTime = time;
             impactDistance = distance;
+            Direction = 1;
         }
+
+        public int Direction { get; set; }
 
         public void Update(double time, bool updatePosition = true)
         {
-            theta += time * 0.5;
+            theta += time * 0.5 * Direction;
             if (updatePosition)
                 r -= (time * speed);
         }
