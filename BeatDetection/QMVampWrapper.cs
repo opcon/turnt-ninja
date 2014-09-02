@@ -18,7 +18,7 @@ namespace BeatDetection
         float correctionAmount = 0;
 
         string beatsFile;
-        public QMVampWrapper(AudioWrapper a, string aFile, string sPath, float correction, string rdf = "./qmonset.n3", string suffix = "vamp_qm-vamp-plugins_qm-onsetdetector_onsets") : base(a)
+        public QMVampWrapper(AudioWrapper a, string aFile, string sPath, float correction, string rdf = "../../Processed Songs/qmonset.n3", string suffix = "vamp_qm-vamp-plugins_qm-onsetdetector_onsets") : base(a)
         {
             audioFile = aFile;
             sonicPath = sPath;
@@ -46,12 +46,13 @@ namespace BeatDetection
 
             ProcessStartInfo psi = new ProcessStartInfo(sonicPath);
             psi.WorkingDirectory = Game.AssemblyDirectory;
-            var arguments = String.Format("-t \"{0}\" \"{1}\" -w csv --csv-force --csv-basedir \"{2}\"", rdfDescriptor, audioFile, psi.WorkingDirectory.Replace(@"\", "/"));
+            var csvDir = "../../Processed Songs/";
+            var arguments = String.Format("-t \"{0}\" \"{1}\" -w csv --csv-force --csv-basedir \"{2}\"", rdfDescriptor, audioFile, csvDir.Replace(@"\", "/"));
             psi.Arguments = arguments;
             //psi.CreateNoWindow = true;
             psi.UseShellExecute = true;
 
-            var result = Path.Combine(psi.WorkingDirectory, String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(audioFile), pluginFileSuffix) + ".csv");
+            var result = Path.Combine(csvDir, String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(audioFile), pluginFileSuffix) + ".csv");
             var newName = Path.Combine(Path.GetDirectoryName(result), Path.GetFileNameWithoutExtension(audioFile) + ".csv");
 
             if (File.Exists(newName))

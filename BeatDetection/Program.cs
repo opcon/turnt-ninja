@@ -27,8 +27,6 @@ namespace BeatDetection
     public class Game : GameWindow
     {
         OnsetDetector detector;
-        AudioWrapper audio;
-        string audioFile = "./sun.wav";
         string sonicAnnotator = @"D:\Patrick\Dropbox\Dev\Beat Detection Research\sonic-annotator-1.0-win32\sonic-annotator.exe";
         WaveOut waveOut;
         RawSourceWaveStream source;
@@ -119,7 +117,6 @@ namespace BeatDetection
             Mouse.Move += (o, args) => InputSystem.MouseMoved(args);
 
             GL.ClearColor(Color.CornflowerBlue);
-            audio = new AudioWrapper(audioFile);
 
 
             detector = new QMVampWrapper(null, file, sonicAnnotator, correction);
@@ -128,7 +125,7 @@ namespace BeatDetection
 
 
             waveOut = new WaveOut();
-            int hashCount = 10000;
+            int hashCount = 100000;
             byte[] hash = new byte[hashCount];
 
             if (Path.GetExtension(file).Equals(".flac", StringComparison.CurrentCultureIgnoreCase))
@@ -183,12 +180,16 @@ namespace BeatDetection
             {
                 var col = Color.White;
                 int start = 0;
-                if (b - prevTime < 0.4)
+                if (b - prevTime < 0.2)
                 {
                     c++;
                     //extra += (5) * (0.0174533);
                     start = prevStart;
                     col = Color.Red;
+                }
+                else if (b - prevTime < 0.4)
+                {
+                    start = (prevStart + 6) + random.Next(0, 2) - 1;
                 }
                 else
                 {
