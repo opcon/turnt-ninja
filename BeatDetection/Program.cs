@@ -28,6 +28,7 @@ namespace BeatDetection
     {
         OnsetDetector detector;
         string sonicAnnotator = @"D:\Patrick\Dropbox\Dev\Beat Detection Research\sonic-annotator-1.0-win32\sonic-annotator.exe";
+        private string pluginPath = "../../External Programs/Vamp Plugins";
         WaveOut waveOut;
         RawSourceWaveStream source;
         Stopwatch stopWatch;
@@ -119,7 +120,7 @@ namespace BeatDetection
             GL.ClearColor(Color.CornflowerBlue);
 
 
-            detector = new QMVampWrapper(null, file, sonicAnnotator, correction);
+            detector = new QMVampWrapper(null, file, sonicAnnotator, pluginPath, correction);
 
             detector.DetectBeats();
 
