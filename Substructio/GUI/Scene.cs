@@ -3,7 +3,7 @@ using Substructio.Core;
 
 namespace Substructio.GUI
 {
-    public abstract class Screen
+    public abstract class Scene
     {
         #region Member Variables
 
@@ -13,7 +13,7 @@ namespace Substructio.GUI
 
         public bool Exclusive;
         public bool Loaded;
-        public ScreenManager ScreenManager;
+        public SceneManager SceneManager;
         public bool Visible;
 
         #endregion
@@ -23,7 +23,7 @@ namespace Substructio.GUI
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public Screen()
+        public Scene()
         {
             Visible = true;
             Exclusive = false;

@@ -70,7 +70,7 @@ namespace Substructio.Core
 
         public static bool IsMouseButtonClicked(MouseButton button)
         {
-            //if (Mouse.GetState().IsButtonDown(button) && Game.MouseInWindow)
+            //if (Mouse.GetState().IsButtonDown(button) && GameWindow.MouseInWindow)
             //{
             //    m_CurrentButtons.Add(button);
             //    return m_LastButtons.Contains(button);

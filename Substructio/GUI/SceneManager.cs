@@ -7,7 +7,7 @@ using Substructio.Core;
 
 namespace Substructio.GUI
 {
-    public class ScreenManager
+    public class SceneManager
     {
         #region Member Variables
 
@@ -15,15 +15,15 @@ namespace Substructio.GUI
 
         #region Properties
 
-        private readonly List<Screen> ScreensToAdd;
-        private readonly List<Screen> ScreensToRemove;
+        private readonly List<Scene> _screensToAdd;
+        private readonly List<Scene> _screensToRemove;
 
         private bool InputScreenFound;
-        public List<Screen> Screens;
+        public List<Scene> ScreenList;
 
         public Camera ScreenCamera { get; private set; }
         public static QFont Font { get; private set; }
-        public GameWindow Game { get; private set; }
+        public GameWindow GameWindow { get; private set; }
 
         #endregion
 
@@ -32,14 +32,14 @@ namespace Substructio.GUI
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public ScreenManager(GameWindow g, Camera c)
+        public SceneManager(GameWindow gameWindow, Camera camera)
         {
-            Game = g;
-            Screens = new List<Screen>();
-            ScreensToAdd = new List<Screen>();
-            ScreensToRemove = new List<Screen>();
-            Font = new QFont(Directories.LibrariesDirectory + Directories.TextFile, 18);
-            ScreenCamera = c;
+            GameWindow = gameWindow;
+            ScreenList = new List<Scene>();
+            _screensToAdd = new List<Scene>();
+            _screensToRemove = new List<Scene>();
+            //Font = new QFont(Directories.LibrariesDirectory + Directories.TextFile, 18);
+            ScreenCamera = camera;
             ScreenCamera.Center = Vector2.Zero;
         }
 
@@ -49,10 +49,10 @@ namespace Substructio.GUI
 
         public void Draw(double time)
         {
-            Screen excl = Screens.Where(screen => screen.Visible).Where(screen => screen.Exclusive).FirstOrDefault();
+            Scene excl = ScreenList.Where(screen => screen.Visible).FirstOrDefault(screen => screen.Exclusive);
             if (excl == null)
             {
-                foreach (Screen screen in Screens.Where(screen => screen.Visible))
+                foreach (Scene screen in ScreenList.Where(screen => screen.Visible))
                 {
                     screen.Draw(time);
                 }
@@ -72,36 +72,36 @@ namespace Substructio.GUI
             ScreenCamera.UpdateProjectionMatrix();
             ScreenCamera.UpdateModelViewMatrix();
 
-            //if (!Screens.Last().Loaded)
+            //if (!ScreenList.Last().Loaded)
             //{
-            //    Screens.Last().Load();
+            //    ScreenList.Last().Load();
             //}
             //else
             //{
 
-            //    Screens.Last().Update(time, true);
+            //    ScreenList.Last().Update(time, true);
             //}
-            for (int i = Screens.Count - 1; i >= 0; i--)
+            for (int i = ScreenList.Count - 1; i >= 0; i--)
             {
-                if (!Screens[i].Loaded)
+                if (!ScreenList[i].Loaded)
                 {
-                    Screens[i].Load();
+                    ScreenList[i].Load();
                 }
                 else
                 {
-                    if (!InputScreenFound && Screens[i].Visible)
+                    if (!InputScreenFound && ScreenList[i].Visible)
                     {
-                        Screens[i].Update(time, true);
+                        ScreenList[i].Update(time, true);
                         InputScreenFound = true;
                     }
                     else
                     {
-                        Screens[i].Update(time);
+                        ScreenList[i].Update(time);
                     }
                 }
             }
             InputScreenFound = false;
-            InputSystem.Update(Game.Focused);
+            InputSystem.Update(GameWindow.Focused);
         }
 
         public void DrawTextLine(string text, Vector2 position)
@@ -120,48 +120,48 @@ namespace Substructio.GUI
 
         private void AddRemoveScreens()
         {
-            foreach (Screen screen in ScreensToRemove)
+            foreach (Scene screen in _screensToRemove)
             {
-                Screens.Remove(screen);
+                ScreenList.Remove(screen);
             }
 
-            foreach (Screen screen in ScreensToAdd)
+            foreach (Scene screen in _screensToAdd)
             {
-                Screens.Add(screen);
+                ScreenList.Add(screen);
             }
 
-            ScreensToAdd.Clear();
-            ScreensToRemove.Clear();
+            _screensToAdd.Clear();
+            _screensToRemove.Clear();
         }
 
         public void Resize(EventArgs e)
         {
-            ScreenCamera.UpdateResize(Game.Width, Game.Height);
-            foreach (Screen screen in Screens)
+            ScreenCamera.UpdateResize(GameWindow.Width, GameWindow.Height);
+            foreach (Scene screen in ScreenList)
             {
                 screen.Resize(e);
             }
         }
 
-        public void AddScreen(Screen s)
+        public void AddScreen(Scene s)
         {
-            s.ScreenManager = this;
-            ScreensToAdd.Add(s);
+            s.SceneManager = this;
+            _screensToAdd.Add(s);
         }
 
-        public void RemoveScreen(Screen s)
+        public void RemoveScreen(Scene s)
         {
             s.UnLoad();
-            ScreensToRemove.Add(s);
+            _screensToRemove.Add(s);
         }
 
         public void UnLoad()
         {
-            foreach (Screen screen in Screens)
+            foreach (Scene screen in ScreenList)
             {
                 screen.UnLoad();
             }
-            Screens.Clear();
+            ScreenList.Clear();
         }
 
         #endregion

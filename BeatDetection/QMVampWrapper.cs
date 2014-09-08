@@ -47,7 +47,7 @@ namespace BeatDetection
         {
 
             ProcessStartInfo psi = new ProcessStartInfo(sonicPath);
-            psi.WorkingDirectory = Game.AssemblyDirectory;
+            psi.WorkingDirectory = GameController.AssemblyDirectory;
             psi.EnvironmentVariables.Add("VAMP_PATH", pluginsPath);
             var csvDir = "../../Processed Songs/";
             var arguments = String.Format("-t \"{0}\" \"{1}\" -w csv --csv-force --csv-basedir \"{2}\"", rdfDescriptor, audioFile, csvDir.Replace(@"\", "/"));

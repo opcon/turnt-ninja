@@ -265,11 +265,11 @@ namespace Substructio.Core
 
             WorldTranslation = Vector2.Lerp(WorldTranslation, TargetWorldTranslation, (float) time*7.5f);
 
-            if (Math.Abs(WorldTranslation.X) < 1)
+            if (System.Math.Abs(WorldTranslation.X) < 1)
             {
                 WorldTranslation.X = 0;
             }
-            if (Math.Abs(WorldTranslation.Y) < 1)
+            if (System.Math.Abs(WorldTranslation.Y) < 1)
             {
                 WorldTranslation.Y = 0;
             }
@@ -354,7 +354,7 @@ namespace Substructio.Core
 
             m_OldMouseWheel = wheel;
 
-            //var s = (float)PreferredWidth / (float)Game.WindowWidth;
+            //var s = (float)PreferredWidth / (float)GameWindow.WindowWidth;
             //MouseWorldDelta = Vector2.Multiply(InputSystem.MouseDelta, s);
             //m_OldMousePosition = MouseWorldPosition;
         }

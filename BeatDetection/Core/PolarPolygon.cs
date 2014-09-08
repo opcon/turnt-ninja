@@ -6,9 +6,9 @@ using OpenTK.Graphics.OpenGL;
 
 namespace BeatDetection.Core
 {
-    class Hexagon
+    class PolarPolygon
     {
-        List<HexagonSide> Sides;
+        List<PolygonSide> Sides;
         static double[] angles;
         public double pulseWidth = 0;
         public double pulseWidthMax = 25;
@@ -17,11 +17,11 @@ namespace BeatDetection.Core
         int pulseDirection = 1;
         public bool pulsing = false;
 
-        public Hexagon(int numSides, double time, double sp, double startTheta, double distance = 100)
+        public PolarPolygon(int numSides, double time, double sp, double startTheta, double distance = 100)
         {
             if (angles == null)
                 GenerateAngles();
-            Sides = new List<HexagonSide>();
+            Sides = new List<PolygonSide>();
             Direction = 1;
 
             GenerateHexagonSides(numSides, time, sp, startTheta, distance);
@@ -60,7 +60,7 @@ namespace BeatDetection.Core
         {
             for (int i = 0; i < numSides; i++)
             {
-                Sides.Add(new HexagonSide(time, sp, startTheta + i * angles[0], distance));
+                Sides.Add(new PolygonSide(time, sp, startTheta + i * angles[0], distance));
             }
         }
 
@@ -96,7 +96,7 @@ namespace BeatDetection.Core
 
     }
 
-    class HexagonSide
+    class PolygonSide
     {
         public double theta;
         public double width;
@@ -109,7 +109,7 @@ namespace BeatDetection.Core
 
         public Color4 colour = Color4.White;
 
-        public HexagonSide(double time, double sp, double th, double distance = 100)
+        public PolygonSide(double time, double sp, double th, double distance = 100)
         {
             theta = th;
             length = (60) * (0.0174533);

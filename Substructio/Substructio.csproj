@@ -54,10 +54,11 @@
     <Compile Include="Audio\WaveLoader.cs" />
     <Compile Include="Core\Camera.cs" />
     <Compile Include="Core\InputSystem.cs" />
+    <Compile Include="Core\Math\PolarVector.cs" />
     <Compile Include="Core\Polygon.cs" />
     <Compile Include="GUI\GUICallbackEventArgs.cs" />
-    <Compile Include="GUI\Screen.cs" />
-    <Compile Include="GUI\ScreenManager.cs" />
+    <Compile Include="GUI\Scene.cs" />
+    <Compile Include="GUI\SceneManager.cs" />
     <Compile Include="Core\Utilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

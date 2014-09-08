@@ -283,7 +283,7 @@ namespace Substructio.Core
                 // Check if the current interval distance is the minimum one. If so store
                 // the interval distance and the current distance.
                 // This will be used to calculate the minimum translation vector
-                intervalDistance = Math.Abs(intervalDistance);
+                intervalDistance = System.Math.Abs(intervalDistance);
                 if (intervalDistance < minIntervalDistance)
                 {
                     minIntervalDistance = intervalDistance;

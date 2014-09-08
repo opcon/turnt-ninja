@@ -16,6 +16,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using Substructio.Audio;
 using Substructio.Core;
+using Substructio.GUI;
 using Wav2Flac;
 using System.Security.Cryptography;
 
@@ -24,8 +25,13 @@ namespace BeatDetection
     /// <summary>
     /// Demonstrates the GameWindow class.
     /// </summary>
-    public class Game : GameWindow
+    public class GameController : GameWindow
     {
+
+        private SceneManager gameSceneManager;
+        private const float prefWidth = 1024;
+        private const float prefHeight = 768;
+
         OnsetDetector detector;
         string sonicAnnotator = @"D:\Patrick\Dropbox\Dev\Beat Detection Research\sonic-annotator-1.0-win32\sonic-annotator.exe";
         private string pluginPath = "../../External Programs/Vamp Plugins";
@@ -34,13 +40,13 @@ namespace BeatDetection
         Stopwatch stopWatch;
         float tNext = 0;
         bool beatShown = false;
-        float correction = 0.0f;
+        float correction = 0.55f;
         float time = 0;
 
-        Hexagon hexagon;
+        PolarPolygon _polarPolygon;
 
-        List<HexagonSide> hexagonSides;
-        List<HexagonSide> toRemove;
+        List<PolygonSide> hexagonSides;
+        List<PolygonSide> toRemove;
 
         Random random;
 
@@ -51,7 +57,7 @@ namespace BeatDetection
         IWaveProvider prov;
 
         private int dir = 1;
-        public Game()
+        public GameController()
             : base(1024, 768)
         {
             KeyDown += Keyboard_KeyDown;
@@ -94,6 +100,10 @@ namespace BeatDetection
         /// <param name="e">Not used.</param>
         protected override void OnLoad(EventArgs e)
         {
+
+            var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
+            gameSceneManager = new SceneManager(this, gameCamera);
+
             string file = "";
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Multiselect = false;
@@ -161,8 +171,8 @@ namespace BeatDetection
 
             stopWatch = new Stopwatch();
 
-            hexagonSides = new List<HexagonSide>();
-            toRemove = new List<HexagonSide>();
+            hexagonSides = new List<PolygonSide>();
+            toRemove = new List<PolygonSide>();
 
             var hashCode = CRC16.Instance().ComputeChecksum(hash);
 
@@ -199,19 +209,19 @@ namespace BeatDetection
                 }
                 for (int i = 0; i < 5; i++)
                 {
-                    //hexagons.Add(new Hexagon(b, 300) { theta = angles[start] + angles[((i+start)%6)] });
-                    hexagonSides.Add(new HexagonSide(b, 400, angles[start % 6] + i * angles[0], 125) { colour = col });
+                    //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[start] + angles[((i+start)%6)] });
+                    hexagonSides.Add(new PolygonSide(b, 400, angles[start % 6] + i * angles[0], 125) { colour = col });
                 }
                 prevTime = b;
                 prevStart = start;
-                //hexagons.Add(new Hexagon(b, 300) { theta = angles[0] });
-                //hexagons.Add(new Hexagon(b, 300) { theta = angles[1] });
-                //hexagons.Add(new Hexagon(b, 300) { theta = angles[2] });
-                //hexagons.Add(new Hexagon(b, 300) { theta = angles[3] });
+                //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[0] });
+                //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[1] });
+                //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[2] });
+                //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[3] });
                 
             }
 
-            hexagon = new Hexagon(6, 0, 1, 0, 80);
+            _polarPolygon = new PolarPolygon(6, 0, 1, 0, 80);
             p = new Player();
         }
 
@@ -256,7 +266,7 @@ namespace BeatDetection
             if (waveOut.PlaybackState == PlaybackState.Playing)
             {
                 p.Direction = dir;
-                hexagon.Direction = dir;
+                _polarPolygon.Direction = dir;
                 p.Update(e.Time);
                 foreach (var h in toRemove)
                 {
@@ -277,22 +287,22 @@ namespace BeatDetection
                     h.Update(e.Time);
                     if (h.r <= h.impactDistance)
                         toRemove.Add(h);
-                    else if (((h.r - h.impactDistance) / h.speed) < (hexagon.pulseWidthMax / hexagon.pulseMultiplier))
-                        hexagon.pulsing = true;
+                    else if (((h.r - h.impactDistance) / h.speed) < (_polarPolygon.pulseWidthMax / _polarPolygon.pulseMultiplier))
+                        _polarPolygon.pulsing = true;
                 }
 
                 if (toRemove.Count > 0)
                 {
                     var d = random.NextDouble();
                     dir = d > 0.95 ? -dir : dir;
-                    hexagon.Pulse(e.Time);
+                    _polarPolygon.Pulse(e.Time);
                 }
 
-                hexagon.Update(e.Time, false);
+                _polarPolygon.Update(e.Time, false);
                 //if (InputSystem.CurrentKeys.Contains(Key.Left))
-                //    hexagon.Rotate(e.Time);
+                //    PolarPolygon.Rotate(e.Time);
                 //else if (InputSystem.CurrentKeys.Contains(Key.Right))
-                //    hexagon.Rotate(-e.Time*1.5);
+                //    PolarPolygon.Rotate(-e.Time*1.5);
 
             }
 
@@ -317,7 +327,7 @@ namespace BeatDetection
                 h.Draw(e.Time);
             }
 
-            hexagon.Draw(e.Time);
+            _polarPolygon.Draw(e.Time);
             p.Draw(e.Time);
 
             this.SwapBuffers();
@@ -333,7 +343,7 @@ namespace BeatDetection
         [STAThread]
         public static void Main()
         {
-            using (Game game = new Game())
+            using (GameController game = new GameController())
             {
                 // Get the title and category  of this example using reflection.
                 game.Title = "turnt-ninja";

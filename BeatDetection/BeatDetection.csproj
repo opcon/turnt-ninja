@@ -72,7 +72,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Hexagon.cs" />
+    <Compile Include="Core\PolarPolygon.cs" />
+    <Compile Include="Game\Stage.cs" />
+    <Compile Include="GUI\MenuScene.cs" />
     <Compile Include="OnsetDetector.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
