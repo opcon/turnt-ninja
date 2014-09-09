@@ -19,7 +19,8 @@ namespace BeatDetection
         float correctionAmount = 0;
 
         string beatsFile;
-        public QMVampWrapper(AudioWrapper a, string aFile, string sPath, string pPath, float correction, string rdf = "../../Processed Songs/qmonset.n3", string suffix = "vamp_qm-vamp-plugins_qm-onsetdetector_onsets") : base(a)
+
+        public QMVampWrapper(string audioPath, string sonicPath, string pluginPath, float correction, string descriptorPath = "../../Processed Songs/qmonset.n3", string outputSuffix = "vamp_qm-vamp-plugins_qm-onsetdetector_onsets")
         {
             audioFile = aFile;
             sonicPath = sPath;
