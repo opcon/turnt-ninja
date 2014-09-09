@@ -33,7 +33,7 @@ namespace BeatDetection
         private const float prefHeight = 768;
 
         OnsetDetector detector;
-        string sonicAnnotator = @"D:\Patrick\Dropbox\Dev\Beat Detection Research\sonic-annotator-1.0-win32\sonic-annotator.exe";
+        string sonicAnnotator = "../../External Programs/sonic-annotator-1.0-win32/sonic-annotator.exe";
         private string pluginPath = "../../External Programs/Vamp Plugins";
         WaveOut waveOut;
         RawSourceWaveStream source;
