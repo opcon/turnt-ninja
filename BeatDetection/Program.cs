@@ -130,7 +130,7 @@ namespace BeatDetection
             GL.ClearColor(Color.CornflowerBlue);
 
 
-            detector = new QMVampWrapper(null, file, sonicAnnotator, pluginPath, correction);
+            detector = new QMVampWrapper(file, sonicAnnotator, pluginPath, correction);
 
             detector.DetectBeats();
 
