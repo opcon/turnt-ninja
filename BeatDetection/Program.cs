@@ -2,6 +2,7 @@
 using System;
 using System.Drawing;
 using BeatDetection.Core;
+using BeatDetection.Game;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -45,8 +46,8 @@ namespace BeatDetection
 
         PolarPolygon _polarPolygon;
 
-        List<PolygonSide> hexagonSides;
-        List<PolygonSide> toRemove;
+        List<PolarPolygonSide> hexagonSides;
+        List<PolarPolygonSide> toRemove;
 
         Random random;
 
@@ -57,6 +58,8 @@ namespace BeatDetection
         IWaveProvider prov;
 
         private int dir = 1;
+
+        private Stage _stage;
         public GameController()
             : base(1024, 768)
         {
@@ -129,100 +132,103 @@ namespace BeatDetection
 
             GL.ClearColor(Color.CornflowerBlue);
 
-
-            detector = new QMVampWrapper(file, sonicAnnotator, pluginPath, correction);
-
-            detector.DetectBeats();
+            _stage = new Stage();
+            _stage.Load(file, sonicAnnotator, pluginPath, correction);
 
 
-            waveOut = new WaveOut();
-            int hashCount = 100000;
-            byte[] hash = new byte[hashCount];
+            //detector = new QMVampWrapper(file, sonicAnnotator, pluginPath, correction);
 
-            if (Path.GetExtension(file).Equals(".flac", StringComparison.CurrentCultureIgnoreCase))
-            {
-                var str = new MemoryStream();
-                WavWriter output = new WavWriter(str);
-                FlacReader fr = new FlacReader(file, output);
-                fr.Process();
-                str.Position = 0;
-                str.Read(hash, 0, hashCount);
-                str.Position = 0;
+            //detector.DetectBeats();
 
-                WaveFormat fmt = new WaveFormat(fr.inputSampleRate, fr.inputBitDepth, fr.inputChannels);
-                var s = new RawSourceWaveStream(str, fmt);
-                prov = s;
-                waveOut.Init(s);
-            }
-            else
-            {
 
-                AudioFileReader audioReader = new AudioFileReader(file);
-                audioReader.Read(hash, 0, hashCount);
-                audioReader.Position = 0;
-                prov = audioReader;
-                waveOut.Init(audioReader);
-            }
+            //waveOut = new WaveOut();
+            //int hashCount = 100000;
+            //byte[] hash = new byte[hashCount];
 
-            //NAudio.Wave.WaveFormat fmt = new NAudio.Wave.WaveFormat(audio.AudioInfo.SampleRate, audio.AudioInfo.BitDepth, audio.AudioInfo.Channels);
-            //waveOut = new NAudio.Wave.WaveOut();
-            //source = new NAudio.Wave.RawSourceWaveStream(new MemoryStream(audio.AudioBuffer), fmt);
-            //waveOut.Init(source);
+            //if (Path.GetExtension(file).Equals(".flac", StringComparison.CurrentCultureIgnoreCase))
+            //{
+            //    var str = new MemoryStream();
+            //    WavWriter output = new WavWriter(str);
+            //    FlacReader fr = new FlacReader(file, output);
+            //    fr.Process();
+            //    str.Position = 0;
+            //    str.Read(hash, 0, hashCount);
+            //    str.Position = 0;
 
-            stopWatch = new Stopwatch();
+            //    WaveFormat fmt = new WaveFormat(fr.inputSampleRate, fr.inputBitDepth, fr.inputChannels);
+            //    var s = new RawSourceWaveStream(str, fmt);
+            //    prov = s;
+            //    waveOut.Init(s);
+            //}
+            //else
+            //{
 
-            hexagonSides = new List<PolygonSide>();
-            toRemove = new List<PolygonSide>();
+            //    AudioFileReader audioReader = new AudioFileReader(file);
+            //    audioReader.Read(hash, 0, hashCount);
+            //    audioReader.Position = 0;
+            //    prov = audioReader;
+            //    waveOut.Init(audioReader);
+            //}
 
-            var hashCode = CRC16.Instance().ComputeChecksum(hash);
+            ////NAudio.Wave.WaveFormat fmt = new NAudio.Wave.WaveFormat(audio.AudioInfo.SampleRate, audio.AudioInfo.BitDepth, audio.AudioInfo.Channels);
+            ////waveOut = new NAudio.Wave.WaveOut();
+            ////source = new NAudio.Wave.RawSourceWaveStream(new MemoryStream(audio.AudioBuffer), fmt);
+            ////waveOut.Init(source);
 
-            random = new Random(hashCode);
+            //stopWatch = new Stopwatch();
 
-            angles = new double[6];
-            for (int i = 0; i < 6; i++)
-			{
-                angles[i] = (i+1) * (60) * (0.0174533);
-			}
+            //hexagonSides = new List<PolarPolygonSide>();
+            //toRemove = new List<PolarPolygonSide>();
 
-            int prevStart = random.Next(5);
-            double prevTime = 0;
-            int c = 0;
-            foreach (var b in detector.Beats.Where((value, index) => index % 1 == 0))
-            {
-                var col = Color.White;
-                int start = 0;
-                if (b - prevTime < 0.2)
-                {
-                    c++;
-                    //extra += (5) * (0.0174533);
-                    start = prevStart;
-                    col = Color.Red;
-                }
-                else if (b - prevTime < 0.4)
-                {
-                    start = (prevStart + 6) + random.Next(0, 2) - 1;
-                }
-                else
-                {
-                    start = random.Next(5);
-                    c = 0;
-                }
-                for (int i = 0; i < 5; i++)
-                {
-                    //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[start] + angles[((i+start)%6)] });
-                    hexagonSides.Add(new PolygonSide(b, 400, angles[start % 6] + i * angles[0], 125) { colour = col });
-                }
-                prevTime = b;
-                prevStart = start;
-                //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[0] });
-                //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[1] });
-                //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[2] });
-                //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[3] });
+            //var hashCode = CRC16.Instance().ComputeChecksum(hash);
+
+            //random = new Random(hashCode);
+
+            //angles = new double[6];
+            //for (int i = 0; i < 6; i++)
+            //{
+            //    angles[i] = (i+1) * (60) * (0.0174533);
+            //}
+
+            //int prevStart = random.Next(5);
+            //double prevTime = 0;
+            //int c = 0;
+            //foreach (var b in detector.Beats.Where((value, index) => index % 1 == 0))
+            //{
+            //    var col = Color.White;
+            //    int start = 0;
+            //    if (b - prevTime < 0.2)
+            //    {
+            //        c++;
+            //        //extra += (5) * (0.0174533);
+            //        start = prevStart;
+            //        col = Color.Red;
+            //    }
+            //    else if (b - prevTime < 0.4)
+            //    {
+            //        start = (prevStart + 6) + random.Next(0, 2) - 1;
+            //    }
+            //    else
+            //    {
+            //        start = random.Next(5);
+            //        c = 0;
+            //    }
+            //    for (int i = 0; i < 5; i++)
+            //    {
+            //        //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[start] + angles[((i+start)%6)] });
+            //        hexagonSides.Add(new PolarPolygonSide(b, 400, angles[start % 6] + i * angles[0], 125) { Colour = col });
+            //    }
+            //    prevTime = b;
+            //    prevStart = start;
+            //    //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[0] });
+            //    //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[1] });
+            //    //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[2] });
+            //    //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[3] });
                 
-            }
+            //}
 
-            _polarPolygon = new PolarPolygon(6, 0, 1, 0, 80);
-            p = new Player();
+            //_polarPolygon = new PolarPolygon(6, 0, 1, 0, 80);
+            //p = new Player();
         }
 
         #endregion
@@ -255,56 +261,58 @@ namespace BeatDetection
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
 
-            var t = (float)stopWatch.Elapsed.TotalSeconds;
-            time += (float)e.Time;
-            if (waveOut.PlaybackState != PlaybackState.Playing)
-            {
-                waveOut.Play();
-                time = 0;
-                stopWatch.Start();
-            }
-            if (waveOut.PlaybackState == PlaybackState.Playing)
-            {
-                p.Direction = dir;
-                _polarPolygon.Direction = dir;
-                p.Update(e.Time);
-                foreach (var h in toRemove)
-                {
-                    hexagonSides.Remove(h);
-                    //GL.ClearColor(Color.Green);
-                    tNext = time + 0.1f;
-                }
+            //var t = (float)stopWatch.Elapsed.TotalSeconds;
+            //if (waveOut.PlaybackState != PlaybackState.Playing)
+            //{
+            //    waveOut.Play();
+            //    time = 0;
+            //    stopWatch.Start();
+            //}
+            //if (waveOut.PlaybackState == PlaybackState.Playing)
+            //{
+            //    time += (float)e.Time;
+            //    p.Direction = dir;
+            //    _polarPolygon.Direction = dir;
+            //    p.Update(e.Time);
+            //    foreach (var h in toRemove)
+            //    {
+            //        hexagonSides.Remove(h);
+            //        //GL.ClearColor(Color.Green);
+            //        tNext = time + 0.1f;
+            //    }
 
-                if (t > tNext)
-                {
-                    GL.ClearColor(Color.CornflowerBlue);
-                }
+            //    if (t > tNext)
+            //    {
+            //        GL.ClearColor(Color.CornflowerBlue);
+            //    }
 
-                toRemove.Clear();
-                foreach (var h in hexagonSides)
-                {
-                    h.Direction = dir;
-                    h.Update(e.Time);
-                    if (h.r <= h.impactDistance)
-                        toRemove.Add(h);
-                    else if (((h.r - h.impactDistance) / h.speed) < (_polarPolygon.pulseWidthMax / _polarPolygon.pulseMultiplier))
-                        _polarPolygon.pulsing = true;
-                }
+            //    toRemove.Clear();
+            //    foreach (var h in hexagonSides)
+            //    {
+            //        h.Direction = dir;
+            //        h.Update(e.Time);
+            //        if (h.Position.Radius <= h.ImpactDistance)
+            //            toRemove.Add(h);
+            //        else if (((h.Position.Radius - h.ImpactDistance) / h.Velocity.Radius) < (_polarPolygon.PulseWidthMax / _polarPolygon.PulseMultiplier))
+            //            _polarPolygon.Pulsing = true;
+            //    }
 
-                if (toRemove.Count > 0)
-                {
-                    var d = random.NextDouble();
-                    dir = d > 0.95 ? -dir : dir;
-                    _polarPolygon.Pulse(e.Time);
-                }
+            //    if (toRemove.Count > 0)
+            //    {
+            //        var d = random.NextDouble();
+            //        dir = d > 0.95 ? -dir : dir;
+            //        _polarPolygon.Pulse(e.Time);
+            //    }
 
-                _polarPolygon.Update(e.Time, false);
-                //if (InputSystem.CurrentKeys.Contains(Key.Left))
-                //    PolarPolygon.Rotate(e.Time);
-                //else if (InputSystem.CurrentKeys.Contains(Key.Right))
-                //    PolarPolygon.Rotate(-e.Time*1.5);
+            //    _polarPolygon.Update(e.Time, false);
+            //    //if (InputSystem.CurrentKeys.Contains(Key.Left))
+            //    //    PolarPolygon.Rotate(e.Time);
+            //    //else if (InputSystem.CurrentKeys.Contains(Key.Right))
+            //    //    PolarPolygon.Rotate(-e.Time*1.5);
 
-            }
+            //}
+
+            _stage.Update(e.Time);
 
             InputSystem.Update(this.Focused);
         }
@@ -322,13 +330,15 @@ namespace BeatDetection
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            foreach (var h in hexagonSides)
-            {
-                h.Draw(e.Time);
-            }
+            //foreach (var h in hexagonSides)
+            //{
+            //    h.Draw(e.Time);
+            //}
 
-            _polarPolygon.Draw(e.Time);
-            p.Draw(e.Time);
+            //_polarPolygon.Draw(e.Time);
+            //p.Draw(e.Time);
+
+            _stage.Draw(e.Time);
 
             this.SwapBuffers();
         }
