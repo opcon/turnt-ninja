@@ -43,6 +43,7 @@ namespace BeatDetection.Game
 
             _player = new Player();
             _centerPolygon = new PolarPolygon(6, 6, 0, 1, 0, 80);
+            _direction = 1;
         }
 
         private void LoadAudioStream(string audioPath)
