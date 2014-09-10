@@ -7,12 +7,12 @@ using OpenTK;
 
 namespace Substructio.Core.Math
 {
-    class PolarVector
+    public class PolarVector
     {
-        public float Radius { get; set; }
-        public float Azimuth { get; set; }
+        public double Radius { get; set; }
+        public double Azimuth { get; set; }
 
-        public PolarVector(float azimuth, float radius)
+        public PolarVector(double azimuth, double radius)
         {
             Azimuth = azimuth;
             Radius = radius;
