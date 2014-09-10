@@ -87,13 +87,15 @@ namespace BeatDetection.Game
 
             _polygons = new PolarPolygon[_qmVampWrapper.Beats.Count];
 
-            var angles = new double[6];
-            for (int i = 0; i < 6; i++)
+            int maxSides = 6;
+
+            var angles = new double[maxSides];
+            for (int i = 0; i < maxSides; i++)
             {
-                angles[i] = MathHelper.DegreesToRadians((i + 1) * (60));
+                angles[i] = MathHelper.DegreesToRadians((i + 1) * (360/maxSides));
             }
 
-            int prevStart = _random.Next(5);
+            int prevStart = _random.Next(maxSides - 1);
             double prevTime = 0;
             int c = 0;
 
@@ -112,15 +114,15 @@ namespace BeatDetection.Game
                 }
                 else if (b - prevTime < 0.4)
                 {
-                    start = (prevStart + 6) + _random.Next(0, 2) - 1;
+                    start = (prevStart + maxSides) + _random.Next(0, 2) - 1;
                 }
                 else
                 {
-                    start = _random.Next(5);
+                    start = _random.Next(maxSides - 1);
                     c = 0;
                 }
 
-                _polygons[index] = new PolarPolygon(6, 5, b, 400, angles[start % 6], 125);
+                _polygons[index] = new PolarPolygon(maxSides, 5, b, 400, angles[start % 6], 125);
 
                 //for (int i = 0; i < 5; i++)
                 //{
