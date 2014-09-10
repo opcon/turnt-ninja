@@ -77,7 +77,7 @@ namespace BeatDetection.Core
         {
             for (int i = 0; i < NumberOfSides; i++)
             {
-                Sides.Add(new PolarPolygonSide(impactTime, speed, startAngle + (i * _interiorAngle / 2), minimumDistance));
+                Sides.Add(new PolarPolygonSide(impactTime, speed, startAngle + (i * MathHelper.DegreesToRadians(360/MaxNumberOfSides)), minimumDistance) {Length = MathHelper.DegreesToRadians(360/MaxNumberOfSides)});
             }
         }
 
@@ -132,7 +132,7 @@ namespace BeatDetection.Core
         public PolarPolygonSide(double impactTime, double speed, double startAngle, double minimumDistance = 100)
         {
             //theta = startAngle;
-            Length = MathHelper.DegreesToRadians(60);
+            //Length = MathHelper.DegreesToRadians(60);
             Width =  50;
 
             var r = (impactTime * speed + minimumDistance + 20);
