@@ -74,6 +74,8 @@
   <ItemGroup>
     <Compile Include="Core\PolarPolygon.cs" />
     <Compile Include="Game\Stage.cs" />
+    <Compile Include="GUI\GameScene.cs" />
+    <Compile Include="GUI\LoadingScene.cs" />
     <Compile Include="GUI\MenuScene.cs" />
     <Compile Include="OnsetDetector.cs" />
     <Compile Include="Player.cs" />

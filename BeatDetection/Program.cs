@@ -3,6 +3,7 @@ using System;
 using System.Drawing;
 using BeatDetection.Core;
 using BeatDetection.Game;
+using BeatDetection.GUI;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -29,7 +30,7 @@ namespace BeatDetection
     public class GameController : GameWindow
     {
 
-        private SceneManager gameSceneManager;
+        private SceneManager _gameSceneManager;
         private const float prefWidth = 1024;
         private const float prefHeight = 768;
 
@@ -105,23 +106,27 @@ namespace BeatDetection
         {
 
             var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
-            gameSceneManager = new SceneManager(this, gameCamera);
+            gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
+            _gameSceneManager = new SceneManager(this, gameCamera);
+            _gameSceneManager.AddScene(new LoadingScene(sonicAnnotator, pluginPath, correction));
 
-            string file = "";
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Multiselect = false;
-            ofd.Filter = "Audio Files (*.mp3, *.flac, *.wav)|*.mp3;*.flac;*.wav|All Files (*.*)|*.*";
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
-                file = ofd.FileName;
-                file = file.Replace(@"\", "/");
-                //file.Replace("\\", "/");
-            }
-            else
-            {
-                this.Exit();
-                return;
-            }
+
+
+            //string file = "";
+            //OpenFileDialog ofd = new OpenFileDialog();
+            //ofd.Multiselect = false;
+            //ofd.Filter = "Audio Files (*.mp3, *.flac, *.wav)|*.mp3;*.flac;*.wav|All Files (*.*)|*.*";
+            //if (ofd.ShowDialog() == DialogResult.OK)
+            //{
+            //    file = ofd.FileName;
+            //    file = file.Replace(@"\", "/");
+            //    //file.Replace("\\", "/");
+            //}
+            //else
+            //{
+            //    this.Exit();
+            //    return;
+            //}
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
             Keyboard.KeyUp += (o, args) => InputSystem.KeyUp(args);
@@ -132,9 +137,8 @@ namespace BeatDetection
 
             GL.ClearColor(Color.CornflowerBlue);
 
-            _stage = new Stage();
-            _stage.Load(file, sonicAnnotator, pluginPath, correction);
-
+            //_stage = new Stage();
+            //_stage.Load(file, sonicAnnotator, pluginPath, correction);
         }
 
         #endregion
@@ -150,9 +154,11 @@ namespace BeatDetection
         {
             GL.Viewport(0, 0, Width, Height);
 
-            GL.MatrixMode(MatrixMode.Projection);
-            var mat = Matrix4.CreateOrthographic(Width, Height, 0.0f, 4.0f);
-            GL.LoadMatrix(ref mat);
+            //GL.MatrixMode(MatrixMode.Projection);
+            //var mat = Matrix4.CreateOrthographic(Width, Height, 0.0f, 4.0f);
+            //GL.LoadMatrix(ref mat);
+
+            _gameSceneManager.Resize(e);
         }
 
         #endregion
@@ -166,7 +172,8 @@ namespace BeatDetection
         /// <remarks>There is no need to call the base implementation.</remarks>
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            _stage.Update(e.Time);
+            //_stage.Update(e.Time);
+            _gameSceneManager.Update(e.Time);
 
             InputSystem.Update(this.Focused);
         }
@@ -184,7 +191,11 @@ namespace BeatDetection
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            _stage.Draw(e.Time);
+            //_stage.Draw(e.Time);
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadIdentity();
+            GL.Translate(0.375, 0.375, 0.0);
+            _gameSceneManager.Draw(e.Time);
 
             this.SwapBuffers();
         }
