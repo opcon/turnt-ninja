@@ -15,11 +15,11 @@ namespace Substructio.GUI
 
         #region Properties
 
-        private readonly List<Scene> _screensToAdd;
-        private readonly List<Scene> _screensToRemove;
+        private readonly List<Scene> _scenesToAdd;
+        private readonly List<Scene> _scenesToRemove;
 
-        private bool InputScreenFound;
-        public List<Scene> ScreenList;
+        private bool InputSceneFound;
+        public List<Scene> SceneList;
 
         public Camera ScreenCamera { get; private set; }
         public static QFont Font { get; private set; }
@@ -35,12 +35,13 @@ namespace Substructio.GUI
         public SceneManager(GameWindow gameWindow, Camera camera)
         {
             GameWindow = gameWindow;
-            ScreenList = new List<Scene>();
-            _screensToAdd = new List<Scene>();
-            _screensToRemove = new List<Scene>();
+            SceneList = new List<Scene>();
+            _scenesToAdd = new List<Scene>();
+            _scenesToRemove = new List<Scene>();
             //Font = new QFont(Directories.LibrariesDirectory + Directories.TextFile, 18);
             ScreenCamera = camera;
             ScreenCamera.Center = Vector2.Zero;
+            ScreenCamera.MaximumScale = new Vector2(10000, 10000);
         }
 
         #endregion
@@ -49,12 +50,12 @@ namespace Substructio.GUI
 
         public void Draw(double time)
         {
-            Scene excl = ScreenList.Where(screen => screen.Visible).FirstOrDefault(screen => screen.Exclusive);
+            Scene excl = SceneList.Where(scene => scene.Visible).FirstOrDefault(scene => scene.Exclusive);
             if (excl == null)
             {
-                foreach (Scene screen in ScreenList.Where(screen => screen.Visible))
+                foreach (Scene scene in SceneList.Where(screen => screen.Visible))
                 {
-                    screen.Draw(time);
+                    scene.Draw(time);
                 }
             }
             else
@@ -65,42 +66,42 @@ namespace Substructio.GUI
 
         public void Update(double time)
         {
-            AddRemoveScreens();
+            AddRemoveScenes();
 
             ScreenCamera.Update(time);
-            //ScreenCamera.SnapToCenter();
+            ScreenCamera.SnapToCenter();
             ScreenCamera.UpdateProjectionMatrix();
             ScreenCamera.UpdateModelViewMatrix();
 
-            //if (!ScreenList.Last().Loaded)
+            //if (!SceneList.Last().Loaded)
             //{
-            //    ScreenList.Last().Load();
+            //    SceneList.Last().Load();
             //}
             //else
             //{
 
-            //    ScreenList.Last().Update(time, true);
+            //    SceneList.Last().Update(time, true);
             //}
-            for (int i = ScreenList.Count - 1; i >= 0; i--)
+            for (int i = SceneList.Count - 1; i >= 0; i--)
             {
-                if (!ScreenList[i].Loaded)
+                if (!SceneList[i].Loaded)
                 {
-                    ScreenList[i].Load();
+                    SceneList[i].Load();
                 }
                 else
                 {
-                    if (!InputScreenFound && ScreenList[i].Visible)
+                    if (!InputSceneFound && SceneList[i].Visible)
                     {
-                        ScreenList[i].Update(time, true);
-                        InputScreenFound = true;
+                        SceneList[i].Update(time, true);
+                        InputSceneFound = true;
                     }
                     else
                     {
-                        ScreenList[i].Update(time);
+                        SceneList[i].Update(time);
                     }
                 }
             }
-            InputScreenFound = false;
+            InputSceneFound = false;
             InputSystem.Update(GameWindow.Focused);
         }
 
@@ -118,50 +119,50 @@ namespace Substructio.GUI
             font.Print(pText);
         }
 
-        private void AddRemoveScreens()
+        private void AddRemoveScenes()
         {
-            foreach (Scene screen in _screensToRemove)
+            foreach (Scene scene in _scenesToRemove)
             {
-                ScreenList.Remove(screen);
+                SceneList.Remove(scene);
             }
 
-            foreach (Scene screen in _screensToAdd)
+            foreach (Scene scene in _scenesToAdd)
             {
-                ScreenList.Add(screen);
+                SceneList.Add(scene);
             }
 
-            _screensToAdd.Clear();
-            _screensToRemove.Clear();
+            _scenesToAdd.Clear();
+            _scenesToRemove.Clear();
         }
 
         public void Resize(EventArgs e)
         {
             ScreenCamera.UpdateResize(GameWindow.Width, GameWindow.Height);
-            foreach (Scene screen in ScreenList)
+            foreach (Scene scene in SceneList)
             {
-                screen.Resize(e);
+                scene.Resize(e);
             }
         }
 
-        public void AddScreen(Scene s)
+        public void AddScene(Scene s)
         {
             s.SceneManager = this;
-            _screensToAdd.Add(s);
+            _scenesToAdd.Add(s);
         }
 
-        public void RemoveScreen(Scene s)
+        public void RemoveScene(Scene s)
         {
             s.UnLoad();
-            _screensToRemove.Add(s);
+            _scenesToRemove.Add(s);
         }
 
         public void UnLoad()
         {
-            foreach (Scene screen in ScreenList)
+            foreach (Scene scene in SceneList)
             {
-                screen.UnLoad();
+                scene.UnLoad();
             }
-            ScreenList.Clear();
+            SceneList.Clear();
         }
 
         #endregion
