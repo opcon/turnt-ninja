@@ -53,6 +53,8 @@ namespace Substructio.Core
 
         public bool SplitScreen;
 
+        public float ScaleDelta = 0.1f;
+
         #endregion
 
         #region Constructors
@@ -332,14 +334,14 @@ namespace Substructio.Core
             {
                 if (InputSystem.CurrentKeys.Contains(Key.Down))
                 {
-                    TargetScale.X += 0.01f;
-                    TargetScale.Y += 0.01f;
+                    TargetScale.X += ScaleDelta;
+                    TargetScale.Y += ScaleDelta;
                     SnapToCenter();
                 }
                 else if (InputSystem.CurrentKeys.Contains(Key.Up))
                 {
-                    TargetScale.X -= 0.01f;
-                    TargetScale.Y -= 0.01f;
+                    TargetScale.X -= ScaleDelta;
+                    TargetScale.Y -= ScaleDelta;
                     SnapToCenter();
                 } 
             }
@@ -348,8 +350,8 @@ namespace Substructio.Core
             {
                 //TargetScale.X += MouseWheelDelta * 0.1f;
                 //TargetScale.Y += MouseWheelDelta * 0.1f;
-                TargetScale.X += InputSystem.MouseWheelDelta*0.1f;
-                TargetScale.Y += InputSystem.MouseWheelDelta*0.1f;
+                TargetScale.X += InputSystem.MouseWheelDelta*ScaleDelta;
+                TargetScale.Y += InputSystem.MouseWheelDelta*ScaleDelta;
                 SnapToCenter();
             }
 
