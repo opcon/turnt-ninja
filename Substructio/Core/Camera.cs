@@ -120,8 +120,8 @@ namespace Substructio.Core
         public void UpdateTargetTranslation()
         {
             //Initial translation
-            InitialTranslation.Y = -(PreferredHeight/2);
-            InitialTranslation.X = -(PreferredWidth/2);
+            InitialTranslation.Y = -(PreferredHeight / 2);
+            InitialTranslation.X = -(PreferredWidth / 2);
 
             //Center the player in X axis
             TargetWorldTranslation.X = ((PreferredWidth/2) - Center.X);
@@ -276,6 +276,7 @@ namespace Substructio.Core
             {
                 WorldTranslation.Y = 0;
             }
+
             //MouseWorldPosition = UnProjectMouse();
         }
 
