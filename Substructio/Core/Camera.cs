@@ -5,6 +5,7 @@ using OpenTK.Input;
 
 namespace Substructio.Core
 {
+    //TODO Refactor this class. Seriously this is atrocious.
     public class Camera
     {
         #region Member Variables
