@@ -22,8 +22,9 @@ namespace Substructio.GUI
         public List<Scene> SceneList;
 
         public Camera ScreenCamera { get; private set; }
-        public static QFont Font { get; private set; }
+        public QFont Font { get; private set; }
         public GameWindow GameWindow { get; private set; }
+        public string FontPath { get; private set; }
 
         #endregion
 
@@ -32,12 +33,14 @@ namespace Substructio.GUI
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public SceneManager(GameWindow gameWindow, Camera camera)
+        public SceneManager(GameWindow gameWindow, Camera camera, QFont font, string fontPath)
         {
             GameWindow = gameWindow;
             SceneList = new List<Scene>();
             _scenesToAdd = new List<Scene>();
             _scenesToRemove = new List<Scene>();
+            FontPath = fontPath;
+            Font = font;
             //Font = new QFont(Directories.LibrariesDirectory + Directories.TextFile, 18);
             ScreenCamera = camera;
             ScreenCamera.Center = Vector2.Zero;
