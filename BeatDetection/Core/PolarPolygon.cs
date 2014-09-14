@@ -162,7 +162,7 @@ namespace BeatDetection.Core
 
         public void Draw(double time)
         {
-            GL.Begin(PrimitiveType.LineLoop);
+            GL.Begin(PrimitiveType.Quads);
             GL.Color4(Colour);
 
             //GL.Vertex2(new Vector2d(Position.Radius * Math.Cos(Position.Azimuth), Position.Radius * Math.Sin(Position.Azimuth)));
