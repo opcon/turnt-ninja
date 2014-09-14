@@ -19,7 +19,7 @@ namespace BeatDetection
         public Player()
         {
             theta = 0;
-            dtheta = 7;
+            dtheta = 9;
             length = (10) * (0.0174533);
             width = 20;
             r = 180;
@@ -43,7 +43,7 @@ namespace BeatDetection
 
         public void Draw(double time)
         {
-            GL.Begin(BeginMode.LineLoop);
+            GL.Begin(BeginMode.Triangles);
             GL.Vertex2(new Vector2d((r) * Math.Cos(theta), (r) * Math.Sin(theta)));
             GL.Vertex2(new Vector2d((r + width) * Math.Cos(theta + length / 2), (r + width) * Math.Sin(theta + length / 2)));
             GL.Vertex2(new Vector2d((r) * Math.Cos(theta + length), (r) * Math.Sin(theta + length)));

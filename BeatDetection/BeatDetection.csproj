@@ -58,6 +58,10 @@
     <Reference Include="OpenTK">
       <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
     </Reference>
+    <Reference Include="QuickFont, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\QuickFont\QuickFont.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -72,16 +76,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Directories.cs" />
     <Compile Include="Core\PolarPolygon.cs" />
     <Compile Include="Game\Stage.cs" />
     <Compile Include="GUI\GameScene.cs" />
     <Compile Include="GUI\LoadingScene.cs" />
     <Compile Include="GUI\MenuScene.cs" />
-    <Compile Include="OnsetDetector.cs" />
-    <Compile Include="Player.cs" />
+    <Compile Include="Audio\OnsetDetector.cs" />
+    <Compile Include="Game\Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QMVampWrapper.cs" />
+    <Compile Include="Audio\QMVampWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
