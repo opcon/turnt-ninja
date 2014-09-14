@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using BeatDetection.Core;
 using BeatDetection.Game;
 using Substructio.GUI;
 
@@ -14,19 +15,24 @@ namespace BeatDetection.GUI
         private string _sonicAnnotatorPath;
         private string _pluginPath;
         private float _correction;
+        private Task _loadTask;
+        private Stage _stage;
+        private Player _player;
+        private PolarPolygon _centerPolygon;
 
         public LoadingScene(string sonicAnnotatorPath, string pluginPath, float correction)
         {
             _sonicAnnotatorPath = sonicAnnotatorPath;
             _pluginPath = pluginPath;
             _correction = correction;
-
-            _stage = new Stage();
         }
 
-        private Stage _stage;
         public override void Load()
         {
+            _player = new Player();
+            _centerPolygon = new PolarPolygon(6, 6, 0, 1, 0, 80);
+            _stage = new Stage(_player, _centerPolygon);
+
             string file = "";
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Multiselect = false;
@@ -43,7 +49,8 @@ namespace BeatDetection.GUI
             }
 
             //TODO implement loading of stage in a background thread
-            _stage.Load(file, _sonicAnnotatorPath, _pluginPath, _correction);
+            _loadTask = Task.Factory.StartNew(() => _stage.Load(file, _sonicAnnotatorPath, _pluginPath, _correction));
+            //_stage.Load(file, _sonicAnnotatorPath, _pluginPath, _correction);
 
             Loaded = true;
         }
@@ -59,16 +66,22 @@ namespace BeatDetection.GUI
 
         public override void Update(double time, bool focused = false)
         {
-            if (Loaded)
+            if (_loadTask.IsCompleted)
             {
                 SceneManager.RemoveScene(this);
                 SceneManager.AddScene(new GameScene(_stage));
             }
 
+            _player.Update(time);
+            _centerPolygon.Update(time);
+
         }
 
         public override void Draw(double time)
         {
+            SceneManager.ScreenCamera.EnableWorldDrawing();
+            _player.Draw(time);
+            _centerPolygon.Draw(time);
         }
 
         public override void UnLoad()

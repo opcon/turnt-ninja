@@ -33,7 +33,14 @@ namespace BeatDetection.Game
 
         public Stage()
         {
+            _player = new Player();
+            _centerPolygon = new PolarPolygon(6, 6, 0, 1, 0, 80);
+        }
 
+        public Stage(Player player, PolarPolygon centerPolygon)
+        {
+            _player = player;
+            _centerPolygon = centerPolygon;
         }
 
         public void Load(string audioPath, string sonicPath, string pluginPath, float correction)
@@ -41,8 +48,6 @@ namespace BeatDetection.Game
             LoadAudioStream(audioPath);
             LoadAudioFeatures(audioPath, sonicPath, pluginPath, correction);
 
-            _player = new Player();
-            _centerPolygon = new PolarPolygon(6, 6, 0, 1, 0, 80);
             _direction = 1;
         }
 
@@ -122,7 +127,7 @@ namespace BeatDetection.Game
                     c = 0;
                 }
 
-                _polygons[index] = new PolarPolygon(maxSides, 5, b, 400, angles[start % 6], 125);
+                _polygons[index] = new PolarPolygon(maxSides, 5, b, 400, angles[start % 6] + _centerPolygon.Azimuth, 125);
 
                 //for (int i = 0; i < 5; i++)
                 //{

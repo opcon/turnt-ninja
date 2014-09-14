@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using OpenTK;
 using OpenTK.Graphics;
@@ -23,6 +24,7 @@ namespace BeatDetection.Core
         public int NumberOfSides;
         public int Direction { get; set; }
         public double Radius;
+        public double Azimuth;
         public double ImpactDistance;
         public double Speed;
         public bool Destroy = false;
@@ -51,6 +53,7 @@ namespace BeatDetection.Core
             }
             if (Radius <= ImpactDistance)
                 Destroy = true;
+            Azimuth = Sides.First().Position.Azimuth;
             //else if ((Radius - ImpactDistance) / (Speed) < (PulseWidthMax / PulseMultiplier))
             //    Pulsing = true;
             if (Pulsing)
