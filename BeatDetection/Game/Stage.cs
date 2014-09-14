@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using BeatDetection.Core;
 using NAudio.Wave;
 using OpenTK;
@@ -45,6 +46,7 @@ namespace BeatDetection.Game
 
         public void Load(string audioPath, string sonicPath, string pluginPath, float correction)
         {
+            Thread.Sleep(3000);
             LoadAudioStream(audioPath);
             LoadAudioFeatures(audioPath, sonicPath, pluginPath, correction);
 
