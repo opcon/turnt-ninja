@@ -82,6 +82,8 @@ namespace Substructio.Core
             //PreferredHeight = pHeight;
             WindowWidth = wWidth;
             WindowHeight = wHeight;
+            PreferredWidth = wWidth;
+            PreferredHeight = wHeight;
         }
 
         #endregion
@@ -388,7 +390,6 @@ namespace Substructio.Core
         public void EnableScreenDrawing()
         {
             GL.MatrixMode(MatrixMode.Projection);
-
             GL.LoadMatrix(ref ScreenProjectionMatrix);
 
             GL.MatrixMode(MatrixMode.Modelview);
