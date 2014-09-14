@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.Reflection;
+using QuickFont;
 using Substructio.Audio;
 using Substructio.Core;
 using Substructio.GUI;
@@ -31,12 +32,13 @@ namespace BeatDetection
     {
 
         private SceneManager _gameSceneManager;
-        private const float prefWidth = 1024;
-        private const float prefHeight = 768;
+        private const float prefWidth = 1920;
+        private const float prefHeight = 1080;
 
         OnsetDetector detector;
-        string sonicAnnotator = "../../External Programs/sonic-annotator-1.0-win32/sonic-annotator.exe";
+        private string sonicAnnotator = "../../External Programs/sonic-annotator-1.0-win32/sonic-annotator.exe";
         private string pluginPath = "../../External Programs/Vamp Plugins";
+        private string fontPath = Directories.FontsDirectory + "./Chamgagne Limousines/Champagne & Limousines Italic.ttf";
         WaveOut waveOut;
         RawSourceWaveStream source;
         Stopwatch stopWatch;
@@ -107,7 +109,8 @@ namespace BeatDetection
 
             var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
-            _gameSceneManager = new SceneManager(this, gameCamera);
+            var gameFont = new QFont(fontPath, 18);
+            _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath);
             _gameSceneManager.AddScene(new LoadingScene(sonicAnnotator, pluginPath, correction));
 
 
