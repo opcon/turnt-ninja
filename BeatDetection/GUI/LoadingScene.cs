@@ -45,6 +45,8 @@ namespace BeatDetection.GUI
             }
             else
             {
+                SceneManager.RemoveScene(this);
+                SceneManager.GameWindow.Exit();
                 return;
             }
 
