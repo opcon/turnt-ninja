@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BeatDetection.Game;
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using Substructio.GUI;
 
 namespace BeatDetection.GUI
@@ -44,6 +45,7 @@ namespace BeatDetection.GUI
             //SceneManager.ScreenCamera.UpdateProjectionMatrix();
             //SceneManager.ScreenCamera.UpdateModelViewMatrix();
             SceneManager.ScreenCamera.EnableWorldDrawing();
+            GL.Disable(EnableCap.Texture2D);
             _stage.Draw(time);
         }
 
