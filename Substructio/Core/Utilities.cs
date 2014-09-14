@@ -12,113 +12,19 @@ using OpenTK.Input;
 
 namespace Substructio.Core
 {
-    public class Directories
-    {
-        private static readonly string Resources = @"..\Resources";
-        private static readonly string Sprites = @"..\Sprites";
-        private static readonly string Libraries = @"\Libraries";
-        private static readonly string Backgrounds = @"\Backgrounds";
-        private static readonly string Tiles = @"\Tiles";
-        private static readonly string Entities = @"\Entities";
-        private static readonly string Worlds = @"\Worlds";
-        private static readonly string UI = @"\UI";
-        public static readonly string TextFile = @"\Comfortaa-Regular.ttf";
-
-        public static DirectoryInfo ResourcesDirectory,
-                                    SpritesDirectory,
-                                    LibrariesDirectory,
-                                    BackgroundsDirectory,
-                                    TilesDirectory,
-                                    EntitiesDirectory,
-                                    WorldsDirectory,
-                                    UIDirectory;
-
-        static Directories()
-        {
-            FixPathSeparators(ref Resources);
-            FixPathSeparators(ref Sprites);
-            FixPathSeparators(ref Libraries);
-            FixPathSeparators(ref Backgrounds);
-            FixPathSeparators(ref Tiles);
-            FixPathSeparators(ref Entities);
-            FixPathSeparators(ref Worlds);
-            FixPathSeparators(ref UI);
-
-            ResourcesDirectory = new DirectoryInfo(Resources);
-            SpritesDirectory = new DirectoryInfo(Resources + Sprites);
-            LibrariesDirectory = new DirectoryInfo(Resources + Libraries);
-            TilesDirectory = new DirectoryInfo(Resources + Tiles);
-            BackgroundsDirectory = new DirectoryInfo(Resources + Backgrounds);
-            EntitiesDirectory = new DirectoryInfo(Resources + Entities);
-            WorldsDirectory = new DirectoryInfo(Resources + Worlds);
-            UIDirectory = new DirectoryInfo(Resources + UI);
-        }
-
-        private static void FixPathSeparators(ref string path)
-        {
-            path = path.Replace('\\', Path.DirectorySeparatorChar);
-        }
-    }
-
-    public static class InfoNotUsed
-    {
-        private static List<Key> m_LastKeys = new List<Key>();
-        private static readonly List<Key> m_CurrentKeys = new List<Key>();
-
-        private static List<MouseButton> m_LastButtons = new List<MouseButton>();
-        private static readonly List<MouseButton> m_CurrentButtons = new List<MouseButton>();
-
-        public static bool IsMouseButtonClicked(MouseButton button)
-        {
-            //if (Mouse.GetState().IsButtonDown(button) && GameWindow.MouseInWindow)
-            //{
-            //    m_CurrentButtons.Add(button);
-            //    return m_LastButtons.Contains(button);
-            //}
-            //return false;
-            throw new Exception("Info class is deprecated.");
-        }
-
-        public static void UpdateMouseButtons()
-        {
-            m_LastButtons = new List<MouseButton>(m_CurrentButtons);
-            m_CurrentButtons.Clear();
-        }
-
-        public static bool IsKeyPressed(Key k)
-        {
-            m_CurrentKeys.Add(k);
-            return !m_LastKeys.Contains(k);
-        }
-
-        public static void UpdateKeys()
-        {
-            m_LastKeys = new List<Key>(m_CurrentKeys);
-            m_CurrentKeys.Clear();
-        }
-    }
-
     public static class Utilities
     {
-        private static Random m_Random;
+        private static Random _random;
 
         public static Random RandomGenerator
         {
-            get { return m_Random ?? (m_Random = new Random()); }
+            get { return _random ?? (_random = new Random()); }
         }
 
         public static List<Vector2> StringToVecList(IEnumerable<string> bcoords)
         {
-            try
-            {
-                return bcoords.Select(s => Array.ConvertAll(s.Split(','), str => (Single.Parse(str)))).Select(
-            point => new Vector2(point[0], point[1])).ToList();
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            return bcoords.Select(s => Array.ConvertAll(s.Split(','), str => (Single.Parse(str)))).Select(
+                point => new Vector2(point[0], point[1])).ToList();
         }
 
         public static string VecListToString(List<Vector2> positions)
@@ -182,8 +88,6 @@ namespace Substructio.Core
             b.Save(file, ImageFormat.Png);
         }
 
-        public static void Dummy(bool b) { }
-
         public static Bitmap ScreenToBitmap(GameWindow g)
         {
             Bitmap b = new Bitmap(g.Width, g.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
@@ -195,62 +99,6 @@ namespace Substructio.Core
             b.UnlockBits(bd);
             b.RotateFlip(RotateFlipType.RotateNoneFlipY);
             return b;
-        }
-    }
-
-    public class CRC16
-    {
-        const ushort polynomial = 0xA001;
-        ushort[] table = new ushort[256];
-
-        private static CRC16 _instance;
-
-        public int ComputeChecksum(byte[] bytes)
-        {
-            ushort crc = 0;
-            for (int i = 0; i < bytes.Length; ++i)
-            {
-                byte index = (byte)(crc ^ bytes[i]);
-                crc = (ushort)((crc >> 8) ^ table[index]);
-            }
-            return crc;
-        }
-
-        public byte[] ComputeChecksumBytes(byte[] bytes)
-        {
-            int crc = ComputeChecksum(bytes);
-            return BitConverter.GetBytes(crc);
-        }
-
-        public CRC16()
-        {
-            ushort value;
-            ushort temp;
-            for (ushort i = 0; i < table.Length; ++i)
-            {
-                value = 0;
-                temp = i;
-                for (byte j = 0; j < 8; ++j)
-                {
-                    if (((value ^ temp) & 0x0001) != 0)
-                    {
-                        value = (ushort)((value >> 1) ^ polynomial);
-                    }
-                    else
-                    {
-                        value >>= 1;
-                    }
-                    temp >>= 1;
-                }
-                table[i] = value;
-            }
-        }
-
-        public static CRC16 Instance()
-        {
-            if (_instance == null)
-                _instance = new CRC16();
-            return _instance; 
         }
     }
 }

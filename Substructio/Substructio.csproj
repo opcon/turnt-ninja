@@ -53,6 +53,7 @@
     <Compile Include="Audio\AudioWrapper.cs" />
     <Compile Include="Audio\WaveLoader.cs" />
     <Compile Include="Core\Camera.cs" />
+    <Compile Include="Core\CRC16.cs" />
     <Compile Include="Core\InputSystem.cs" />
     <Compile Include="Core\Math\PolarVector.cs" />
     <Compile Include="Core\Polygon.cs" />
