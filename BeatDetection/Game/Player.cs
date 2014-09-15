@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using ClipperLib;
 using OpenTK;
 using OpenTK.Input;
 using OpenTK.Graphics.OpenGL;
@@ -14,7 +16,7 @@ namespace BeatDetection
         double width;
         double r;
 
-        float score;
+        public int Hits;
 
         public Player()
         {
@@ -39,6 +41,20 @@ namespace BeatDetection
             {
                 theta -= dtheta * time*1;
             }
+        }
+
+        public List<IntPoint> GetBounds()
+        {
+            var p = new List<IntPoint>();
+            var p1 = new Vector2d((r)*Math.Cos(theta), (r)*Math.Sin(theta));
+            var p2 = new Vector2d((r + width)*Math.Cos(theta + length/2), (r + width)*Math.Sin(theta + length/2));
+            var p3 = new Vector2d((r)*Math.Cos(theta + length), (r)*Math.Sin(theta + length));
+
+            p.Add(new IntPoint(p1.X, p1.Y));
+            p.Add(new IntPoint(p2.X, p2.Y));
+            p.Add(new IntPoint(p3.X, p3.Y));
+
+            return p;
         }
 
         public void Draw(double time)

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BeatDetection.Game;
 using OpenTK;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using Substructio.GUI;
 
@@ -47,6 +48,9 @@ namespace BeatDetection.GUI
             SceneManager.ScreenCamera.EnableWorldDrawing();
             GL.Disable(EnableCap.Texture2D);
             _stage.Draw(time);
+            SceneManager.ScreenCamera.EnableScreenDrawing();
+            SceneManager.DrawTextLine(_stage.Overlap.ToString(), new Vector2(50, 50));
+            SceneManager.DrawTextLine(_stage.Hits.ToString(), new Vector2(100, 50));
         }
 
         public override void UnLoad()

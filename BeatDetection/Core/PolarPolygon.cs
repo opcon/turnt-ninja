@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
+using ClipperLib;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -115,6 +114,16 @@ namespace BeatDetection.Core
             }
         }
 
+        public List<List<IntPoint>> GetPolygonBounds()
+        {
+            var polys = new List<List<IntPoint>>();
+            foreach (var s in Sides)
+            {
+                polys.Add(s.GetPoints());
+            }
+            return polys;
+        }
+
     }
 
     class PolarPolygonSide
@@ -178,6 +187,23 @@ namespace BeatDetection.Core
 
 
             GL.End();
+        }
+
+        public List<IntPoint> GetPoints()
+        {
+            var p = new List<IntPoint>();
+            var p1 = PolarVector.ToCartesianCoordinates(Position);
+            var p2 = PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth + Length, Position.Radius));
+            var p3 =
+                PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth + Length, Position.Radius + Width));
+            var p4 = PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth, Position.Radius + Width));
+
+            p.Add(new IntPoint(p1.X, p1.Y));
+            p.Add(new IntPoint(p2.X, p2.Y));
+            p.Add(new IntPoint(p3.X, p3.Y));
+            p.Add(new IntPoint(p4.X, p4.Y));
+
+            return p;
         }
     }
 }

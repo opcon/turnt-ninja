@@ -32,6 +32,13 @@ namespace BeatDetection.Game
         private PolarPolygon _centerPolygon;
         private int _direction;
 
+        public double Overlap;
+
+        public int Hits
+        {
+            get { return _player.Hits; }
+        }
+
         public Stage()
         {
             _player = new Player();
@@ -190,7 +197,23 @@ namespace BeatDetection.Game
                 //else if (InputSystem.CurrentKeys.Contains(Key.Right))
                 //    _centerPolygon.Rotate(-time * 1.5);
 
+                GetPlayerOverlap();
+
             }
+        }
+
+        private void GetPlayerOverlap()
+        {
+            Clipper c = new Clipper();
+            c.AddPaths(_polygons[_polygonIndex].GetPolygonBounds(), PolyType.ptSubject, true);
+            c.AddPath(_player.GetBounds(), PolyType.ptClip, true);
+
+            List<List<IntPoint>> soln = new List<List<IntPoint>>();
+            c.Execute(ClipType.ctIntersection, soln);
+
+            Overlap = soln.Count > 0 ? (int)((Clipper.Area(soln[0]) / Clipper.Area(_player.GetBounds()))*100) : 0;
+            if (Overlap > 80)
+                _player.Hits++;
         }
 
         public void Draw(double time)
