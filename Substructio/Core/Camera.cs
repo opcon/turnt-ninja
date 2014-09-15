@@ -333,21 +333,18 @@ namespace Substructio.Core
             float wheel = Mouse.WheelPrecise;
             MouseWheelDelta = m_OldMouseWheel - wheel;
 
-            if (EditMode)
+            if (InputSystem.CurrentKeys.Contains(Key.Down))
             {
-                if (InputSystem.CurrentKeys.Contains(Key.Down))
-                {
-                    TargetScale.X += ScaleDelta;
-                    TargetScale.Y += ScaleDelta;
-                    SnapToCenter();
-                }
-                else if (InputSystem.CurrentKeys.Contains(Key.Up))
-                {
-                    TargetScale.X -= ScaleDelta;
-                    TargetScale.Y -= ScaleDelta;
-                    SnapToCenter();
-                } 
+                TargetScale.X += ScaleDelta;
+                TargetScale.Y += ScaleDelta;
+                SnapToCenter();
             }
+            else if (InputSystem.CurrentKeys.Contains(Key.Up))
+            {
+                TargetScale.X -= ScaleDelta;
+                TargetScale.Y -= ScaleDelta;
+                SnapToCenter();
+            } 
 
             if (MouseWheelDelta != 0)
             {
