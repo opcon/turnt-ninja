@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenTK;
+using OpenTK.Graphics;
 using QuickFont;
 using Substructio.Core;
 
@@ -112,6 +113,7 @@ namespace Substructio.GUI
         {
             Utilities.TranslateTo(position, ScreenCamera.PreferredWidth, ScreenCamera.PreferredHeight);
 
+            Font.Options.Colour = Color4.Black;
             Font.Print(text);
         }
 
