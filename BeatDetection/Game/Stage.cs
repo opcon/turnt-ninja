@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using BeatDetection.Core;
+using ClipperLib;
 using NAudio.Wave;
 using OpenTK;
 using OpenTK.Input;
@@ -13,7 +14,7 @@ using Wav2Flac;
 
 namespace BeatDetection.Game
 {
-    class Stage
+    internal class Stage
     {
         private double _totalTime;
         private PolarPolygon[] _polygons;
@@ -53,7 +54,7 @@ namespace BeatDetection.Game
 
         public void Load(string audioPath, string sonicPath, string pluginPath, float correction)
         {
-            Thread.Sleep(3000);
+            Thread.Sleep(1000);
             LoadAudioStream(audioPath);
             LoadAudioFeatures(audioPath, sonicPath, pluginPath, correction);
 
@@ -136,7 +137,7 @@ namespace BeatDetection.Game
                     c = 0;
                 }
 
-                _polygons[index] = new PolarPolygon(maxSides, 5, b, 400, angles[start % 6] + _centerPolygon.Azimuth, 125);
+                _polygons[index] = new PolarPolygon(maxSides, 5, b, 600, angles[start % 6] + _centerPolygon.Azimuth, 125);
 
                 //for (int i = 0; i < 5; i++)
                 //{
