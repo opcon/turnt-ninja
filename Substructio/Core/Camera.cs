@@ -335,8 +335,8 @@ namespace Substructio.Core
 
             if (InputSystem.CurrentKeys.Contains(Key.Down))
             {
-                TargetScale.X += ScaleDelta;
-                TargetScale.Y += ScaleDelta;
+                TargetScale.X += ScaleDelta*0.5f;
+                TargetScale.Y += ScaleDelta*0.5f;
                 SnapToCenter();
             }
             else if (InputSystem.CurrentKeys.Contains(Key.Up))
