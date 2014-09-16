@@ -11,6 +11,7 @@ using OpenTK;
 using OpenTK.Input;
 using Substructio.Core;
 using Wav2Flac;
+using OpenTK.Graphics;
 
 namespace BeatDetection.Game
 {
@@ -34,6 +35,7 @@ namespace BeatDetection.Game
         private int _direction;
 
         public double Overlap;
+        private int _collidedPolygonIndex = -1;
 
         public int Hits
         {
@@ -205,6 +207,11 @@ namespace BeatDetection.Game
 
         private void GetPlayerOverlap()
         {
+            if (_polygonIndex == _collidedPolygonIndex || _polygonIndex >= _polygons.Length)
+            {
+                Overlap = 0;
+                return;
+            }
             Clipper c = new Clipper();
             c.AddPaths(_polygons[_polygonIndex].GetPolygonBounds(), PolyType.ptSubject, true);
             c.AddPath(_player.GetBounds(), PolyType.ptClip, true);
