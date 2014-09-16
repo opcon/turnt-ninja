@@ -221,7 +221,11 @@ namespace BeatDetection.Game
 
             Overlap = soln.Count > 0 ? (int)((Clipper.Area(soln[0]) / Clipper.Area(_player.GetBounds()))*100) : 0;
             if (Overlap > 80)
+            {
                 _player.Hits++;
+                _collidedPolygonIndex = _polygonIndex;
+                _polygons[_collidedPolygonIndex].Colour = Color4.Red;
+            }
         }
 
         public void Draw(double time)
