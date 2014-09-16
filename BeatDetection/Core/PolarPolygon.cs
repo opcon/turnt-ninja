@@ -28,6 +28,23 @@ namespace BeatDetection.Core
         public double Speed;
         public bool Destroy = false;
 
+        private Color4 _colour;
+        public Color4 Colour
+        {
+            get {return _colour;}
+            set
+            {
+                _colour = value;
+                if (Sides != null && Sides.Count > 0)
+                {
+                    foreach (var s in Sides)
+                    {
+                        s.Colour = _colour;
+                    }
+                }
+            }
+        }
+
         public PolarPolygon(int maxNumSides, int numSides, double impactTime, double speed, double startAngle, double minimumDistance = 100)
         {
             MaxNumberOfSides = maxNumSides;
@@ -40,6 +57,7 @@ namespace BeatDetection.Core
             Speed = speed;
 
             GenerateHexagonSides(impactTime, speed, startAngle, minimumDistance);
+            Colour = Color4.White;
         }
 
         public void Update(double time, bool updatePosition = true)
