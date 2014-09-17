@@ -42,6 +42,16 @@ namespace BeatDetection.Game
             get { return _player.Hits; }
         }
 
+        public int CurrentPolygon
+        {
+            get {return _polygonIndex;}
+        }
+
+        public int PolygonCount
+        {
+            get {return _polygons.Length;}
+        }
+
         public Stage()
         {
             _player = new Player();
