@@ -52,6 +52,7 @@ namespace BeatDetection.GUI
             SceneManager.DrawTextLine(_stage.Overlap.ToString(), new Vector2(50, 50));
             SceneManager.DrawTextLine(_stage.Hits.ToString(), new Vector2(100, 50));
             SceneManager.DrawTextLine(String.Format("{0}/{1}", _stage.CurrentPolygon, _stage.PolygonCount), new Vector2(150, 50));
+            SceneManager.DrawTextLine(_stage.FinishedEaseIn.ToString(), new Vector2(250, 50));
         }
 
         public override void UnLoad()

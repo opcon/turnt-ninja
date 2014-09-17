@@ -37,6 +37,12 @@ namespace BeatDetection.Game
         public double Overlap;
         private int _collidedPolygonIndex = -1;
 
+        private double _warmupTime = 2.0f;
+        private double _elapsedWarmupTime;
+        private double _easeInTime = 1.0f;
+        private bool _finishedEaseIn = false;
+        private bool _running = false;
+
         public int Hits
         {
             get { return _player.Hits; }
@@ -50,6 +56,14 @@ namespace BeatDetection.Game
         public int PolygonCount
         {
             get {return _polygons.Length;}
+        }
+
+        public bool FinishedEaseIn
+        {
+            get
+            {
+                return _finishedEaseIn;
+            }
         }
 
         public Stage()
@@ -109,7 +123,7 @@ namespace BeatDetection.Game
 
         private void LoadAudioFeatures(string audioPath, string sonicPath, string pluginPath, float correction)
         {
-            _qmVampWrapper = new QMVampWrapper(audioPath, sonicPath, pluginPath, correction);
+            _qmVampWrapper = new QMVampWrapper(audioPath, sonicPath, pluginPath, correction + (float)_easeInTime);
             _qmVampWrapper.DetectBeats();
 
             _polygons = new PolarPolygon[_qmVampWrapper.Beats.Count];
@@ -170,18 +184,30 @@ namespace BeatDetection.Game
 
         public void Update(double time)
         {
-
-            if (_waveOut.PlaybackState != PlaybackState.Playing)
+            if (!_running)
             {
-                _waveOut.Play();
-                time = 0;
+                _elapsedWarmupTime += time;
+                if (_elapsedWarmupTime > _warmupTime)
+                {
+                    _running = true;
+                    time = _elapsedWarmupTime - _warmupTime;
+                }
+
             }
-            if (_waveOut.PlaybackState == PlaybackState.Playing)
+            if (_running)
             {
                 _totalTime += time;
-                _player.Direction = _direction;
-                _centerPolygon.Direction = _direction;
-                _player.Update(time);
+            }
+            if (!_finishedEaseIn && _totalTime > _easeInTime)
+            {
+                _waveOut.Play();
+                _finishedEaseIn = true;
+            }
+
+            if (true)
+            {
+                //_totalTime += time;
+
 
                 _polygonIndex += _polygonsToRemoveCount;
                 _polygonsToRemoveCount = 0;
@@ -190,21 +216,24 @@ namespace BeatDetection.Game
                 {
                     var poly = _polygons[i];
                     poly.Direction = _direction;
-                    poly.Update(time);
-                    if (poly.Destroy)
-                        _polygonsToRemoveCount++;
-                    else if ((poly.Radius - poly.ImpactDistance)/(poly.Speed) < (poly.PulseWidthMax/poly.PulseMultiplier))
-                        _centerPolygon.Pulsing = true;
+                    poly.Update(time, _running);
+                    if (_running)
+                    {
+                        if (poly.Destroy)
+                            _polygonsToRemoveCount++;
+                        else if ((poly.Radius - poly.ImpactDistance) / (poly.Speed) < (poly.PulseWidthMax / poly.PulseMultiplier))
+                            _centerPolygon.Pulsing = true;
+                    }
                 }
 
                 if (_polygonsToRemoveCount > 0)
                 {
                     var d = _random.NextDouble();
                     _direction = d > 0.95 ? -_direction : _direction;
-                   // _centerPolygon.Pulse(time);
+                    // _centerPolygon.Pulse(time);
                 }
 
-                _centerPolygon.Update(time, false);
+                //_centerPolygon.Update(time, false);
                 //if (InputSystem.CurrentKeys.Contains(Key.Left))
                 //    _centerPolygon.Rotate(time);
                 //else if (InputSystem.CurrentKeys.Contains(Key.Right))
@@ -213,6 +242,11 @@ namespace BeatDetection.Game
                 GetPlayerOverlap();
 
             }
+
+            _player.Direction = _direction;
+            _centerPolygon.Direction = _direction;
+            _player.Update(time);
+            _centerPolygon.Update(time, false);
         }
 
         private void GetPlayerOverlap()
