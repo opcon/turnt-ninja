@@ -6,11 +6,9 @@ namespace BeatDetection
     public abstract class OnsetDetector
     {
         public List<float> Beats = new List<float>();
-        public AudioWrapper Audio { get; set; }
 
-        public OnsetDetector(AudioWrapper a)
+        public OnsetDetector()
         {
-            Audio = a;
         }
 
         public abstract void DetectBeats();

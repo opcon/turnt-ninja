@@ -11,22 +11,23 @@ namespace BeatDetection
 {
     class QMVampWrapper : OnsetDetector
     {
-        string audioFile;
-        string sonicPath;
-        private string pluginsPath;
-        string rdfDescriptor;
-        string pluginFileSuffix;
-        float correctionAmount = 0;
+        string _audioPath;
+        string _sonicPath;
+        private string _pluginsPath;
+        string _descriptorPath;
+        string _outputSuffix;
+        float _correctionAmount;
 
         string beatsFile;
-        public QMVampWrapper(AudioWrapper a, string aFile, string sPath, string pPath, float correction, string rdf = "../../Processed Songs/qmonset.n3", string suffix = "vamp_qm-vamp-plugins_qm-onsetdetector_onsets") : base(a)
+
+        public QMVampWrapper(string audioPath, string sonicPath, string pluginPath, float correction, string descriptorPath = "../../Processed Songs/qmonset.n3", string outputSuffix = "vamp_qm-vamp-plugins_qm-onsetdetector_onsets")
         {
-            audioFile = aFile;
-            sonicPath = sPath;
-            correctionAmount = correction;
-            rdfDescriptor = rdf;
-            pluginFileSuffix = suffix;
-            this.pluginsPath = pPath;
+            _audioPath = audioPath;
+            _sonicPath = sonicPath;
+            _correctionAmount = correction;
+            _descriptorPath = descriptorPath;
+            _outputSuffix = outputSuffix;
+            _pluginsPath = pluginPath;
         }
 
         public override void DetectBeats()
@@ -37,7 +38,7 @@ namespace BeatDetection
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    Beats.Add(float.Parse(line.Split(',')[0]) + correctionAmount);
+                    Beats.Add(float.Parse(line.Split(',')[0]) + _correctionAmount);
                 }
                 sr.Close();
             }
@@ -46,19 +47,19 @@ namespace BeatDetection
         void CallSonicAnnotator()
         {
 
-            ProcessStartInfo psi = new ProcessStartInfo(sonicPath);
-            psi.WorkingDirectory = Game.AssemblyDirectory;
-            psi.EnvironmentVariables.Add("VAMP_PATH", pluginsPath);
+            ProcessStartInfo psi = new ProcessStartInfo(_sonicPath);
+            psi.WorkingDirectory = GameController.AssemblyDirectory;
+            psi.EnvironmentVariables.Add("VAMP_PATH", _pluginsPath);
             var csvDir = "../../Processed Songs/";
-            var arguments = String.Format("-t \"{0}\" \"{1}\" -w csv --csv-force --csv-basedir \"{2}\"", rdfDescriptor, audioFile, csvDir.Replace(@"\", "/"));
+            var arguments = String.Format("-t \"{0}\" \"{1}\" -w csv --csv-force --csv-basedir \"{2}\"", _descriptorPath, _audioPath, csvDir.Replace(@"\", "/"));
             psi.Arguments = arguments;
-            //psi.CreateNoWindow = true;
+            psi.CreateNoWindow = true;
             psi.UseShellExecute = false;
             //psi.RedirectStandardOutput = true;
             //psi.RedirectStandardError = true;
 
-            var result = Path.Combine(csvDir, String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(audioFile), pluginFileSuffix) + ".csv");
-            var newName = Path.Combine(Path.GetDirectoryName(result), Path.GetFileNameWithoutExtension(audioFile) + ".csv");
+            var result = Path.Combine(csvDir, String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(_audioPath), _outputSuffix) + ".csv");
+            var newName = Path.Combine(Path.GetDirectoryName(result), Path.GetFileNameWithoutExtension(_audioPath) + ".csv");
 
             if (File.Exists(newName))
             {
