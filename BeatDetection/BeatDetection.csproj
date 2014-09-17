@@ -96,7 +96,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Substructio\Substructio.csproj">
+    <ProjectReference Include="..\..\Substructio\Substructio.csproj">
       <Project>{5b3f1066-88da-4f9c-8dfe-646c40b412c2}</Project>
       <Name>Substructio</Name>
     </ProjectReference>
