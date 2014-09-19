@@ -90,7 +90,7 @@ namespace BeatDetection.GUI
             }
 
             _player.Update(time);
-            _centerPolygon.Update(time);
+            _centerPolygon.Update(time, false);
 
         }
 

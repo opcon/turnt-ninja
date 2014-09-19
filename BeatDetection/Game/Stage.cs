@@ -66,6 +66,11 @@ namespace BeatDetection.Game
             }
         }
 
+        private bool _collided
+        {
+            get { return _collidedPolygonIndex == _polygonIndex; }
+        }
+
         public Stage()
         {
             _player = new Player();
@@ -184,6 +189,7 @@ namespace BeatDetection.Game
 
         public void Update(double time)
         {
+            double targetAzimuth;
             if (!_running)
             {
                 _elapsedWarmupTime += time;
@@ -243,8 +249,12 @@ namespace BeatDetection.Game
 
             }
 
+            var t = _polygons[_polygonIndex].Azimuth;
+            t -= MathHelper.DegreesToRadians(30);
+            //_player.DoAI(t);
             _player.Direction = _direction;
             _centerPolygon.Direction = _direction;
+            _centerPolygon.Colour = _collided ? Color4.Red : Color4.White;
             _player.Update(time);
             _centerPolygon.Update(time, false);
         }
