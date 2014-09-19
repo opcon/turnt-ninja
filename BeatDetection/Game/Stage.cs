@@ -184,6 +184,7 @@ namespace BeatDetection.Game
 
         public void Update(double time)
         {
+            double targetAzimuth;
             if (!_running)
             {
                 _elapsedWarmupTime += time;
@@ -243,6 +244,9 @@ namespace BeatDetection.Game
 
             }
 
+            var t = _polygons[_polygonIndex].Azimuth;
+            t -= MathHelper.DegreesToRadians(30);
+            //_player.DoAI(t);
             _player.Direction = _direction;
             _centerPolygon.Direction = _direction;
             _player.Update(time);

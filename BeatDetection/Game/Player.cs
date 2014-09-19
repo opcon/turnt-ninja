@@ -101,6 +101,26 @@ namespace BeatDetection
                 i |= Input.Down;
             return i;
         }
+
+        public void DoAI(double targetAzimuth)
+        {
+            _currentFramesInput = DirectionToTurn(_position.Azimuth, targetAzimuth);
+        }
+
+        private Input DirectionToTurn(double current, double target)
+        {
+            current = MathUtilities.Normalise(current, 0, MathUtilities.TwoPI);
+            target = MathUtilities.Normalise(target, 0, MathUtilities.TwoPI);
+
+            var diff = Math.Abs(current - target);
+            if (diff < 0.1)
+                return Input.Default;
+            int flip = 1;
+            if (diff > Math.PI)
+                flip *= -1;
+            int d = current > target ? -flip : flip;
+            return d > 0 ? Input.Left : Input.Right;
+        }
     }
 
     [Flags]
