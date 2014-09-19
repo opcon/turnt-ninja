@@ -66,6 +66,11 @@ namespace BeatDetection.Game
             }
         }
 
+        private bool _collided
+        {
+            get { return _collidedPolygonIndex == _polygonIndex; }
+        }
+
         public Stage()
         {
             _player = new Player();
@@ -249,6 +254,7 @@ namespace BeatDetection.Game
             //_player.DoAI(t);
             _player.Direction = _direction;
             _centerPolygon.Direction = _direction;
+            _centerPolygon.Colour = _collided ? Color4.Red : Color4.White;
             _player.Update(time);
             _centerPolygon.Update(time, false);
         }
