@@ -12,19 +12,17 @@ namespace BeatDetection
 {
     class Player
     {
-        double length;
-        double width;
+        private double _length;
+        private double _width;
 
         private PolarVector _position;
         private PolarVector _velocity;
-
-        private const double _2PI = Math.PI*2;
 
         public int Hits;
 
         public double Length
         {
-            get { return length; }
+            get { return _length; }
         }
 
         public PolarVector Position
@@ -45,8 +43,8 @@ namespace BeatDetection
         {
             _position = new PolarVector(0, 180);
             _velocity = new PolarVector(-9, 0);
-            length = (10) * (0.0174533);
-            width = 20;
+            _length = (10) * (0.0174533);
+            _width = 20;
             Direction = 1;
         }
 
@@ -69,8 +67,8 @@ namespace BeatDetection
         {
             var p = new List<IntPoint>();
             var p1 = PolarVector.ToCartesianCoordinates(_position);
-            var p2 = PolarVector.ToCartesianCoordinates(_position, length/2, width);
-            var p3 = PolarVector.ToCartesianCoordinates(_position, length, 0);
+            var p2 = PolarVector.ToCartesianCoordinates(_position, _length/2, _width);
+            var p3 = PolarVector.ToCartesianCoordinates(_position, _length, 0);
 
             p.Add(new IntPoint(p1.X, p1.Y));
             p.Add(new IntPoint(p2.X, p2.Y));
@@ -83,8 +81,8 @@ namespace BeatDetection
         {
             GL.Begin(BeginMode.Triangles);
             GL.Vertex2(PolarVector.ToCartesianCoordinates(_position));
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(_position, length/2, width));
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(_position, length, 0));
+            GL.Vertex2(PolarVector.ToCartesianCoordinates(_position, _length/2, _width));
+            GL.Vertex2(PolarVector.ToCartesianCoordinates(_position, _length, 0));
             GL.End();
         }
 

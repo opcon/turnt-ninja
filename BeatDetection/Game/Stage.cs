@@ -72,7 +72,7 @@ namespace BeatDetection.Game
             }
         }
 
-        private bool _collided
+        private bool Collided
         {
             get { return _collidedPolygonIndex == _polygonIndex; }
         }
