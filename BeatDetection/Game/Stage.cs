@@ -49,6 +49,8 @@ namespace BeatDetection.Game
         private bool _finishedEaseIn;
         private bool _running;
 
+        private bool _AI = false;
+
         public int Hits
         {
             get { return _player.Hits; }
@@ -239,15 +241,20 @@ namespace BeatDetection.Game
             }
             GetPlayerOverlap();
 
+            if (InputSystem.NewKeys.Contains(Key.F2)) _AI = !_AI;
 
 
-            //var t = _polygons[_polygonIndex].Azimuth;
-            //t -= MathHelper.DegreesToRadians(30);
-            //_player.DoAI(t);
+            if (_AI && _polygonIndex < _polygons.Length)
+            {
+                var t = _polygons[_polygonIndex].Azimuth;
+                t -= MathHelper.DegreesToRadians(30);
+                _player.DoAI(t);
+            }
+
             _player.Direction = _direction;
             _centerPolygon.Direction = _direction;
-            _centerPolygon.Colour = _collided ? Color4.Red : Color4.White;
-            _player.Update(time);
+            _centerPolygon.Colour = Collided ? Color4.Red : Color4.White;
+            _player.Update(time, _AI);
             _centerPolygon.Update(time, false);
 
             var seg = _segments[_segmentIndex];

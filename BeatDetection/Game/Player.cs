@@ -48,9 +48,9 @@ namespace BeatDetection
             Direction = 1;
         }
 
-        public void Update(double time)
+        public void Update(double time, bool AI = false)
         {
-            _currentFramesInput = GetUserInput();
+            if (!AI) _currentFramesInput = GetUserInput();
             _position.Azimuth += time*0.5*Direction;
             if (_currentFramesInput.HasFlag(Input.Left))
             {
