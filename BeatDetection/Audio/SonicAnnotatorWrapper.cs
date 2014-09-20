@@ -50,7 +50,7 @@ namespace BeatDetection.Audio
                 return true;
             }
 
-            string q = "";
+            //string q = "";
             string e = "";
             var p = Process.Start(psi);
             while (!p.HasExited)
