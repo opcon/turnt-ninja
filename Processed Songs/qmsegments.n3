@@ -12,10 +12,10 @@
     ] ;
     vamp:parameter_binding [
         vamp:parameter [ vamp:identifier "nSegmentTypes" ] ;
-        vamp:value "10"^^xsd:float ;
+        vamp:value "7"^^xsd:float ;
     ] ;
     vamp:parameter_binding [
         vamp:parameter [ vamp:identifier "neighbourhoodLimit" ] ;
-        vamp:value "4"^^xsd:float ;
+        vamp:value "10"^^xsd:float ;
     ] ;
     vamp:output <http://vamp-plugins.org/rdf/plugins/qm-vamp-plugins#qm-segmenter_output_segmentation> .
