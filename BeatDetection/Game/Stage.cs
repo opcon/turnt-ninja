@@ -7,10 +7,12 @@ using System.Threading;
 using BeatDetection.Audio;
 using BeatDetection.Core;
 using ClipperLib;
+using ColorMine.ColorSpaces;
 using NAudio.Wave;
 using OpenTK;
 using OpenTK.Input;
 using Substructio.Core;
+using Substructio.Core.Math;
 using Wav2Flac;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -50,6 +52,8 @@ namespace BeatDetection.Game
         private bool _running;
 
         private bool _AI = false;
+        private Color4 _opposingColour;
+        private Color4 _collisionColour;
 
         public int Hits
         {
@@ -93,7 +97,6 @@ namespace BeatDetection.Game
 
         public void Load(string audioPath, string sonicPath, string pluginPath, float correction)
         {
-            Thread.Sleep(1000);
             LoadAudioStream(audioPath);
             LoadAudioFeatures(audioPath, sonicPath, pluginPath, correction);
 
@@ -187,11 +190,27 @@ namespace BeatDetection.Game
             _segments = _audioFeatures.Segments.OrderBy(x => x.StartTime).ToArray();
             var maxID = _audioFeatures.Segments.Max(x => x.ID);
             _segmentColours = new Color4[maxID];
+
+
+            var s = 30;
+            var l = 40;
+            double maxStep = (double)360/maxID;
+            double minStep = 0.5*maxStep;
+            double startAngle = _random.NextDouble()*360;
+            double prevAngle = startAngle;
             for (int i = 0; i < maxID; i++)
             {
-                _segmentColours[i] = new Color4((float)_random.NextDouble(), (float)_random.NextDouble(), (float)_random.NextDouble(), 1.0f);
+                var step = _random.NextDouble()*(maxStep - minStep) + minStep;
+                var angle = MathUtilities.Normalise(step + prevAngle, 0, 360);
+                var col = new Hsl{H = angle, L=l, S=s};
+                var rgb = col.ToRgb();
+
+                prevAngle = angle;
+
+                _segmentColours[i] = new Color4((byte)rgb.R, (byte)rgb.G, (byte)rgb.B, 255);
             }
             _colourIndex = _segments[_segmentIndex].ID - 1;
+            UpdateColours();
         }
 
         public void Update(double time)
@@ -232,6 +251,7 @@ namespace BeatDetection.Game
                     else if ((poly.Radius - poly.ImpactDistance)/(poly.Speed) < (poly.PulseWidthMax/poly.PulseMultiplier))
                         _centerPolygon.Pulsing = true;
                 }
+                poly.Colour = poly.Colour == _collisionColour ? _collisionColour : _opposingColour;
             }
 
             if (_polygonsToRemoveCount > 0)
@@ -253,7 +273,7 @@ namespace BeatDetection.Game
 
             _player.Direction = _direction;
             _centerPolygon.Direction = _direction;
-            _centerPolygon.Colour = Collided ? Color4.Red : Color4.White;
+            _centerPolygon.Colour = Collided ? _collisionColour : _opposingColour;
             _player.Update(time, _AI);
             _centerPolygon.Update(time, false);
 
@@ -262,9 +282,29 @@ namespace BeatDetection.Game
             {
                 _segmentIndex++;
                 _colourIndex = _segments[_segmentIndex].ID - 1;
+
+                UpdateColours();
             }
 
             GL.ClearColor(_segmentColours[_colourIndex]);
+        }
+
+        private void UpdateColours()
+        {
+            var c = Utilities.Color4ToColorSpace(_segmentColours[_colourIndex]).ToRgb();
+            var hsl = c.To<Hsl>();
+            var opp = c.To<Hsl>();
+            opp.S = 60;
+            opp.L = 60;
+            _collisionColour = Utilities.ColorSpaceToColor4(opp);
+            hsl.H = MathUtilities.Normalise(hsl.H + 180, 0, 360);
+            //hsl.L = 60;
+            hsl.S = 50;
+            //hsl.L = hsl.S = 50;
+            c = hsl.ToRgb();
+            _opposingColour = Utilities.ColorSpaceToColor4(c);
+            _centerPolygon.Colour = _opposingColour;
+            //_player.Colour = _opposingColour;
         }
 
         private void GetPlayerOverlap()
@@ -286,17 +326,17 @@ namespace BeatDetection.Game
             {
                 _player.Hits++;
                 _collidedPolygonIndex = _polygonIndex;
-                _polygons[_collidedPolygonIndex].Colour = Color4.Red;
+                _polygons[_collidedPolygonIndex].Colour = _collisionColour;
             }
         }
 
         public void Draw(double time)
         {
+            //GL.Color4(_opposingColour);
             for (int i = _polygonIndex; i < _polygons.Length; i++)
             {
                 _polygons[i].Draw(time);
             }
-
             _centerPolygon.Draw(time);
             _player.Draw(time);
 

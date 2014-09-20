@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ClipperLib;
 using Microsoft.Win32;
 using OpenTK;
+using OpenTK.Graphics;
 using OpenTK.Input;
 using OpenTK.Graphics.OpenGL;
 using Substructio.Core;
@@ -19,6 +20,7 @@ namespace BeatDetection
         private PolarVector _velocity;
 
         public int Hits;
+        public Color4 Colour = Color4.White;
 
         public double Length
         {
@@ -80,6 +82,7 @@ namespace BeatDetection
         public void Draw(double time)
         {
             GL.Begin(BeginMode.Triangles);
+            GL.Color4(Colour);
             GL.Vertex2(PolarVector.ToCartesianCoordinates(_position));
             GL.Vertex2(PolarVector.ToCartesianCoordinates(_position, _length/2, _width));
             GL.Vertex2(PolarVector.ToCartesianCoordinates(_position, _length, 0));
