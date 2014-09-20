@@ -26,8 +26,8 @@ namespace BeatDetection.Game
         private int _polygonsToRemoveCount;
         private Color4[] _segmentColours;
         private SegmentInformation[] _segments;
-        private int _colourIndex = 0;
-        private int _segmentIndex = 0;
+        private int _colourIndex;
+        private int _segmentIndex;
 
         private WaveOut _waveOut;
         private IWaveProvider _waveProvider;
@@ -46,8 +46,8 @@ namespace BeatDetection.Game
         private double _warmupTime = 2.0f;
         private double _elapsedWarmupTime;
         private double _easeInTime = 1.0f;
-        private bool _finishedEaseIn = false;
-        private bool _running = false;
+        private bool _finishedEaseIn;
+        private bool _running;
 
         public int Hits
         {
@@ -136,8 +136,6 @@ namespace BeatDetection.Game
         {
             _audioFeatures = new AudioFeatures(sonicPath, pluginPath, "../../Processed Songs/", correction + (float)_easeInTime);
             _audioFeatures.Extract(audioPath);
-            //_qmVampWrapper = new QMVampWrapper(audioPath, sonicPath, pluginPath, correction + (float)_easeInTime);
-            //_qmVampWrapper.DetectBeats();
 
             _polygons = new PolarPolygon[_audioFeatures.Onsets.Count];
 
@@ -178,17 +176,8 @@ namespace BeatDetection.Game
 
                 _polygons[index] = new PolarPolygon(maxSides, 5, b, 600, angles[start % 6] + _centerPolygon.Azimuth, 125);
 
-                //for (int i = 0; i < 5; i++)
-                //{
-                //    //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[start] + angles[((i+start)%6)] });
-                //    hexagonSides.Add(new PolarPolygonSide(b, 400, angles[start % 6] + i * angles[0], 125) { Colour = col });
-                //}
                 prevTime = b;
                 prevStart = start;
-                //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[0] });
-                //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[1] });
-                //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[2] });
-                //hexagons.Add(new PolarPolygon(b, 300) { theta = angles[3] });
 
                 index++;
             }
@@ -226,44 +215,31 @@ namespace BeatDetection.Game
                 _finishedEaseIn = true;
             }
 
-            if (true)
+            _polygonIndex += _polygonsToRemoveCount;
+            _polygonsToRemoveCount = 0;
+
+            for (int i = _polygonIndex; i < _polygons.Length; i++)
             {
-                //_totalTime += time;
-
-
-                _polygonIndex += _polygonsToRemoveCount;
-                _polygonsToRemoveCount = 0;
-
-                for (int i = _polygonIndex; i < _polygons.Length; i++)
+                var poly = _polygons[i];
+                poly.Direction = _direction;
+                poly.Update(time, _running);
+                if (_running)
                 {
-                    var poly = _polygons[i];
-                    poly.Direction = _direction;
-                    poly.Update(time, _running);
-                    if (_running)
-                    {
-                        if (poly.Destroy)
-                            _polygonsToRemoveCount++;
-                        else if ((poly.Radius - poly.ImpactDistance) / (poly.Speed) < (poly.PulseWidthMax / poly.PulseMultiplier))
-                            _centerPolygon.Pulsing = true;
-                    }
+                    if (poly.Destroy)
+                        _polygonsToRemoveCount++;
+                    else if ((poly.Radius - poly.ImpactDistance)/(poly.Speed) < (poly.PulseWidthMax/poly.PulseMultiplier))
+                        _centerPolygon.Pulsing = true;
                 }
-
-                if (_polygonsToRemoveCount > 0)
-                {
-                    var d = _random.NextDouble();
-                    _direction = d > 0.95 ? -_direction : _direction;
-                    // _centerPolygon.Pulse(time);
-                }
-
-                //_centerPolygon.Update(time, false);
-                //if (InputSystem.CurrentKeys.Contains(Key.Left))
-                //    _centerPolygon.Rotate(time);
-                //else if (InputSystem.CurrentKeys.Contains(Key.Right))
-                //    _centerPolygon.Rotate(-time * 1.5);
-
-                GetPlayerOverlap();
-
             }
+
+            if (_polygonsToRemoveCount > 0)
+            {
+                var d = _random.NextDouble();
+                _direction = d > 0.95 ? -_direction : _direction;
+            }
+            GetPlayerOverlap();
+
+
 
             //var t = _polygons[_polygonIndex].Azimuth;
             //t -= MathHelper.DegreesToRadians(30);
@@ -291,11 +267,11 @@ namespace BeatDetection.Game
                 Overlap = 0;
                 return;
             }
-            Clipper c = new Clipper();
+            var c = new Clipper();
             c.AddPaths(_polygons[_polygonIndex].GetPolygonBounds(), PolyType.ptSubject, true);
             c.AddPath(_player.GetBounds(), PolyType.ptClip, true);
 
-            List<List<IntPoint>> soln = new List<List<IntPoint>>();
+            var soln = new List<List<IntPoint>>();
             c.Execute(ClipType.ctIntersection, soln);
 
             Overlap = soln.Count > 0 ? (int)((Clipper.Area(soln[0]) / Clipper.Area(_player.GetBounds()))*100) : 0;
@@ -309,7 +285,6 @@ namespace BeatDetection.Game
 
         public void Draw(double time)
         {
-            //GL.ClearColor(_segmentColours[0]);
             for (int i = _polygonIndex; i < _polygons.Length; i++)
             {
                 _polygons[i].Draw(time);
