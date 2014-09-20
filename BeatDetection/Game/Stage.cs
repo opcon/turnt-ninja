@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using BeatDetection.Audio;
 using BeatDetection.Core;
 using ClipperLib;
 using NAudio.Wave;
@@ -12,6 +13,7 @@ using OpenTK.Input;
 using Substructio.Core;
 using Wav2Flac;
 using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 
 namespace BeatDetection.Game
 {
@@ -19,9 +21,13 @@ namespace BeatDetection.Game
     {
         private double _totalTime;
         private PolarPolygon[] _polygons;
-        private QMVampWrapper _qmVampWrapper;
+        private AudioFeatures _audioFeatures;
         private int _polygonIndex;
         private int _polygonsToRemoveCount;
+        private Color4[] _segmentColours;
+        private SegmentInformation[] _segments;
+        private int _colourIndex = 0;
+        private int _segmentIndex = 0;
 
         private WaveOut _waveOut;
         private IWaveProvider _waveProvider;
@@ -128,10 +134,12 @@ namespace BeatDetection.Game
 
         private void LoadAudioFeatures(string audioPath, string sonicPath, string pluginPath, float correction)
         {
-            _qmVampWrapper = new QMVampWrapper(audioPath, sonicPath, pluginPath, correction + (float)_easeInTime);
-            _qmVampWrapper.DetectBeats();
+            _audioFeatures = new AudioFeatures(sonicPath, pluginPath, "../../Processed Songs/", correction + (float)_easeInTime);
+            _audioFeatures.Extract(audioPath);
+            //_qmVampWrapper = new QMVampWrapper(audioPath, sonicPath, pluginPath, correction + (float)_easeInTime);
+            //_qmVampWrapper.DetectBeats();
 
-            _polygons = new PolarPolygon[_qmVampWrapper.Beats.Count];
+            _polygons = new PolarPolygon[_audioFeatures.Onsets.Count];
 
             int maxSides = 6;
 
@@ -147,7 +155,7 @@ namespace BeatDetection.Game
 
             int index = 0;
 
-            var sorted = _qmVampWrapper.Beats.OrderBy(f => f);
+            var sorted = _audioFeatures.Onsets.OrderBy(f => f);
             foreach (var b in sorted) 
             {
                 var col = Color.White;
@@ -185,6 +193,14 @@ namespace BeatDetection.Game
                 index++;
             }
 
+            _segments = _audioFeatures.Segments.OrderBy(x => x.StartTime).ToArray();
+            var maxID = _audioFeatures.Segments.Max(x => x.ID);
+            _segmentColours = new Color4[maxID];
+            for (int i = 0; i < maxID; i++)
+            {
+                _segmentColours[i] = new Color4((float)_random.NextDouble(), (float)_random.NextDouble(), (float)_random.NextDouble(), 1.0f);
+            }
+            _colourIndex = _segments[_segmentIndex].ID - 1;
         }
 
         public void Update(double time)
@@ -249,14 +265,23 @@ namespace BeatDetection.Game
 
             }
 
-            var t = _polygons[_polygonIndex].Azimuth;
-            t -= MathHelper.DegreesToRadians(30);
+            //var t = _polygons[_polygonIndex].Azimuth;
+            //t -= MathHelper.DegreesToRadians(30);
             //_player.DoAI(t);
             _player.Direction = _direction;
             _centerPolygon.Direction = _direction;
             _centerPolygon.Colour = _collided ? Color4.Red : Color4.White;
             _player.Update(time);
             _centerPolygon.Update(time, false);
+
+            var seg = _segments[_segmentIndex];
+            if (seg.EndTime > 0 && seg.EndTime < _totalTime)
+            {
+                _segmentIndex++;
+                _colourIndex = _segments[_segmentIndex].ID - 1;
+            }
+
+            GL.ClearColor(_segmentColours[_colourIndex]);
         }
 
         private void GetPlayerOverlap()
@@ -284,6 +309,7 @@ namespace BeatDetection.Game
 
         public void Draw(double time)
         {
+            //GL.ClearColor(_segmentColours[0]);
             for (int i = _polygonIndex; i < _polygons.Length; i++)
             {
                 _polygons[i].Draw(time);

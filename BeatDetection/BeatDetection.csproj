@@ -79,6 +79,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audio\AudioFeatures.cs" />
+    <Compile Include="Audio\SonicAnnotatorWrapper.cs" />
     <Compile Include="Core\Directories.cs" />
     <Compile Include="Core\PolarPolygon.cs" />
     <Compile Include="Game\Stage.cs" />
