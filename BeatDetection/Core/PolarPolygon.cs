@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ClipperLib;
+using ColorMine.ColorSpaces;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using Substructio.Core;
 using Substructio.Core.Math;
 
 namespace BeatDetection.Core
@@ -157,7 +159,21 @@ namespace BeatDetection.Core
         public double Speed;
         public PolarVector Velocity;
 
-        public Color4 Colour = Color4.White;
+        private Color4 _colour = Color4.White;
+        private Color4 _outlineColour = Color4.White;
+
+        public Color4 Colour
+        {
+            get { return _colour; }
+            set
+            {
+                _colour = value;
+                var hsl = Utilities.Color4ToColorSpace(_colour).To<Hsl>();
+                hsl.L += 10;
+                hsl.S += 20;
+                _outlineColour = Utilities.ColorSpaceToColor4(hsl);
+            }
+        }
 
         public PolarPolygonSide(double impactTime, double speed, double startAngle, double minimumDistance = 100)
         {
@@ -203,6 +219,17 @@ namespace BeatDetection.Core
                 PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth + Length, Position.Radius + Width)));
             GL.Vertex2(PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth, Position.Radius + Width)));
 
+
+            GL.End();
+
+            GL.LineWidth(3);
+            GL.Begin(PrimitiveType.LineLoop);
+            GL.Color4(_outlineColour);
+            GL.Vertex2(PolarVector.ToCartesianCoordinates(Position));
+            GL.Vertex2(PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth + Length, Position.Radius)));
+            GL.Vertex2(
+                PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth + Length, Position.Radius + Width)));
+            GL.Vertex2(PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth, Position.Radius + Width)));
 
             GL.End();
         }
