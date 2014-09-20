@@ -10,14 +10,7 @@ namespace BeatDetection.Audio
 {
     class SonicAnnotatorWrapper
     {
-        //protected string _sonicAnnotatorPath;
-        //protected string _audioFilePath;
-        //protected string _pluginsPath;
-        //protected string _outputSuffix;
-        //protected string _pluginDescriptorPath;
-        //protected float _correction;
-
-        protected SonicAnnotatorArguments _baseArguments;
+        private SonicAnnotatorArguments _baseArguments;
 
         public SonicAnnotatorWrapper(SonicAnnotatorArguments arguments)
         {
@@ -80,16 +73,6 @@ namespace BeatDetection.Audio
             resultPath = null;
             return false;
         }
-
-        //public void Initialise(string audioPath, string sonicPath, string pluginPath, float correction, string descriptorPath = "../../Processed Songs/qmonset.n3", string outputSuffix = "vamp_qm-vamp-plugins_qm-onsetdetector_onsets")
-        //{
-        //    _audioFilePath = audioPath;
-        //    _sonicAnnotatorPath = sonicPath;
-        //    _correction = correction;
-        //    _pluginDescriptorPath = descriptorPath;
-        //    _outputSuffix = outputSuffix;
-        //    _pluginsPath = pluginPath;
-        //}
     }
 
     struct SonicAnnotatorArguments
