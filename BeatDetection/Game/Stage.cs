@@ -194,14 +194,18 @@ namespace BeatDetection.Game
 
             var s = 30;
             var l = 40;
-            double maxStep = (double)360/maxID;
+            double maxStep = (double)360/(maxID+1);
             double minStep = 0.5*maxStep;
             double startAngle = _random.NextDouble()*360;
-            double prevAngle = startAngle;
+            double prevAngle = startAngle - maxStep;
             for (int i = 0; i < maxID; i++)
             {
                 var step = _random.NextDouble()*(maxStep - minStep) + minStep;
-                var angle = MathUtilities.Normalise(step + prevAngle, 0, 360);
+                double angle = prevAngle;
+                do
+                {
+                    angle = MathUtilities.Normalise(step + angle, 0, 360);
+                } while (angle > 275 && angle < 310);
                 var col = new Hsl{H = angle, L=l, S=s};
                 var rgb = col.ToRgb();
 
@@ -215,7 +219,6 @@ namespace BeatDetection.Game
 
         public void Update(double time)
         {
-            double targetAzimuth;
             if (!_running)
             {
                 _elapsedWarmupTime += time;
@@ -286,10 +289,9 @@ namespace BeatDetection.Game
                 UpdateColours();
             }
 
-            GL.ClearColor(_segmentColours[_colourIndex]);
         }
 
-        private void UpdateColours()
+        public void UpdateColours()
         {
             var c = Utilities.Color4ToColorSpace(_segmentColours[_colourIndex]).ToRgb();
             var hsl = c.To<Hsl>();
@@ -305,6 +307,7 @@ namespace BeatDetection.Game
             _opposingColour = Utilities.ColorSpaceToColor4(c);
             _centerPolygon.Colour = _opposingColour;
             //_player.Colour = _opposingColour;
+            GL.ClearColor(_segmentColours[_colourIndex]);
         }
 
         private void GetPlayerOverlap()

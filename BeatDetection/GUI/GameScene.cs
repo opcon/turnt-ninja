@@ -12,11 +12,11 @@ namespace BeatDetection.GUI
         public GameScene(Stage stage)
         {
             _stage = stage;
+            _stage.UpdateColours();
         }
 
         public override void Load()
         {
-            //SceneManager.ScreenCamera.TargetScale = new Vector2(10,10);
             Loaded = true;
         }
 
