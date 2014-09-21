@@ -185,7 +185,7 @@ namespace BeatDetection.Game
                     c = 0;
                 }
 
-                _polygons[index] = new PolarPolygon(maxSides, 5, b, 600, angles[start % 6] + _centerPolygon.Azimuth, 125);
+                _polygons[index] = new PolarPolygon(maxSides, 5, b, 600 + b*0, angles[start % 6] + _centerPolygon.Azimuth, 125);
 
                 prevTime = b;
                 prevStart = start;
