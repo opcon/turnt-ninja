@@ -54,10 +54,16 @@ namespace BeatDetection.Game
         private bool _AI = false;
         private Color4 _opposingColour;
         private Color4 _collisionColour;
+        private int _multiplier;
 
         public int Hits
         {
             get { return _player.Hits; }
+        }
+
+        public int Multiplier
+        {
+            get { return _multiplier; }
         }
 
         public int CurrentPolygon
@@ -261,6 +267,7 @@ namespace BeatDetection.Game
             {
                 var d = _random.NextDouble();
                 _direction = d > 0.95 ? -_direction : _direction;
+                _multiplier += _polygonsToRemoveCount;
             }
             GetPlayerOverlap();
 
@@ -327,6 +334,7 @@ namespace BeatDetection.Game
             Overlap = soln.Count > 0 ? (int)((Clipper.Area(soln[0]) / Clipper.Area(_player.GetBounds()))*100) : 0;
             if (Overlap > 80)
             {
+                _multiplier = -1;
                 _player.Hits++;
                 _collidedPolygonIndex = _polygonIndex;
                 _polygons[_collidedPolygonIndex].Colour = _collisionColour;
