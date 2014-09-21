@@ -59,13 +59,10 @@ namespace BeatDetection.GUI
             }
 
             _loadingFont = new QFont(SceneManager.FontPath, 30);
-            //_loadingText = _loadingFont.ProcessText(String.Format("Loading {0}", Path.GetFileName(file)), 1000, QFontAlignment.Centre);
             _loadingText = _loadingFont.ProcessText("Loading ", 1000, QFontAlignment.Centre);
             _loadingTextPosition = CalculateTextPosition(new Vector2(SceneManager.ScreenCamera.PreferredWidth / 2, SceneManager.ScreenCamera.PreferredHeight / 2), _loadingText);
 
-            //TODO implement loading of stage in a background thread
             _loadTask = Task.Factory.StartNew(() => _stage.Load(file, _sonicAnnotatorPath, _pluginPath, _correction));
-            //_stage.Load(file, _sonicAnnotatorPath, _pluginPath, _correction);
 
             Loaded = true;
         }

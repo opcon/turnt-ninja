@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BeatDetection.Game;
 using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using Substructio.GUI;
 
@@ -41,10 +36,6 @@ namespace BeatDetection.GUI
 
         public override void Draw(double time)
         {
-            //SceneManager.ScreenCamera.Center = new Vector2(0, 0);
-            //SceneManager.ScreenCamera.Update(time);
-            //SceneManager.ScreenCamera.UpdateProjectionMatrix();
-            //SceneManager.ScreenCamera.UpdateModelViewMatrix();
             SceneManager.ScreenCamera.EnableWorldDrawing();
             GL.Disable(EnableCap.Texture2D);
             _stage.Draw(time);
