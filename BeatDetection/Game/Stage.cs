@@ -54,6 +54,10 @@ namespace BeatDetection.Game
         private bool _AI = false;
         private Color4 _opposingColour;
         private Color4 _collisionColour;
+        private Color4 _outlineColour;
+
+        Color4 _collisionOutlineColour;
+
         private int _multiplier;
 
         public int Hits
@@ -260,7 +264,9 @@ namespace BeatDetection.Game
                     else if ((poly.Radius - poly.ImpactDistance)/(poly.Speed) < (poly.PulseWidthMax/poly.PulseMultiplier))
                         _centerPolygon.Pulsing = true;
                 }
-                poly.Colour = poly.Colour == _collisionColour ? _collisionColour : _opposingColour;
+                if (poly.Colour != _collisionColour && poly.Colour != _opposingColour)
+                    poly.SetColour(_opposingColour, _outlineColour);
+                //poly.Colour = poly.Colour == _collisionColour ? _collisionColour : _opposingColour;
             }
 
             if (_polygonsToRemoveCount > 0)
@@ -283,7 +289,9 @@ namespace BeatDetection.Game
 
             _player.Direction = _direction;
             _centerPolygon.Direction = _direction;
-            _centerPolygon.Colour = Collided ? _collisionColour : _opposingColour;
+            if (_centerPolygon.Colour == _collisionColour && !Collided)
+                _centerPolygon.SetColour(_opposingColour, _outlineColour);
+            //_centerPolygon.Colour = Collided ? _collisionColour : _opposingColour;
             _player.Update(time, _AI);
             _centerPolygon.Update(time, false);
 
@@ -301,20 +309,31 @@ namespace BeatDetection.Game
         public void UpdateColours()
         {
             var c = Utilities.Color4ToColorSpace(_segmentColours[_colourIndex]).ToRgb();
-            var hsl = c.To<Hsl>();
+
             var opp = c.To<Hsl>();
             opp.S = 60;
             opp.L = 60;
             _collisionColour = Utilities.ColorSpaceToColor4(opp);
+            _collisionOutlineColour = Utilities.ColorSpaceToColor4(GetOutlineColour(opp));
+
+            var hsl = c.To<Hsl>();
             hsl.H = MathUtilities.Normalise(hsl.H + 180, 0, 360);
-            //hsl.L = 60;
             hsl.S = 50;
-            //hsl.L = hsl.S = 50;
             c = hsl.ToRgb();
             _opposingColour = Utilities.ColorSpaceToColor4(c);
-            _centerPolygon.Colour = _opposingColour;
-            //_player.Colour = _opposingColour;
+
+            _outlineColour = Utilities.ColorSpaceToColor4(GetOutlineColour(hsl));
+
+            //_centerPolygon.Colour = _opposingColour;
+            _centerPolygon.SetColour(_opposingColour, _outlineColour);
             GL.ClearColor(_segmentColours[_colourIndex]);
+        }
+
+        private Hsl GetOutlineColour(Hsl col)
+        {
+            col.L += 10;
+            col.S += 20;
+            return col;
         }
 
         private void GetPlayerOverlap()
@@ -337,7 +356,9 @@ namespace BeatDetection.Game
                 _multiplier = -1;
                 _player.Hits++;
                 _collidedPolygonIndex = _polygonIndex;
-                _polygons[_collidedPolygonIndex].Colour = _collisionColour;
+                _polygons[_collidedPolygonIndex].SetColour(_collisionColour, _collisionOutlineColour);
+                _centerPolygon.SetColour(_collisionColour, _collisionOutlineColour);
+                //_polygons[_collidedPolygonIndex].Colour = _collisionColour;
             }
         }
 

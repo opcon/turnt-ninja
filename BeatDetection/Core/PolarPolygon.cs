@@ -31,10 +31,13 @@ namespace BeatDetection.Core
         public bool Destroy = false;
 
         private Color4 _colour;
+
+        private Color4 _outlineColour;
+
         public Color4 Colour
         {
             get {return _colour;}
-            set
+            private set
             {
                 _colour = value;
                 if (Sides != null && Sides.Count > 0)
@@ -42,6 +45,22 @@ namespace BeatDetection.Core
                     foreach (var s in Sides)
                     {
                         s.Colour = _colour;
+                    }
+                }
+            }
+        }
+
+        public Color4 OutlineColour
+        {
+            get{ return _outlineColour; }
+            private set 
+            {
+                _outlineColour = value;
+                if (Sides != null && Sides.Count > 0)
+                {
+                    foreach (var s in Sides)
+                    {
+                        s.OutlineColour = _outlineColour;
                     }
                 }
             }
@@ -144,6 +163,11 @@ namespace BeatDetection.Core
             return polys;
         }
 
+        public void SetColour(Color4 colour, Color4 outlineColour)
+        {
+            Colour = colour;
+            OutlineColour = outlineColour;
+        }
     }
 
     class PolarPolygonSide
@@ -164,16 +188,20 @@ namespace BeatDetection.Core
 
         public Color4 Colour
         {
-            get { return _colour; }
-            set
-            {
-                _colour = value;
-                var hsl = Utilities.Color4ToColorSpace(_colour).To<Hsl>();
-                hsl.L += 10;
-                hsl.S += 20;
-                _outlineColour = Utilities.ColorSpaceToColor4(hsl);
-            }
+            get;
+            set;
+//            get { return _colour; }
+//            set
+//            {
+//                _colour = value;
+//                var hsl = Utilities.Color4ToColorSpace(_colour).To<Hsl>();
+//                hsl.L += 10;
+//                hsl.S += 20;
+//                _outlineColour = Utilities.ColorSpaceToColor4(hsl);
+//            }
         }
+
+        public Color4 OutlineColour { get; set;}
 
         public PolarPolygonSide(double impactTime, double speed, double startAngle, double minimumDistance = 100)
         {
@@ -224,7 +252,7 @@ namespace BeatDetection.Core
 
             GL.LineWidth(3);
             GL.Begin(PrimitiveType.LineLoop);
-            GL.Color4(_outlineColour);
+            GL.Color4(OutlineColour);
             GL.Vertex2(PolarVector.ToCartesianCoordinates(Position));
             GL.Vertex2(PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth + Length, Position.Radius)));
             GL.Vertex2(
