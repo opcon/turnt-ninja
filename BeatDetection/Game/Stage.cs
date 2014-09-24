@@ -227,7 +227,7 @@ namespace BeatDetection.Game
                 _segmentColours[i] = new Color4((byte)rgb.R, (byte)rgb.G, (byte)rgb.B, 255);
             }
             _colourIndex = _segments[_segmentIndex].ID - 1;
-            UpdateColours();
+            //UpdateColours();
         }
 
         public void Update(double time)

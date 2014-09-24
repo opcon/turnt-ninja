@@ -93,6 +93,7 @@ namespace BeatDetection.GUI
         {
             if (_loadTask.IsCompleted)
             {
+                _stage.UpdateColours();
                 SceneManager.RemoveScene(this);
                 SceneManager.AddScene(new GameScene(_stage));
             }
