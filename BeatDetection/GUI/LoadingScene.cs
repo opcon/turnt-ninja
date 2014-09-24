@@ -127,8 +127,6 @@ namespace BeatDetection.GUI
         {
             var size = _loadingFont.Measure(text);
             return new Vector2(center.X, center.Y + size.Height/2);
-            return center;
-            return new Vector2(center.X - size.Width/2, center.Y - size.Height/2);
         }
     }
 }
