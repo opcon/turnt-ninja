@@ -39,10 +39,9 @@ namespace BeatDetection.Audio
             //var csvDir = "../../Processed Songs/";
             var args = String.Format("-t \"{0}\" \"{1}\" -w csv --csv-force --csv-basedir \"{2}\"", arguments.DescriptorPath, arguments.AudioFilePath, arguments.CSVDirectory.Replace(@"\", "/"));
             psi.Arguments = args;
-//            psi.CreateNoWindow = true;
+            psi.CreateNoWindow = true;
             psi.UseShellExecute = false;
-            //psi.RedirectStandardOutput = true;
-//            psi.RedirectStandardError = true;
+            psi.RedirectStandardError = true;
 
             var result = Path.Combine(arguments.CSVDirectory, String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(arguments.AudioFilePath), arguments.InitialOutputSuffix) + ".csv");
             var newName = Path.Combine(Path.GetDirectoryName(result), String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(arguments.AudioFilePath), arguments.DesiredOutputSuffix + ".csv"));
