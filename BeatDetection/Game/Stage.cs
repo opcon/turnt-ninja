@@ -105,10 +105,13 @@ namespace BeatDetection.Game
             _centerPolygon = centerPolygon;
         }
 
-        public void Load(string audioPath, string sonicPath, string pluginPath, float correction)
+        public void LoadAsync(string audioPath, string sonicPath, string pluginPath, float correction, IProgress<string> progress)
         {
+            progress.Report("Loading audio");
             LoadAudioStream(audioPath);
+            progress.Report("Extracting audio features");
             LoadAudioFeatures(audioPath, sonicPath, pluginPath, correction);
+            progress.Report("Load complete");
 
             _direction = 1;
         }

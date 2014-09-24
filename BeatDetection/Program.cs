@@ -62,6 +62,7 @@ namespace BeatDetection
 
         private int dir = 1;
 
+
         private Stage _stage;
         public GameController()
             : base(1280, 720)
@@ -141,7 +142,7 @@ namespace BeatDetection
             GL.ClearColor(Color.CornflowerBlue);
 
             //_stage = new Stage();
-            //_stage.Load(file, sonicAnnotator, pluginPath, correction);
+            //_stage.LoadAsync(file, sonicAnnotator, pluginPath, correction);
         }
 
         #endregion
@@ -157,12 +158,14 @@ namespace BeatDetection
         {
             GL.Viewport(0, 0, Width, Height);
 
+
             //GL.MatrixMode(MatrixMode.Projection);
             //var mat = Matrix4.CreateOrthographic(Width, Height, 0.0f, 4.0f);
             //GL.LoadMatrix(ref mat);
 
             _gameSceneManager.Resize(e);
         }
+
 
         #endregion
 

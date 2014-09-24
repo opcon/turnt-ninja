@@ -25,8 +25,11 @@ namespace BeatDetection.GUI
         private Player _player;
         private PolarPolygon _centerPolygon;
         private ProcessedText _loadingText;
+        private ProcessedText _songText;
         private Vector2 _loadingTextPosition;
         private QFont _loadingFont;
+
+        private string _loadingStatus;
 
         public LoadingScene(string sonicAnnotatorPath, string pluginPath, float correction)
         {
@@ -59,10 +62,18 @@ namespace BeatDetection.GUI
             }
 
             _loadingFont = new QFont(SceneManager.FontPath, 30);
-            _loadingText = _loadingFont.ProcessText("Loading ", 1000, QFontAlignment.Centre);
-            _loadingTextPosition = CalculateTextPosition(new Vector2(SceneManager.ScreenCamera.PreferredWidth / 2, SceneManager.ScreenCamera.PreferredHeight / 2), _loadingText);
+            _loadingText = _loadingFont.ProcessText("Loading", 200, QFontAlignment.Centre);
+            //_loadingTextPosition = CalculateTextPosition(new Vector2(SceneManager.ScreenCamera.PreferredWidth / 2, SceneManager.ScreenCamera.PreferredHeight / 2), _loadingText);
+            _loadingTextPosition = CalculateTextPosition(new Vector2((float)SceneManager.GameWindow.Width/ 2, SceneManager.GameWindow.Height/ 2), _loadingText);
 
-            _loadTask = Task.Factory.StartNew(() => _stage.Load(file, _sonicAnnotatorPath, _pluginPath, _correction));
+            _songText = _loadingFont.ProcessText(Path.GetFileNameWithoutExtension(file), SceneManager.GameWindow.Width,
+                QFontAlignment.Centre);
+
+            var progress = new Progress<string>(status =>
+            {
+                _loadingStatus = status;
+            });
+            _loadTask = Task.Factory.StartNew(() => _stage.LoadAsync(file, _sonicAnnotatorPath, _pluginPath, _correction, progress));
 
             Loaded = true;
         }
@@ -96,6 +107,8 @@ namespace BeatDetection.GUI
             SceneManager.ScreenCamera.EnableScreenDrawing();
             //SceneManager.DrawTextLine("hello", new Vector2(100, 100));
             SceneManager.DrawProcessedText(_loadingText, _loadingTextPosition, _loadingFont);
+            SceneManager.DrawProcessedText(_songText, new Vector2(SceneManager.GameWindow.Width/2, SceneManager.GameWindow.Height - 100), _loadingFont);
+            SceneManager.DrawTextLine(_loadingStatus, new Vector2(SceneManager.GameWindow.Width/2, 100), _loadingFont);
             //SceneManager.DrawProcessedText(_loadingText, new Vector2(0, 0), _loadingFont);
             //QFont.Begin();
             //_loadingFont.Print(_loadingText, _loadingTextPosition);
