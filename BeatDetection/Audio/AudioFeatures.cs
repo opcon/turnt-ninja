@@ -13,9 +13,11 @@ namespace BeatDetection.Audio
         public List<float> Onsets = new List<float>();
         public List<SegmentInformation> Segments = new List<SegmentInformation>();
         public float _correction;
+        private IProgress<string> _progressReporter;
 
-        public AudioFeatures(string sonicAnnotatorPath, string pluginPath, string csvDirectory, float correction)
+        public AudioFeatures(string sonicAnnotatorPath, string pluginPath, string csvDirectory, float correction, IProgress<string> progress = null)
         {
+            _progressReporter = progress ?? new Progress<string>();
             _annotatorWrapper = new SonicAnnotatorWrapper(new SonicAnnotatorArguments{SonicAnnotatorPath = sonicAnnotatorPath, PluginsPath = pluginPath, CSVDirectory = csvDirectory});
             _correction = correction;
         }
@@ -37,7 +39,7 @@ namespace BeatDetection.Audio
                 DescriptorPath = "../../Processed Songs/qmonset.n3"
             };
             string resultPath;
-            bool success = _annotatorWrapper.Run(args, out resultPath);
+            bool success = _annotatorWrapper.Run(args, out resultPath, _progressReporter);
 
             if (!success) throw new Exception("Error during sonic annotator onset processing");
 
@@ -63,7 +65,7 @@ namespace BeatDetection.Audio
                 DescriptorPath = "../../Processed Songs/qmsegments.n3"
             };
             string resultPath;
-            bool success = _annotatorWrapper.Run(args, out resultPath);
+            bool success = _annotatorWrapper.Run(args, out resultPath, _progressReporter);
 
             if (!success) throw new Exception("Error during sonic annotator segment processing");
 

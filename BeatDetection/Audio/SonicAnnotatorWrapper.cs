@@ -5,20 +5,23 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace BeatDetection.Audio
 {
     class SonicAnnotatorWrapper
     {
         private SonicAnnotatorArguments _baseArguments;
+        private IProgress<string> _progressReporter;
 
         public SonicAnnotatorWrapper(SonicAnnotatorArguments arguments)
         {
             _baseArguments = arguments;
         }
 
-        public bool Run(SonicAnnotatorArguments arguments, out string resultPath)
+        public bool Run(SonicAnnotatorArguments arguments, out string resultPath, IProgress<string> progress = null)
         {
+            _progressReporter = progress ?? new Progress<string>();
             if (string.IsNullOrWhiteSpace(arguments.SonicAnnotatorPath))
                 arguments.SonicAnnotatorPath = _baseArguments.SonicAnnotatorPath;
             if (string.IsNullOrWhiteSpace(arguments.PluginsPath))
@@ -36,10 +39,10 @@ namespace BeatDetection.Audio
             //var csvDir = "../../Processed Songs/";
             var args = String.Format("-t \"{0}\" \"{1}\" -w csv --csv-force --csv-basedir \"{2}\"", arguments.DescriptorPath, arguments.AudioFilePath, arguments.CSVDirectory.Replace(@"\", "/"));
             psi.Arguments = args;
-            psi.CreateNoWindow = true;
+//            psi.CreateNoWindow = true;
             psi.UseShellExecute = false;
             //psi.RedirectStandardOutput = true;
-            psi.RedirectStandardError = true;
+//            psi.RedirectStandardError = true;
 
             var result = Path.Combine(arguments.CSVDirectory, String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(arguments.AudioFilePath), arguments.InitialOutputSuffix) + ".csv");
             var newName = Path.Combine(Path.GetDirectoryName(result), String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(arguments.AudioFilePath), arguments.DesiredOutputSuffix + ".csv"));
@@ -50,16 +53,17 @@ namespace BeatDetection.Audio
                 return true;
             }
 
-            //string q = "";
-            string e = "";
+            string pattern = @"\s(\d{1,3})%";
             var p = Process.Start(psi);
             while (!p.HasExited)
             {
-                //q += p.StandardOutput.ReadToEnd();
-                e += p.StandardError.ReadToEnd();
+                string e = p.StandardError.ReadLine() ?? "";
+                if (!string.IsNullOrWhiteSpace(e))
+                {
+                    var match = Regex.Match(e, pattern).ToString();
+                    _progressReporter.Report(match);
+                }
             }
-
-            //Console.Write(q);
 
             if (File.Exists(result))
             {

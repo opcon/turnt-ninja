@@ -110,7 +110,7 @@ namespace BeatDetection.Game
             progress.Report("Loading audio");
             LoadAudioStream(audioPath);
             progress.Report("Extracting audio features");
-            LoadAudioFeatures(audioPath, sonicPath, pluginPath, correction);
+            LoadAudioFeatures(audioPath, sonicPath, pluginPath, correction, progress);
             progress.Report("Load complete");
 
             _direction = 1;
@@ -150,9 +150,9 @@ namespace BeatDetection.Game
             _random = new Random(_hashCode);
         }
 
-        private void LoadAudioFeatures(string audioPath, string sonicPath, string pluginPath, float correction)
+        private void LoadAudioFeatures(string audioPath, string sonicPath, string pluginPath, float correction, IProgress<string> progress)
         {
-            _audioFeatures = new AudioFeatures(sonicPath, pluginPath, "../../Processed Songs/", correction + (float)_easeInTime);
+            _audioFeatures = new AudioFeatures(sonicPath, pluginPath, "../../Processed Songs/", correction + (float)_easeInTime, progress);
             _audioFeatures.Extract(audioPath);
 
             _polygons = new PolarPolygon[_audioFeatures.Onsets.Count];
