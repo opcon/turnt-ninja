@@ -53,7 +53,7 @@ namespace BeatDetection
         public void Update(double time, bool AI = false)
         {
             if (!AI) _currentFramesInput = GetUserInput();
-            _position.Azimuth += time*0.5*Direction;
+           // _position.Azimuth += time*0.5*Direction;
             if (_currentFramesInput.HasFlag(Input.Left))
             {
                 _position.Azimuth -= _velocity.Azimuth*time;

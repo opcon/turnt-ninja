@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ClipperLib;
-using ColorMine.ColorSpaces;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -12,27 +12,25 @@ namespace BeatDetection.Core
 {
     class PolarPolygon
     {
-        List<PolarPolygonSide> Sides;
-        private double[] _angles;
-        private double _interiorAngle;
         public double PulseWidth = 0;
         public double PulseWidthMax = 25;
         public double PulseMultiplier = 150;
         private double _width = 50;
         int pulseDirection = 1;
         public bool Pulsing;
-        public int MaxNumberOfSides;
         public int NumberOfSides;
         public int Direction { get; set; }
-        public double Radius;
-        public double Azimuth;
         public double ImpactDistance;
-        public double Speed;
         public bool Destroy = false;
+
+        public PolarVector Position;
+        public PolarVector Velocity;
+        private List<bool> _sides;
 
         private Color4 _colour;
 
         private Color4 _outlineColour;
+        public double AngleBetweenSides { get; private set; }
 
         public Color4 Colour
         {
@@ -40,13 +38,6 @@ namespace BeatDetection.Core
             private set
             {
                 _colour = value;
-                if (Sides != null && Sides.Count > 0)
-                {
-                    foreach (var s in Sides)
-                    {
-                        s.Colour = _colour;
-                    }
-                }
             }
         }
 
@@ -56,70 +47,73 @@ namespace BeatDetection.Core
             private set 
             {
                 _outlineColour = value;
-                if (Sides != null && Sides.Count > 0)
-                {
-                    foreach (var s in Sides)
-                    {
-                        s.OutlineColour = _outlineColour;
-                    }
-                }
             }
         }
 
-        public PolarPolygon(int maxNumSides, int numSides, double impactTime, double speed, double startAngle, double minimumDistance = 100)
+        public double OpeningAngle
         {
-            MaxNumberOfSides = maxNumSides;
-            NumberOfSides = numSides;
-            GenerateAngles();
-            Sides = new List<PolarPolygonSide>();
+            get { return _sides.FindIndex(x => x == false)*AngleBetweenSides; }
+        }
+
+        public PolarPolygon(List<bool> sides, PolarVector velocity, double width, double minimumRadius, double impactTime)
+        {
+            Velocity = velocity;
+            var initialRadius = (impactTime * Velocity.Radius + minimumRadius + 20);
+            ImpactDistance = minimumRadius;
+            Position = new PolarVector(0, initialRadius);
             Direction = 1;
 
-            ImpactDistance = minimumDistance;
-            Speed = speed;
+            _sides = sides;
+            NumberOfSides = _sides.Count;
 
-            GenerateHexagonSides(impactTime, speed, startAngle, minimumDistance);
             Colour = Color4.White;
+            OutlineColour = Color4.Black;
+
+            AngleBetweenSides = GetAngleBetweenSides(NumberOfSides);
+            _width = width;
         }
 
-        public void Update(double time, bool updatePosition = true)
+        public static double GetAngleBetweenSides(int numberOfSides)
         {
-            foreach (var s in Sides)
-            {
-                s.Direction = Direction;
-                s.Update(time, updatePosition);
-                Radius = s.Position.Radius;
-            }
-            if (Radius <= ImpactDistance)
+            return MathHelper.DegreesToRadians(360.0/numberOfSides);
+        }
+
+        public void Update(double time, bool updateRadius)
+        {
+            if (updateRadius) Position.Radius -= (time * Velocity.Radius);
+            if (Position.Radius <= ImpactDistance)
                 Destroy = true;
-            Azimuth = Sides.First().Position.Azimuth;
-            //else if ((Radius - ImpactDistance) / (Speed) < (PulseWidthMax / PulseMultiplier))
-            //    Pulsing = true;
-            if (Pulsing)
-                Pulse(time);
+            if (Pulsing) Pulse(time);
         }
 
-        public void Rotate(double amount)
-        {
-            foreach (var s in Sides)
-            {
-                s.Position.Azimuth += amount;
-            }
-        }
 
         public void Draw(double time)
         {
-            foreach (var s in Sides)
-            {
-                s.Draw(time);
-            }
-        }
-
-        private void GenerateHexagonSides(double impactTime, double speed, double startAngle, double minimumDistance)
-        {
+            GL.Begin(PrimitiveType.Quads);
+            GL.Color4(Colour);
             for (int i = 0; i < NumberOfSides; i++)
             {
-                Sides.Add(new PolarPolygonSide(impactTime, speed, startAngle + (i * MathHelper.DegreesToRadians(360/MaxNumberOfSides)), minimumDistance) {Length = MathHelper.DegreesToRadians(360/MaxNumberOfSides)});
+                if (_sides[i]) DrawPolygonSide(i);
             }
+            GL.End();
+
+            GL.LineWidth(3);
+            GL.Begin(PrimitiveType.Lines);
+            GL.Color4(OutlineColour);
+            for (int i = 0; i < NumberOfSides; i++)
+            {
+                if (_sides[i]) DrawPolygonSide(i);
+            }
+            GL.End();
+        }
+
+        private void DrawPolygonSide(int index)
+        {
+            var sp = new PolarVector(Position.Azimuth + index*AngleBetweenSides, Position.Radius);
+            GL.Vertex2(PolarVector.ToCartesianCoordinates(sp));
+            GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, 0));
+            GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth));
+            GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth));
         }
 
         public void Pulse(double time)
@@ -135,141 +129,26 @@ namespace BeatDetection.Core
                 Pulsing = false;
                 pulseDirection = 1;
             }
-
-            foreach (var s in Sides)
-            {
-                s.Width = _width + PulseWidth;
-            }
-        }
-
-        void GenerateAngles()
-        {
-            _angles = new double[MaxNumberOfSides];
-            _interiorAngle = MathHelper.DegreesToRadians(((double) MaxNumberOfSides - 2)*180)/(MaxNumberOfSides);
-
-            for (int i = 0; i < MaxNumberOfSides; i++)
-            {
-                _angles[i] = MathHelper.DegreesToRadians((i + 1)*(_interiorAngle));
-            }
         }
 
         public List<List<IntPoint>> GetPolygonBounds()
         {
             var polys = new List<List<IntPoint>>();
-            foreach (var s in Sides)
+            for (int i = 0; i < NumberOfSides; i++)
             {
-                polys.Add(s.GetPoints());
+                if (_sides[i]) polys.Add(GetSideBounds(i));
             }
             return polys;
         }
 
-        public void SetColour(Color4 colour, Color4 outlineColour)
-        {
-            Colour = colour;
-            OutlineColour = outlineColour;
-        }
-    }
-
-    class PolarPolygonSide
-    {
-        public PolarVector Position;
-        //public double theta;
-        public double Width;
-        public double Length;
-        //public double r;
-
-        public double ImpactTime;
-        public double ImpactDistance;
-        public double Speed;
-        public PolarVector Velocity;
-
-        private Color4 _colour = Color4.White;
-        private Color4 _outlineColour = Color4.White;
-
-        public Color4 Colour
-        {
-            get;
-            set;
-//            get { return _colour; }
-//            set
-//            {
-//                _colour = value;
-//                var hsl = Utilities.Color4ToColorSpace(_colour).To<Hsl>();
-//                hsl.L += 10;
-//                hsl.S += 20;
-//                _outlineColour = Utilities.ColorSpaceToColor4(hsl);
-//            }
-        }
-
-        public Color4 OutlineColour { get; set;}
-
-        public PolarPolygonSide(double impactTime, double speed, double startAngle, double minimumDistance = 100)
-        {
-            //theta = startAngle;
-            //Length = MathHelper.DegreesToRadians(60);
-            Width =  50;
-
-            var r = (impactTime * speed + minimumDistance + 20);
-
-            Position = new PolarVector(startAngle, r);
-
-            Velocity = new PolarVector(0.5, speed);
-
-            ImpactTime = impactTime;
-            ImpactDistance = minimumDistance;
-            Direction = 1;
-        }
-
-        public int Direction { get; set; }
-
-        public void Update(double time, bool updatePosition = true)
-        {
-            //var newRadius = updatePosition ? Position.Radius - time*Velocity.Radius : Position.Radius;
-            //Position = new PolarVector(Position.Azimuth += time * Velocity.Azimuth * Direction, newRadius);
-            Position.Azimuth += time * Velocity.Azimuth * Direction;
-            if (updatePosition)
-                Position.Radius -= (time * Velocity.Radius);
-        }
-
-        public void Draw(double time)
-        {
-            GL.Begin(PrimitiveType.Quads);
-            GL.Color4(Colour);
-
-            //GL.Vertex2(new Vector2d(Position.Radius * Math.Cos(Position.Azimuth), Position.Radius * Math.Sin(Position.Azimuth)));
-            //GL.Vertex2(new Vector2d(Position.Radius * Math.Cos(Position.Azimuth + Length), Position.Radius * Math.Sin(Position.Azimuth + Length)));
-            //GL.Vertex2(new Vector2d((Position.Radius + Width) * Math.Cos(Position.Azimuth + Length), (Position.Radius + Width) * Math.Sin(Position.Azimuth + Length)));
-            //GL.Vertex2(new Vector2d((Position.Radius + Width) * Math.Cos(Position.Azimuth), (Position.Radius + Width) * Math.Sin(Position.Azimuth)));
-
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(Position));
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth + Length, Position.Radius)));
-            GL.Vertex2(
-                PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth + Length, Position.Radius + Width)));
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth, Position.Radius + Width)));
-
-
-            GL.End();
-
-            GL.LineWidth(3);
-            GL.Begin(PrimitiveType.LineLoop);
-            GL.Color4(OutlineColour);
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(Position));
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth + Length, Position.Radius)));
-            GL.Vertex2(
-                PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth + Length, Position.Radius + Width)));
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth, Position.Radius + Width)));
-
-            GL.End();
-        }
-
-        public List<IntPoint> GetPoints()
+        private List<IntPoint> GetSideBounds(int index)
         {
             var p = new List<IntPoint>();
-            var p1 = PolarVector.ToCartesianCoordinates(Position);
-            var p2 = PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth + Length, Position.Radius));
-            var p3 =
-                PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth + Length, Position.Radius + Width));
-            var p4 = PolarVector.ToCartesianCoordinates(new PolarVector(Position.Azimuth, Position.Radius + Width));
+            var sp = new PolarVector(Position.Azimuth + index*AngleBetweenSides, Position.Radius);
+            var p1 = PolarVector.ToCartesianCoordinates(sp);
+            var p2 = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, 0);
+            var p3 = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth);
+            var p4 = PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth);
 
             p.Add(new IntPoint(p1.X, p1.Y));
             p.Add(new IntPoint(p2.X, p2.Y));
@@ -277,6 +156,12 @@ namespace BeatDetection.Core
             p.Add(new IntPoint(p4.X, p4.Y));
 
             return p;
+        }
+
+        public void SetColour(Color4 colour, Color4 outlineColour)
+        {
+            Colour = colour;
+            OutlineColour = outlineColour;
         }
     }
 }

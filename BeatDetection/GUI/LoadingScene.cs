@@ -10,6 +10,7 @@ using BeatDetection.Core;
 using BeatDetection.Game;
 using OpenTK;
 using QuickFont;
+using Substructio.Core.Math;
 using Substructio.GUI;
 using OpenTK.Graphics.OpenGL;
 
@@ -41,7 +42,7 @@ namespace BeatDetection.GUI
         public override void Load()
         {
             _player = new Player();
-            _centerPolygon = new PolarPolygon(6, 6, 0, 1, 0, 80);
+            _centerPolygon =  new PolarPolygon(Enumerable.Repeat(true, 6).ToList(), new PolarVector(0.5, 0), 50, 80, 0 );
             _stage = new Stage(_player, _centerPolygon);
 
             string file = "";

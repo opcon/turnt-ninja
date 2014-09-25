@@ -93,11 +93,12 @@ namespace BeatDetection.Game
             get { return _collidedPolygonIndex == _polygonIndex; }
         }
 
-        public Stage()
-        {
-            _player = new Player();
-            _centerPolygon = new PolarPolygon(6, 6, 0, 1, 0, 80);
-        }
+        //public Stage()
+        //{
+        //    _player = new Player();
+        //    _centerPolygon = new PolarPolygon(new List<bool>{true, true, true, true, true, true}, new PolarVector(0.5, 0), 50, 80, 0);
+        //    //_centerPolygon = new PolarPolygon(6, 6, 0, 1, 0, 80);
+        //}
 
         public Stage(Player player, PolarPolygon centerPolygon)
         {
@@ -112,6 +113,7 @@ namespace BeatDetection.Game
             progress.Report("Extracting audio features");
             LoadAudioFeatures(audioPath, sonicPath, pluginPath, correction, progress);
             progress.Report("Load complete");
+
 
             _direction = 1;
         }
@@ -166,6 +168,7 @@ namespace BeatDetection.Game
             }
 
             int prevStart = _random.Next(maxSides - 1);
+            int prevSkip = 1;
             double prevTime = 0;
             int c = 0;
 
@@ -174,17 +177,18 @@ namespace BeatDetection.Game
             var sorted = _audioFeatures.Onsets.OrderBy(f => f);
             foreach (var b in sorted) 
             {
-                var col = Color.White;
                 int start = 0;
+                int skip = (int)(3*Math.Pow(_random.NextDouble(), 4)) + 1;
                 if (b - prevTime < 0.2)
                 {
                     c++;
                     start = prevStart;
-                    col = Color.Red;
+                    skip = prevSkip;
                 }
                 else if (b - prevTime < 0.4)
                 {
                     start = (prevStart + maxSides) + _random.Next(0, 2) - 1;
+                    skip = prevSkip;
                 }
                 else
                 {
@@ -192,10 +196,19 @@ namespace BeatDetection.Game
                     c = 0;
                 }
 
-                _polygons[index] = new PolarPolygon(maxSides, 5, b, 600 + b*0, angles[start % 6] + _centerPolygon.Azimuth, 125);
+                bool[] sides = new bool[6];
+                for (int i = 0; i < 6; i++)
+                {
+                    if (skip == 1 && i == start%6) sides[i] = false;
+                    else if ((i+start)%skip == 0) sides[i] = true;
+                    else sides[i] = false;
+                }
+                _polygons[index] = new PolarPolygon(sides.ToList(), new PolarVector(0, 600), 50, 125, b);
+                //_polygons[index] = new PolarPolygon(maxSides, 5, b, 600 + b*0, angles[start % 6] + _centerPolygon.Azimuth, 125);
 
                 prevTime = b;
                 prevStart = start;
+                prevSkip = skip;
 
                 index++;
             }
@@ -232,6 +245,7 @@ namespace BeatDetection.Game
 
         public void Update(double time)
         {
+            var rotate = time*0.5*_direction;
             if (!_running)
             {
                 _elapsedWarmupTime += time;
@@ -259,12 +273,13 @@ namespace BeatDetection.Game
             {
                 var poly = _polygons[i];
                 poly.Direction = _direction;
+                poly.Position.Azimuth = _centerPolygon.Position.Azimuth + rotate;
                 poly.Update(time, _running);
                 if (_running)
                 {
                     if (poly.Destroy)
                         _polygonsToRemoveCount++;
-                    else if ((poly.Radius - poly.ImpactDistance)/(poly.Speed) < (poly.PulseWidthMax/poly.PulseMultiplier))
+                    else if ((poly.Position.Radius - poly.ImpactDistance)/(poly.Velocity.Radius) < (poly.PulseWidthMax/poly.PulseMultiplier))
                         _centerPolygon.Pulsing = true;
                 }
                 if (poly.Colour != _collisionColour && poly.Colour != _opposingColour)
@@ -285,8 +300,8 @@ namespace BeatDetection.Game
 
             if (_AI && _polygonIndex < _polygons.Length)
             {
-                var t = _polygons[_polygonIndex].Azimuth;
-                t -= MathHelper.DegreesToRadians(30);
+                var t = _polygons[_polygonIndex].OpeningAngle + rotate*_direction + _centerPolygon.Position.Azimuth;
+                t += MathHelper.DegreesToRadians(30);
                 _player.DoAI(t);
             }
 
@@ -295,8 +310,10 @@ namespace BeatDetection.Game
             if (_centerPolygon.Colour == _collisionColour && !Collided)
                 _centerPolygon.SetColour(_opposingColour, _outlineColour);
             //_centerPolygon.Colour = Collided ? _collisionColour : _opposingColour;
+            _player.Position.Azimuth += rotate;
             _player.Update(time, _AI);
             _centerPolygon.Update(time, false);
+            _centerPolygon.Position.Azimuth += rotate;
 
             var seg = _segments[_segmentIndex];
             if (seg.EndTime > 0 && seg.EndTime < _totalTime)

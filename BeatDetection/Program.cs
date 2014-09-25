@@ -49,8 +49,8 @@ namespace BeatDetection
 
         PolarPolygon _polarPolygon;
 
-        List<PolarPolygonSide> hexagonSides;
-        List<PolarPolygonSide> toRemove;
+        //List<PolarPolygonSide> hexagonSides;
+        //List<PolarPolygonSide> toRemove;
 
         Random random;
 
