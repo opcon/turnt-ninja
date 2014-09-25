@@ -27,28 +27,12 @@ namespace BeatDetection.Core
         public PolarVector Velocity;
         private List<bool> _sides;
 
-        private Color4 _colour;
-
-        private Color4 _outlineColour;
         public double AngleBetweenSides { get; private set; }
 
-        public Color4 Colour
-        {
-            get {return _colour;}
-            private set
-            {
-                _colour = value;
-            }
-        }
-
-        public Color4 OutlineColour
-        {
-            get{ return _outlineColour; }
-            private set 
-            {
-                _outlineColour = value;
-            }
-        }
+        public Color4 EvenColour { get; private set; }
+        public Color4 EvenOutlineColour { get; private set; }
+        public Color4 OddColour { get; private set; }
+        public Color4 OddOutlineColour { get; private set; }
 
         public double OpeningAngle
         {
@@ -57,8 +41,19 @@ namespace BeatDetection.Core
 
         public PolarPolygon(List<bool> sides, PolarVector velocity, double width, double minimumRadius, double impactTime)
         {
+            InitialisePolygon(sides, velocity, width, minimumRadius, impactTime);
+        }
+
+        public PolarPolygon(int numberOfSides, PolarVector velocity, double width, double minimumRadius, double impactTime)
+        {
+            var sides = Enumerable.Repeat(true, numberOfSides).ToList();
+            InitialisePolygon(sides, velocity, width, minimumRadius, impactTime);
+        }
+
+        private void InitialisePolygon(List<bool> sides, PolarVector velocity, double width, double minimumRadius, double impactTime)
+        {
             Velocity = velocity;
-            var initialRadius = (impactTime * Velocity.Radius + minimumRadius + 20);
+            var initialRadius = (impactTime*Velocity.Radius + minimumRadius + 20);
             ImpactDistance = minimumRadius;
             Position = new PolarVector(0, initialRadius);
             Direction = 1;
@@ -66,8 +61,8 @@ namespace BeatDetection.Core
             _sides = sides;
             NumberOfSides = _sides.Count;
 
-            Colour = Color4.White;
-            OutlineColour = Color4.Black;
+            EvenColour = OddColour = Color4.White;
+            EvenOutlineColour = OddOutlineColour = Color4.Black;
 
             AngleBetweenSides = GetAngleBetweenSides(NumberOfSides);
             _width = width;
@@ -90,8 +85,13 @@ namespace BeatDetection.Core
         public void Draw(double time)
         {
             GL.Begin(PrimitiveType.Quads);
-            GL.Color4(Colour);
-            for (int i = 0; i < NumberOfSides; i++)
+            GL.Color4(EvenColour);
+            for (int i = 0; i < NumberOfSides; i+= 2)
+            {
+                if (_sides[i]) DrawPolygonSide(i);
+            }
+            GL.Color4(OddColour);
+            for (int i = 1; i < NumberOfSides; i += 2)
             {
                 if (_sides[i]) DrawPolygonSide(i);
             }
@@ -99,8 +99,13 @@ namespace BeatDetection.Core
 
             GL.LineWidth(3);
             GL.Begin(PrimitiveType.Lines);
-            GL.Color4(OutlineColour);
-            for (int i = 0; i < NumberOfSides; i++)
+            GL.Color4(EvenOutlineColour);
+            for (int i = 0; i < NumberOfSides; i+= 2)
+            {
+                if (_sides[i]) DrawPolygonSide(i);
+            }
+            GL.Color4(OddOutlineColour);
+            for (int i = 1; i < NumberOfSides; i += 2)
             {
                 if (_sides[i]) DrawPolygonSide(i);
             }
@@ -158,10 +163,17 @@ namespace BeatDetection.Core
             return p;
         }
 
-        public void SetColour(Color4 colour, Color4 outlineColour)
+        public void SetColour(Color4 evenColour, Color4 evenOutlineColour, Color4 oddColour, Color4 oddOutlineColour)
         {
-            Colour = colour;
-            OutlineColour = outlineColour;
+            EvenColour = evenColour;
+            EvenOutlineColour = evenOutlineColour;
+            OddColour = oddColour;
+            OddOutlineColour = oddOutlineColour;
+        }
+
+        public void SetColour(Color4 evenColour, Color4 evenOutlineColour)
+        {
+            SetColour(evenColour, evenOutlineColour, evenColour, evenOutlineColour);
         }
     }
 }
