@@ -193,7 +193,9 @@ namespace BeatDetection.Game
                 }
                 else if (b - prevTime < 0.4)
                 {
-                    start = (prevStart + maxSides) + _random.Next(0, 2) - 1;
+                    var r = _random.Next(0, 2);
+                    if (r == 0) r = -1;
+                    start = (prevStart + 6) + r;
                     skip = prevSkip;
                 }
                 else

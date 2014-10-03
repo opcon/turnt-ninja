@@ -65,7 +65,7 @@ namespace BeatDetection
 
         private Stage _stage;
         public GameController()
-            : base(1280, 720)
+            : base(1280, 720, new GraphicsMode(32, 24, 8, 4))
         {
             KeyDown += Keyboard_KeyDown;
             //this.VSync = VSyncMode.Off;
