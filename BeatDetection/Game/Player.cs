@@ -5,7 +5,7 @@ using Microsoft.Win32;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Input;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using Substructio.Core;
 using Substructio.Core.Math;
 

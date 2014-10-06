@@ -12,7 +12,7 @@ using OpenTK;
 using QuickFont;
 using Substructio.Core.Math;
 using Substructio.GUI;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 
 namespace BeatDetection.GUI
 {

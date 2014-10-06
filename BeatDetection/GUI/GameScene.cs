@@ -1,7 +1,7 @@
 ﻿using System;
 using BeatDetection.Game;
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using QuickFont;
 using Substructio.GUI;
 

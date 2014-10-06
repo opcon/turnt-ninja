@@ -6,22 +6,15 @@ using BeatDetection.Game;
 using BeatDetection.GUI;
 using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
-using NAudio;
 using NAudio.Wave;
 using System.Diagnostics;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
 using System.Reflection;
 using QuickFont;
-using Substructio.Audio;
 using Substructio.Core;
 using Substructio.GUI;
-using Wav2Flac;
-using System.Security.Cryptography;
 
 namespace BeatDetection
 {
