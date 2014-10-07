@@ -84,42 +84,42 @@ namespace BeatDetection.Core
 
         public void Draw(double time)
         {
-            GL.Begin(PrimitiveType.Quads);
-            GL.Color4(EvenColour);
-            for (int i = 0; i < NumberOfSides; i+= 2)
-            {
-                if (_sides[i]) DrawPolygonSide(i);
-            }
-            GL.Color4(OddColour);
-            for (int i = 1; i < NumberOfSides; i += 2)
-            {
-                if (_sides[i]) DrawPolygonSide(i);
-            }
-            GL.End();
+            //GL.Begin(PrimitiveType.Quads);
+            //GL.Color4(EvenColour);
+            //for (int i = 0; i < NumberOfSides; i+= 2)
+            //{
+            //    if (_sides[i]) DrawPolygonSide(i);
+            //}
+            //GL.Color4(OddColour);
+            //for (int i = 1; i < NumberOfSides; i += 2)
+            //{
+            //    if (_sides[i]) DrawPolygonSide(i);
+            //}
+            //GL.End();
 
-            GL.LineWidth(3);
-            GL.Begin(PrimitiveType.Lines);
-            GL.Color4(EvenOutlineColour);
-            for (int i = 0; i < NumberOfSides; i+= 2)
-            {
-                if (_sides[i]) DrawPolygonSide(i);
-            }
-            GL.Color4(OddOutlineColour);
-            for (int i = 1; i < NumberOfSides; i += 2)
-            {
-                if (_sides[i]) DrawPolygonSide(i);
-            }
-            GL.End();
+            //GL.LineWidth(3);
+            //GL.Begin(PrimitiveType.Lines);
+            //GL.Color4(EvenOutlineColour);
+            //for (int i = 0; i < NumberOfSides; i+= 2)
+            //{
+            //    if (_sides[i]) DrawPolygonSide(i);
+            //}
+            //GL.Color4(OddOutlineColour);
+            //for (int i = 1; i < NumberOfSides; i += 2)
+            //{
+            //    if (_sides[i]) DrawPolygonSide(i);
+            //}
+            //GL.End();
         }
 
-        private void DrawPolygonSide(int index)
-        {
-            var sp = new PolarVector(Position.Azimuth + index*AngleBetweenSides, Position.Radius);
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(sp));
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, 0));
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth));
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth));
-        }
+        //private void DrawPolygonSide(int index)
+        //{
+        //    var sp = new PolarVector(Position.Azimuth + index*AngleBetweenSides, Position.Radius);
+        //    GL.Vertex2(PolarVector.ToCartesianCoordinates(sp));
+        //    GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, 0));
+        //    GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth));
+        //    GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth));
+        //}
 
         public void Pulse(double time)
         {
@@ -174,6 +174,22 @@ namespace BeatDetection.Core
         public void SetColour(Color4 evenColour, Color4 evenOutlineColour)
         {
             SetColour(evenColour, evenOutlineColour, evenColour, evenOutlineColour);
+        }
+
+        public IEnumerable<float> GetVertices()
+        {
+            var temp = new List<Vector2>();
+            for (int i = 0; i < NumberOfSides; i += 1)
+            {
+                if (!_sides[i]) continue;
+                var sp = new PolarVector(Position.Azimuth + i * AngleBetweenSides, Position.Radius);
+                temp.Add(PolarVector.ToCartesianCoordinates(sp));
+                temp.Add(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, 0));
+                temp.Add(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth));
+                temp.Add(PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth));
+            }
+            var ret = temp.SelectMany(v => new[] {v.X, v.Y});
+            return ret;
         }
     }
 }

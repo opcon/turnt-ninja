@@ -81,12 +81,12 @@ namespace BeatDetection
 
         public void Draw(double time)
         {
-            GL.Begin(BeginMode.Triangles);
-            GL.Color4(Colour);
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(_position));
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(_position, _length/2, _width));
-            GL.Vertex2(PolarVector.ToCartesianCoordinates(_position, _length, 0));
-            GL.End();
+            //GL.Begin(BeginMode.Triangles);
+            //GL.Color4(Colour);
+            //GL.Vertex2(PolarVector.ToCartesianCoordinates(_position));
+            //GL.Vertex2(PolarVector.ToCartesianCoordinates(_position, _length/2, _width));
+            //GL.Vertex2(PolarVector.ToCartesianCoordinates(_position, _length, 0));
+            //GL.End();
         }
 
         private Input GetUserInput()

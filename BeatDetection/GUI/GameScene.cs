@@ -1,8 +1,10 @@
 ﻿using System;
+using BeatDetection.Core;
 using BeatDetection.Game;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using QuickFont;
+using Substructio.Graphics.OpenGL;
 using Substructio.GUI;
 
 namespace BeatDetection.GUI
@@ -12,6 +14,7 @@ namespace BeatDetection.GUI
         private Stage _stage;
         private QFont _multiplierFont;
         private ProcessedText _multiplerText;
+
         public GameScene(Stage stage)
         {
             _stage = stage;
@@ -21,6 +24,7 @@ namespace BeatDetection.GUI
         public override void Load()
         {
             _multiplierFont = new QFont(SceneManager.FontPath, 30);
+
             Loaded = true;
         }
 

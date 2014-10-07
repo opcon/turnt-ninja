@@ -37,7 +37,7 @@ namespace BeatDetection
         Stopwatch stopWatch;
         float tNext = 0;
         bool beatShown = false;
-        float correction = 0.0f;
+        float correction = 0.25f;
         float time = 0;
 
         PolarPolygon _polarPolygon;
@@ -191,9 +191,9 @@ namespace BeatDetection
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
             //_stage.Draw(e.Time);
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadIdentity();
-            GL.Translate(0.375, 0.375, 0.0);
+            //GL.MatrixMode(MatrixMode.Modelview);
+            //GL.LoadIdentity();
+            //GL.Translate(0.375, 0.375, 0.0);
             _gameSceneManager.Draw(e.Time);
 
             this.SwapBuffers();
