@@ -14,6 +14,7 @@ namespace BeatDetection.GUI
         private Stage _stage;
         private QFont _multiplierFont;
         private ProcessedText _multiplerText;
+        public ShaderProgram ShaderProgram { get; set; }
 
         public GameScene(Stage stage)
         {
@@ -44,20 +45,24 @@ namespace BeatDetection.GUI
 
         public override void Draw(double time)
         {
-            SceneManager.ScreenCamera.EnableWorldDrawing();
-            GL.Disable(EnableCap.Texture2D);
+            //SceneManager.ScreenCamera.EnableWorldDrawing();
+            //GL.Disable(EnableCap.Texture2D);
+            ShaderProgram.Bind();
+            ShaderProgram.SetUniform("mvp", SceneManager.ScreenCamera.ModelViewProjection);
             _stage.Draw(time);
-            SceneManager.ScreenCamera.EnableScreenDrawing();
-            SceneManager.DrawTextLine(_stage.Overlap.ToString(), new Vector2(50, 50));
-            SceneManager.DrawTextLine(_stage.Hits.ToString(), new Vector2(100, 50));
-            SceneManager.DrawTextLine(String.Format("{0}/{1}", _stage.CurrentPolygon, _stage.PolygonCount), new Vector2(150, 50));
+            //Cleanup the program
+            ShaderProgram.UnBind();
+            //SceneManager.ScreenCamera.EnableScreenDrawing();
+            //SceneManager.DrawTextLine(_stage.Overlap.ToString(), new Vector2(50, 50));
+            //SceneManager.DrawTextLine(_stage.Hits.ToString(), new Vector2(100, 50));
+            //SceneManager.DrawTextLine(String.Format("{0}/{1}", _stage.CurrentPolygon, _stage.PolygonCount), new Vector2(150, 50));
 
-            _multiplerText = _multiplierFont.ProcessText(String.Format("{0}x", _stage.Multiplier == -1 ? 0 : _stage.Multiplier), 100,
-                QFontAlignment.Centre);
-            SceneManager.DrawProcessedText(_multiplerText,
-                new Vector2(SceneManager.GameWindow.Width/2,
-                    SceneManager.GameWindow.Height/2 + _multiplierFont.Measure(_multiplerText).Height / 2),
-                _multiplierFont);
+            //_multiplerText = _multiplierFont.ProcessText(String.Format("{0}x", _stage.Multiplier == -1 ? 0 : _stage.Multiplier), 100,
+            //    QFontAlignment.Centre);
+            //SceneManager.DrawProcessedText(_multiplerText,
+            //    new Vector2(SceneManager.GameWindow.Width/2,
+            //        SceneManager.GameWindow.Height/2 + _multiplierFont.Measure(_multiplerText).Height / 2),
+            //    _multiplierFont);
         }
 
         public override void UnLoad()

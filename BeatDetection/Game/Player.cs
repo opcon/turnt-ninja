@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ClipperLib;
 using Microsoft.Win32;
+using NAudio.MediaFoundation;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Input;
 using OpenTK.Graphics.OpenGL4;
 using Substructio.Core;
 using Substructio.Core.Math;
+using Substructio.Graphics.OpenGL;
 
 namespace BeatDetection
 {
@@ -21,6 +24,20 @@ namespace BeatDetection
 
         public int Hits;
         public Color4 Colour = Color4.White;
+
+        private VertexBuffer _vertexBuffer;
+        private VertexArray _vertexArray;
+        private BufferDataSpecification _dataSpecification;
+
+        public ShaderProgram ShaderProgram
+        {
+            get { return _shaderProgram; }
+            set
+            {
+                _shaderProgram = value;
+                CreateBuffers();
+            }
+        }
 
         public double Length
         {
@@ -40,6 +57,7 @@ namespace BeatDetection
         }
 
         private Input _currentFramesInput;
+        private ShaderProgram _shaderProgram;
 
         public Player()
         {
@@ -63,6 +81,41 @@ namespace BeatDetection
                 _position.Azimuth += _velocity.Azimuth*time;
             }
             _position = _position.Normalised();
+
+            _vertexBuffer.Bind();
+            _vertexBuffer.Initialise();
+            _vertexBuffer.SetData(BuildVertexList(), _dataSpecification);
+            _vertexBuffer.UnBind();
+        }
+
+        private void CreateBuffers()
+        {
+            _dataSpecification = new BufferDataSpecification
+            {
+                Count = 2,
+                Name = "in_position",
+                Offset = 0,
+                ShouldBeNormalised = false,
+                Stride = 0,
+                Type = VertexAttribPointerType.Float
+            };
+
+            _vertexArray = new VertexArray{DrawPrimitiveType = PrimitiveType.Triangles};
+            _vertexArray.Bind();
+
+            var size = 3*2*sizeof (float);
+            _vertexBuffer = new VertexBuffer
+            {
+                BufferUsage = BufferUsageHint.StreamDraw,
+                DrawableIndices = 3,
+                MaxSize = size
+            };
+            _vertexBuffer.Bind();
+            _vertexBuffer.Initialise();
+            _vertexBuffer.DataSpecifications.Add(_dataSpecification);
+
+            _vertexArray.Load(_shaderProgram, _vertexBuffer);
+            _vertexArray.UnBind();
         }
 
         public List<IntPoint> GetBounds()
@@ -79,8 +132,18 @@ namespace BeatDetection
             return p;
         }
 
+        public List<float> BuildVertexList()
+        {
+            var verts = new List<Vector2>();
+            verts.Add(PolarVector.ToCartesianCoordinates(_position));
+            verts.Add(PolarVector.ToCartesianCoordinates(_position, _length/2, _width));
+            verts.Add(PolarVector.ToCartesianCoordinates(_position, _length, 0));
+            return verts.SelectMany(v => new[] {v.X, v.Y}).ToList();
+        }
+
         public void Draw(double time)
         {
+            _vertexArray.Draw(time);
             //GL.Begin(BeginMode.Triangles);
             //GL.Color4(Colour);
             //GL.Vertex2(PolarVector.ToCartesianCoordinates(_position));

@@ -14,6 +14,7 @@ using OpenTK;
 using OpenTK.Input;
 using Substructio.Core;
 using Substructio.Core.Math;
+using Substructio.Graphics.OpenGL;
 using Wav2Flac;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
@@ -62,6 +63,8 @@ namespace BeatDetection.Game
         private Color4 _oddCollisionColour;
         private Color4 _oddOutlineColour;
         private Color4 _oddCollisionOutlienColour;
+
+        public ShaderProgram ShaderProgram { get; set; }
 
 
         private int _multiplier;
@@ -120,6 +123,8 @@ namespace BeatDetection.Game
             LoadAudioFeatures(audioPath, sonicPath, pluginPath, correction, progress);
 
             _backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 5000, -20, 0);
+            _backgroundPolygon.ShaderProgram = ShaderProgram;
+
             progress.Report("Load complete");
 
             _direction = 1;
@@ -213,6 +218,7 @@ namespace BeatDetection.Game
                     else sides[i] = false;
                 }
                 _polygons[index] = new PolarPolygon(sides.ToList(), new PolarVector(0, 600), 50, 125, b);
+                _polygons[index].ShaderProgram = ShaderProgram;
                 //_polygons[index] = new PolarPolygon(maxSides, 5, b, 600 + b*0, angles[start % 6] + _centerPolygon.Azimuth, 125);
 
                 prevTime = b;

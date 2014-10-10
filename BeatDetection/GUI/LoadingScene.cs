@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using BeatDetection.Core;
 using BeatDetection.Game;
 using OpenTK;
+using OpenTK.Graphics;
 using QuickFont;
 using Substructio.Core.Math;
 using Substructio.Graphics.OpenGL;
@@ -33,7 +34,8 @@ namespace BeatDetection.GUI
         private ShaderProgram _shaderProgram;
         private VertexBuffer _buffer;
         private VertexArray _vertexArray;
-        private BufferDataSpecification _defaultSpec;
+        private BufferDataSpecification _positionSpec;
+        private BufferDataSpecification _colorSpec;
 
         private string _loadingStatus;
 
@@ -51,31 +53,44 @@ namespace BeatDetection.GUI
             _shaderProgram = new ShaderProgram();
             _shaderProgram.Load(vert, frag);
 
-            _defaultSpec = new BufferDataSpecification
+            _positionSpec = new BufferDataSpecification
             {
                 Count = 2,
-                Name = "position",
+                Name = "in_position",
                 Offset = 0,
                 ShouldBeNormalised = false,
                 Stride = 0,
                 Type = VertexAttribPointerType.Float
             };
+            _colorSpec = new BufferDataSpecification
+            {
+                Count = 4,
+                Name = "in_color",
+                Offset = 2,
+                ShouldBeNormalised = false,
+                Stride = 24,
+                Type = VertexAttribPointerType.Float
+            };
+
+            var size = 6*4*(2*sizeof (float) + 0*sizeof (float));
 
             _vertexArray = new VertexArray();
             _vertexArray.Bind();
 
-            _buffer = new VertexBuffer(){BufferUsage = BufferUsageHint.DynamicDraw, MaxSize = 48*4, DrawableIndices = 48};
-            _buffer.BufferUsage = BufferUsageHint.DynamicDraw;
+            _buffer = new VertexBuffer(){BufferUsage = BufferUsageHint.StreamDraw, MaxSize = size, DrawableIndices = 48};
             _buffer.Bind();
             _buffer.Initialise();
-            _buffer.DataSpecifications.Add(_defaultSpec);
-
+            _buffer.DataSpecifications.Add(_positionSpec);
+            //_buffer.DataSpecifications.Add(_colorSpec);
 
             _vertexArray.Load(_shaderProgram, _buffer);
 
             _player = new Player();
+            _player.ShaderProgram = _shaderProgram;
             _centerPolygon =  new PolarPolygon(Enumerable.Repeat(true, 6).ToList(), new PolarVector(0.5, 0), 50, 80, 0 );
+            _centerPolygon.ShaderProgram = _shaderProgram;
             _stage = new Stage(_player, _centerPolygon);
+            _stage.ShaderProgram = _shaderProgram;
 
             string file = "";
             OpenFileDialog ofd = new OpenFileDialog();
@@ -124,12 +139,11 @@ namespace BeatDetection.GUI
 
         public override void Update(double time, bool focused = false)
         {
-            var vertices = new float[] {100f, 0f, 0f, 0f, 0f, 100f};
             if (_loadTask.IsCompleted)
             {
                 _stage.UpdateColours();
-                //SceneManager.RemoveScene(this);
-                //SceneManager.AddScene(new GameScene(_stage));
+                SceneManager.RemoveScene(this);
+                SceneManager.AddScene(new GameScene(_stage){ShaderProgram = _shaderProgram});
             }
 
             _player.Update(time);
@@ -138,8 +152,7 @@ namespace BeatDetection.GUI
 
             _buffer.Bind();
             _buffer.Initialise();
-            _buffer.SetData(_centerPolygon.GetVertices(), _defaultSpec);
-            //_buffer.SetData(vertices, _defaultSpec);
+            _buffer.SetData(_centerPolygon.GetVertices(), _positionSpec);
             _buffer.UnBind();
 
         }
@@ -150,9 +163,17 @@ namespace BeatDetection.GUI
             GL.Disable(EnableCap.CullFace);
             _shaderProgram.Bind();
             _shaderProgram.SetUniform("mvp", SceneManager.ScreenCamera.ModelViewProjection);
-            //if (_shaderProgram.UniformLocation("mvp") == -1) throw new Exception("ëror");
-            _vertexArray.Draw(time);
+            _shaderProgram.SetUniform("in_color", Color4.White);
+
+            //Draw the player
+            _player.Draw(time);
+
+            //Draw the center polygon
+            _centerPolygon.Draw(time);
+
+            //Cleanup the program
             _shaderProgram.UnBind();
+
             //SceneManager.ScreenCamera.EnableScreenDrawing();
             //SceneManager.DrawProcessedText(_loadingText, _loadingTextPosition, _loadingFont);
             //SceneManager.DrawProcessedText(_songText, new Vector2(SceneManager.GameWindow.Width/2, SceneManager.GameWindow.Height - 100), _loadingFont);

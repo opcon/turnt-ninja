@@ -7,16 +7,17 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using Substructio.Core;
 using Substructio.Core.Math;
+using Substructio.Graphics.OpenGL;
 
 namespace BeatDetection.Core
 {
-    class PolarPolygon
+    internal class PolarPolygon
     {
         public double PulseWidth = 0;
         public double PulseWidthMax = 25;
         public double PulseMultiplier = 150;
         private double _width = 50;
-        int pulseDirection = 1;
+        private int pulseDirection = 1;
         public bool Pulsing;
         public int NumberOfSides;
         public int Direction { get; set; }
@@ -33,6 +34,23 @@ namespace BeatDetection.Core
         public Color4 EvenOutlineColour { get; private set; }
         public Color4 OddColour { get; private set; }
         public Color4 OddOutlineColour { get; private set; }
+
+        private VertexBuffer _vertexBuffer;
+        private VertexArray _vertexArray;
+        private BufferDataSpecification _dataSpecification;
+        private ShaderProgram _shaderProgram;
+        private int _evenCount;
+        private int _oddCount;
+
+        public ShaderProgram ShaderProgram
+        {
+            get { return _shaderProgram; }
+            set
+            {
+                _shaderProgram = value;
+                //InitialiseRendering();
+            }
+        }
 
         public double OpeningAngle
         {
@@ -66,6 +84,8 @@ namespace BeatDetection.Core
 
             AngleBetweenSides = GetAngleBetweenSides(NumberOfSides);
             _width = width;
+
+            _evenCount = _oddCount;
         }
 
         public static double GetAngleBetweenSides(int numberOfSides)
@@ -79,11 +99,58 @@ namespace BeatDetection.Core
             if (Position.Radius <= ImpactDistance)
                 Destroy = true;
             if (Pulsing) Pulse(time);
+
+            if (_vertexArray == null) InitialiseRendering();
+
+            _vertexBuffer.Bind();
+            _vertexBuffer.Initialise();
+            _vertexBuffer.SetData(BuildVertexList(), _dataSpecification);
+            _vertexBuffer.UnBind();
         }
 
+        private IEnumerable<float> BuildVertexList()
+        {
+            var verts = new Vector2[_vertexBuffer.DrawableIndices];
+            int index = 0;
+                _evenCount = 0;
+                _oddCount = 0;
+            for (int i = 0; i < NumberOfSides; i += 2)
+            {
+                if (_sides[i])
+                {
+                    var sp = new PolarVector(Position.Azimuth + i*AngleBetweenSides, Position.Radius);
+                    verts[index] = PolarVector.ToCartesianCoordinates(sp);
+                    verts[index + 1] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, 0);
+                    verts[index + 2] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth);
+                    verts[index + 3] = PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth);
+                    _evenCount += 4;
+                    index+=4;
+                }
+            }
+            for (int i = 1; i < NumberOfSides; i += 2)
+            {
+                if (_sides[i])
+                {
+                    var sp = new PolarVector(Position.Azimuth + i * AngleBetweenSides, Position.Radius);
+                    verts[index] = PolarVector.ToCartesianCoordinates(sp);
+                    verts[index + 1] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, 0);
+                    verts[index + 2] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth);
+                    verts[index + 3] = PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth);
+                    _oddCount +=4;
+                    index += 4;
+                }
+            }
+            return verts.SelectMany(v => new[] {v.X, v.Y});
+        }
+
+        
 
         public void Draw(double time)
         {
+            _shaderProgram.SetUniform("in_color", EvenColour);
+            _vertexArray.Draw(time, 0, _evenCount);
+            _shaderProgram.SetUniform("in_color", OddColour);
+            _vertexArray.Draw(time, _evenCount, _oddCount);
             //GL.Begin(PrimitiveType.Quads);
             //GL.Color4(EvenColour);
             //for (int i = 0; i < NumberOfSides; i+= 2)
@@ -120,6 +187,34 @@ namespace BeatDetection.Core
         //    GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth));
         //    GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth));
         //}
+
+        private void InitialiseRendering()
+        {
+            _dataSpecification = new BufferDataSpecification
+            {
+                Count = 2,
+                Name = "in_position",
+                Offset = 0,
+                ShouldBeNormalised = false,
+                Stride = 0,
+                Type = VertexAttribPointerType.Float
+            };
+
+            _vertexArray = new VertexArray {DrawPrimitiveType = PrimitiveType.Quads};
+            _vertexArray.Bind();
+
+            _vertexBuffer = new VertexBuffer
+            {
+                BufferUsage = BufferUsageHint.StreamDraw,
+                DrawableIndices = _sides.Count(b => b)*4
+            };
+            _vertexBuffer.AddSpec(_dataSpecification);
+            _vertexBuffer.Bind();
+            _vertexBuffer.Initialise();
+
+            _vertexArray.Load(_shaderProgram, _vertexBuffer);
+            _vertexArray.UnBind();
+        }
 
         public void Pulse(double time)
         {
@@ -188,7 +283,8 @@ namespace BeatDetection.Core
                 temp.Add(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth));
                 temp.Add(PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth));
             }
-            var ret = temp.SelectMany(v => new[] {v.X, v.Y});
+            var ret = temp.SelectMany(v => new[] { v.X, v.Y});
+            //var ret = temp.SelectMany(v => new[] {v.X, v.Y, 0.0f});
             return ret;
         }
     }
