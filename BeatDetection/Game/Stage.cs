@@ -441,7 +441,7 @@ namespace BeatDetection.Game
             _backgroundPolygon.Draw(time);
             GL.LineWidth(3);
             ShaderProgram.SetUniform("in_color", _evenOpposingColour);
-            for (int i = _polygonIndex; i < _polygons.Length; i++)
+            for (int i = _polygonIndex; i < Math.Min(_polygons.Length, _polygonIndex + 10); i++)
             {
                 _polygons[i].Draw(time, 1);
             }
@@ -452,7 +452,7 @@ namespace BeatDetection.Game
             }
             _centerPolygon.Draw(time, 1);
             ShaderProgram.SetUniform("in_color", _oddOpposingColour);
-            for (int i = _polygonIndex; i < _polygons.Length; i++)
+            for (int i = _polygonIndex; i < Math.Min(_polygons.Length, _polygonIndex + 10); i++)
             {
                 _polygons[i].Draw(time, 2);
             }
