@@ -12,9 +12,11 @@ using ColorMine.ColorSpaces;
 using NAudio.Wave;
 using OpenTK;
 using OpenTK.Input;
+using QuickFont;
 using Substructio.Core;
 using Substructio.Core.Math;
 using Substructio.Graphics.OpenGL;
+using Substructio.GUI;
 using Wav2Flac;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
@@ -65,7 +67,9 @@ namespace BeatDetection.Game
         private Color4 _oddCollisionOutlienColour;
 
         public ShaderProgram ShaderProgram { get; set; }
+        public SceneManager SceneManager { get; set; }
 
+        public QFont MultiplierFont;
 
         private int _multiplier;
 
@@ -109,10 +113,14 @@ namespace BeatDetection.Game
         //    //_centerPolygon = new PolarPolygon(6, 6, 0, 1, 0, 80);
         //}
 
-        public Stage(Player player, PolarPolygon centerPolygon)
+        public Stage(Player player, PolarPolygon centerPolygon, SceneManager sceneManager)
         {
             _player = player;
             _centerPolygon = centerPolygon;
+            SceneManager = sceneManager;
+
+            MultiplierFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Italic);
+            MultiplierFont.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
         }
 
         public void LoadAsync(string audioPath, string sonicPath, string pluginPath, float correction, IProgress<string> progress)
@@ -128,6 +136,8 @@ namespace BeatDetection.Game
             progress.Report("Load complete");
 
             _direction = 1;
+
+            Thread.Sleep(1000);
         }
 
         private void LoadAudioStream(string audioPath)
@@ -279,6 +289,7 @@ namespace BeatDetection.Game
             {
                 _waveOut.Play();
                 _finishedEaseIn = true;
+                SceneManager.ScreenCamera.TargetScale = new Vector2(1.3f);
             }
 
             _polygonIndex += _polygonsToRemoveCount;
@@ -343,6 +354,8 @@ namespace BeatDetection.Game
 
                 UpdateColours();
             }
+
+            MultiplierFont.ProjectionMatrix = Matrix4.Mult(Matrix4.CreateScale((float) (0.75 + 0.24f*_centerPolygon.PulseWidth/_centerPolygon.PulseWidthMax)), SceneManager.ScreenCamera.ScreenProjectionMatrix);
 
         }
 
@@ -426,12 +439,35 @@ namespace BeatDetection.Game
         {
             //GL.Color4(_evenOpposingColour);
             _backgroundPolygon.Draw(time);
+            GL.LineWidth(3);
+            ShaderProgram.SetUniform("in_color", _evenOpposingColour);
             for (int i = _polygonIndex; i < _polygons.Length; i++)
             {
-                _polygons[i].Draw(time);
+                _polygons[i].Draw(time, 1);
             }
-            _centerPolygon.Draw(time);
+            if (_polygonIndex < _polygons.Length)
+            {
+                ShaderProgram.SetUniform("in_color", _polygons[_polygonIndex].EvenColour);
+                _polygons[_polygonIndex].Draw(time, 1);
+            }
+            _centerPolygon.Draw(time, 1);
+            ShaderProgram.SetUniform("in_color", _oddOpposingColour);
+            for (int i = _polygonIndex; i < _polygons.Length; i++)
+            {
+                _polygons[i].Draw(time, 2);
+            }
+            if (_polygonIndex < _polygons.Length)
+            {
+                ShaderProgram.SetUniform("in_color", _polygons[_polygonIndex].OddColour);
+                _polygons[_polygonIndex].Draw(time, 2);
+            }
+            _centerPolygon.Draw(time, 2);
             _player.Draw(time);
+
+            MultiplierFont.ResetVBOs();
+            MultiplierFont.Print(string.Format("{0}x", Multiplier == -1 ? 0 : Multiplier), new Vector3(0, MultiplierFont.Measure("0", QFontAlignment.Centre).Height * 0.5f, 0),
+                QFontAlignment.Centre);
+            MultiplierFont.Draw();
 
         }
     }

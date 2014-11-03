@@ -143,14 +143,23 @@ namespace BeatDetection.Core
             return verts.SelectMany(v => new[] {v.X, v.Y});
         }
 
-        
-
-        public void Draw(double time)
+        public void Draw(double time, int even = 0)
         {
-            _shaderProgram.SetUniform("in_color", EvenColour);
-            _vertexArray.Draw(time, 0, _evenCount);
-            _shaderProgram.SetUniform("in_color", OddColour);
-            _vertexArray.Draw(time, _evenCount, _oddCount);
+            if (_vertexArray == null) InitialiseRendering();
+            if (even == 0 || even == 1)
+            {
+                if (even == 0) _shaderProgram.SetUniform("in_color", EvenColour);
+                _vertexArray.Draw(time, 0, _evenCount);
+            }
+            if (even == 0 || even == 2)
+            {
+                if (even == 0) _shaderProgram.SetUniform("in_color", OddColour);
+                _vertexArray.Draw(time, _evenCount, _oddCount);
+            }
+            //_shaderProgram.SetUniform("in_color", EvenOutlineColour);
+            //_vertexArray.Draw(time, 0, _evenCount, PrimitiveType.Lines);
+            //_shaderProgram.SetUniform("in_color", OddOutlineColour);
+            //_vertexArray.Draw(time, _evenCount, _oddCount, PrimitiveType.Lines);
             //GL.Begin(PrimitiveType.Quads);
             //GL.Color4(EvenColour);
             //for (int i = 0; i < NumberOfSides; i+= 2)

@@ -61,15 +61,19 @@
             <param name="str"></param>
             <returns></returns>
         </member>
-        <member name="T:QuickFont.QFontLoaderConfiguration">
+        <member name="M:QuickFont.Helper.SafeGLEnable(OpenTK.Graphics.OpenGL4.EnableCap,System.Action)">
             <summary>
-            The configuraiton used when loading a font from a qfont file.
+            Ensures that state is disabled
             </summary>
+            <param name="cap"></param>
+            <param name="code"></param>
         </member>
-        <member name="T:QuickFont.FontLoadDescription">
+        <member name="M:QuickFont.Helper.SafeGLEnable(OpenTK.Graphics.OpenGL4.EnableCap[],System.Action)">
             <summary>
-            Describes how a font was loaded so that it can be reloaded
+            Ensures that multiple states are disabled
             </summary>
+            <param name="cap"></param>
+            <param name="code"></param>
         </member>
         <member name="M:QuickFont.QBitmap.EmptyPixel(System.Drawing.Imaging.BitmapData,System.Int32,System.Int32)">
             <summary>
@@ -105,37 +109,85 @@
             <param name="g"></param>
             <param name="b"></param>
         </member>
-        <member name="M:QuickFont.QFont.Reload">
+        <member name="M:QuickFont.QFont.#ctor(QuickFont.QFontData)">
             <summary>
-            Reloads the font using the original loader/builder options. This may be useful if the underlying
-            files change, or, more commonly, if the "TransformToCurrentOrthogProjection" option was used when
-            creating the font, and the orthog projection has since changed (e.g. resizing the window). This 
-            will do nothing for fonts created directly from a Font object.
+                Used for creating a dropshadow QFont object
             </summary>
+            <param name="fontData"></param>
+        </member>
+        <member name="M:QuickFont.QFont.#ctor(System.Drawing.Font,QuickFont.QFontBuilderConfiguration)">
+            <summary>
+                Initialise QFont from a System.Drawing.Font object
+            </summary>
+            <param name="font"></param>
+            <param name="config"></param>
+        </member>
+        <member name="M:QuickFont.QFont.#ctor(System.String,System.Single,QuickFont.QFontBuilderConfiguration,System.Drawing.FontStyle,OpenTK.Matrix4)">
+            <summary>
+                Initialise QFont from a font file
+            </summary>
+            <param name="fontPath">The font file to load</param>
+            <param name="size"></param>
+            <param name="config"></param>
+            <param name="style"></param>
+        </member>
+        <member name="M:QuickFont.QFont.#ctor(System.String,QuickFont.QFontConfiguration,System.Single,OpenTK.Matrix4)">
+            <summary>
+                Initialise QFont from a .qfont file
+            </summary>
+            <param name="qfontPath">The .qfont file to load</param>
+            <param name="loaderConfig"></param>
+            <param name="downSampleFactor"></param>
+            <param name="proj"></param>
+        </member>
+        <member name="M:QuickFont.QFont.GetFont(System.String,System.Single,System.Drawing.FontStyle,System.Int32,System.Single)">
+            <summary>
+                Returns a System.Drawing.Font object created from the specified font file
+            </summary>
+            <param name="fontPath">The path to the font file</param>
+            <param name="size"></param>
+            <param name="style"></param>
+            <param name="superSampleLevels"></param>
+            <param name="scale"></param>
+            <returns></returns>
+        </member>
+        <member name="M:QuickFont.QFont.InitialiseStaticState">
+            <summary>
+                Initialises the static shared render state
+            </summary>
+        </member>
+        <member name="M:QuickFont.QFont.InitialiseState(QuickFont.SharedState)">
+            <summary>
+                Initialises the instance render state
+            </summary>
+            <param name="state">
+                If state is null, this method will instead initialise the static state, which is returned when no
+                instance state is set
+            </param>
         </member>
         <member name="M:QuickFont.QFont.OrthogonalTransform(System.Single@)">
             <summary>
-            When TransformToOrthogProjection is enabled, we need to get the current orthogonal transformation,
-            the font scale, and ensure that the projection is actually orthogonal
+                When TransformToOrthogProjection is enabled, we need to get the current orthogonal transformation,
+                the font scale, and ensure that the projection is actually orthogonal
             </summary>
             <param name="fontScale"></param>
             <param name="viewportTransform"></param>
         </member>
         <member name="M:QuickFont.QFont.PushOptions(QuickFont.QFontRenderOptions)">
             <summary>
-            Pushes the specified QFont options onto the options stack
+                Pushes the specified QFont options onto the options stack
             </summary>
             <param name="newOptions"></param>
         </member>
         <member name="M:QuickFont.QFont.PushOptions">
             <summary>
-            Creates a clone of the current font options and pushes
-            it onto the stack
+                Creates a clone of the current font options and pushes
+                it onto the stack
             </summary>
         </member>
-        <member name="M:QuickFont.QFont.Measure(System.String,System.Single,QuickFont.QFontAlignment)">
+        <member name="M:QuickFont.QFont.Measure(System.String,System.Drawing.SizeF,QuickFont.QFontAlignment)">
             <summary>
-            Measures the actual width and height of the block of text.
+                Measures the actual width and height of the block of text.
             </summary>
             <param name="text"></param>
             <param name="bounds"></param>
@@ -144,15 +196,15 @@
         </member>
         <member name="M:QuickFont.QFont.Measure(QuickFont.ProcessedText)">
             <summary>
-            Measures the actual width and height of the block of text
+                Measures the actual width and height of the block of text
             </summary>
             <param name="processedText"></param>
             <returns></returns>
         </member>
         <member name="M:QuickFont.QFont.TextNodeLineLength(QuickFont.TextNode,System.Single)">
             <summary>
-            Computes the length of the next line, and whether the line is valid for
-            justification.
+                Computes the length of the next line, and whether the line is valid for
+                justification.
             </summary>
             <param name="node"></param>
             <param name="maxLength"></param>
@@ -161,75 +213,42 @@
         </member>
         <member name="M:QuickFont.QFont.JustifyLine(QuickFont.TextNode,System.Single)">
             <summary>
-            Computes the length of the next line, and whether the line is valid for
-            justification.
+                Computes the length of the next line, and whether the line is valid for
+                justification.
             </summary>
         </member>
         <member name="M:QuickFont.QFont.SkipTrailingSpace(QuickFont.TextNode,System.Single,System.Single)">
             <summary>
-            Checks whether to skip trailing space on line because the next word does not
-            fit.
-            
-            We only check one space - the assumption is that if there is more than one,
-            it is a deliberate attempt to insert spaces.
+                Checks whether to skip trailing space on line because the next word does not
+                fit.
+                We only check one space - the assumption is that if there is more than one,
+                it is a deliberate attempt to insert spaces.
             </summary>
             <param name="node"></param>
             <param name="lengthSoFar"></param>
             <param name="boundWidth"></param>
             <returns></returns>
         </member>
-        <member name="M:QuickFont.QFont.Print(System.String,System.Single,QuickFont.QFontAlignment)">
+        <member name="M:QuickFont.QFont.ProcessText(System.String,System.Drawing.SizeF,QuickFont.QFontAlignment)">
             <summary>
-            Prints text inside the given bounds.
-            </summary>
-            <param name="text"></param>
-            <param name="bounds"></param>
-            <param name="alignment"></param>
-        </member>
-        <member name="M:QuickFont.QFont.ProcessText(System.String,System.Single,QuickFont.QFontAlignment)">
-            <summary>
-            Creates node list object associated with the text.
+                Creates node list object associated with the text.
             </summary>
             <param name="text"></param>
             <param name="bounds"></param>
             <returns></returns>
         </member>
-        <member name="M:QuickFont.QFont.Print(QuickFont.ProcessedText)">
+        <member name="M:QuickFont.QFont.Draw">
             <summary>
-            Prints text as previously processed with a boundary and alignment.
-            </summary>
-            <param name="processedText"></param>
-        </member>
-        <member name="M:QuickFont.QFont.InvalidateViewport">
-            <summary>
-            Invalidates the internally cached viewport, causing it to be 
-            reread the next time it is required. This should be called
-            if the viewport and text is to be rendered to the new 
-            viewport.
+            Helper method to reduce lines of code related to simple font drawing.
+            Calls Begin(), then LoadVBOs(), then DrawVBOs(), then End()
             </summary>
         </member>
-        <member name="M:QuickFont.QFont.ForceViewportRefresh">
+        <member name="M:QuickFont.QFont.RefreshViewport">
             <summary>
-            Forces the current viewport used by QFont to be read 
-            from "hardware"
-            </summary>
-        </member>
-        <member name="M:QuickFont.QFont.PushSoftwareViewport(QuickFont.Viewport)">
-            <summary>
-            Use a new viewport. This is more efficient 
-            than calling ForceViewportRefresh() or InvalidateViewport()
-            </summary>
-            <param name="viewport"></param>
-        </member>
-        <member name="M:QuickFont.QFont.PopSoftwareViewport">
-            <summary>
-            Pops the last pushed viewport, returning
-            to the previous viewport in use
-            </summary>
-        </member>
-        <member name="M:QuickFont.QFont.Dispose">
-            <summary>
-            Dispose of the QFont data.
+                Invalidates the internally cached viewport, causing it to be
+                reread the next time it is required. This should be called
+                if the viewport (is resized?) and text is to be rendered to the new
+                viewport.
             </summary>
         </member>
         <member name="T:QuickFont.Builder">
@@ -350,16 +369,14 @@
             Null if no dropShadow is available
             </summary>
         </member>
+        <member name="F:QuickFont.QFontData.isDropShadow">
+            <summary>
+            true if this font is dropShadow
+            </summary>
+        </member>
         <member name="F:QuickFont.QFontData.naturallyMonospaced">
             <summary>
             Whether the original font (from ttf) was detected to be monospaced
-            </summary>
-        </member>
-        <member name="F:QuickFont.QFontData.scaleDueToTransformToViewport">
-            <summary>
-            The font scaling due to the font being transformed to the
-            current viewport for consistent pixel-perfect size across
-            any resolution
             </summary>
         </member>
         <member name="M:QuickFont.QFontData.GetKerningPairCorrection(System.Int32,System.String,QuickFont.TextNode)">
@@ -381,6 +398,12 @@
         <member name="F:QuickFont.QFontShadowConfiguration.Scale">
             <summary>
             Scale in relation to the actual font glyphs
+            </summary>
+        </member>
+        <member name="F:QuickFont.QFontShadowConfiguration.Type">
+            <summary>
+            if type is blurred then font is blurred with gaussian blur
+            if type is expanded letter is expanded in every direction by given amount of pixels
             </summary>
         </member>
         <member name="F:QuickFont.QFontShadowConfiguration.blurRadius">
@@ -471,7 +494,7 @@
             Offset of the shadow from the font glyphs in units of average glyph width
             </summary>
         </member>
-        <member name="F:QuickFont.QFontRenderOptions.DropShadowOpacity">
+        <member name="F:QuickFont.QFontRenderOptions.DropShadowColour">
             <summary>
             Opacity of drop shadows
             </summary>
@@ -557,6 +580,11 @@
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.DstAlpha);
             before rendering text.
             
+            </summary>
+        </member>
+        <member name="F:QuickFont.QFontRenderOptions.WordWrap">
+            <summary>
+            Wrap word to next line if max width hit
             </summary>
         </member>
         <member name="F:QuickFont.QFontRenderOptions.JustifyCapExpand">
