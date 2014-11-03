@@ -86,6 +86,8 @@
     <Compile Include="Audio\SonicAnnotatorWrapper.cs" />
     <Compile Include="Core\Directories.cs" />
     <Compile Include="Core\PolarPolygon.cs" />
+    <Compile Include="GameComponents\ComponentBase.cs" />
+    <Compile Include="GameComponents\RenderComponent.cs" />
     <Compile Include="Game\Stage.cs" />
     <Compile Include="GUI\GameScene.cs" />
     <Compile Include="GUI\LoadingScene.cs" />
