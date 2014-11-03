@@ -33,12 +33,8 @@ namespace BeatDetection.GUI
         private Vector3 _loadingTextPosition;
         private QFont _loadingFont;
         private ShaderProgram _shaderProgram;
-        private VertexBuffer _buffer;
-        private VertexArray _vertexArray;
-        private BufferDataSpecification _positionSpec;
-        private BufferDataSpecification _colorSpec;
 
-        private string _loadingStatus;
+        private string _loadingStatus = "";
 
         public LoadingScene(string sonicAnnotatorPath, string pluginPath, float correction)
         {
@@ -53,38 +49,6 @@ namespace BeatDetection.GUI
             var frag = new Shader(Directories.ShaderDirectory + "/simple.fs");
             _shaderProgram = new ShaderProgram();
             _shaderProgram.Load(vert, frag);
-
-            _positionSpec = new BufferDataSpecification
-            {
-                Count = 2,
-                Name = "in_position",
-                Offset = 0,
-                ShouldBeNormalised = false,
-                Stride = 0,
-                Type = VertexAttribPointerType.Float
-            };
-            _colorSpec = new BufferDataSpecification
-            {
-                Count = 4,
-                Name = "in_color",
-                Offset = 2,
-                ShouldBeNormalised = false,
-                Stride = 24,
-                Type = VertexAttribPointerType.Float
-            };
-
-            var size = 6*4*(2*sizeof (float) + 0*sizeof (float));
-
-            _vertexArray = new VertexArray();
-            _vertexArray.Bind();
-
-            _buffer = new VertexBuffer(){BufferUsage = BufferUsageHint.StreamDraw, MaxSize = size, DrawableIndices = 48};
-            _buffer.Bind();
-            _buffer.Initialise();
-            _buffer.DataSpecifications.Add(_positionSpec);
-            //_buffer.DataSpecifications.Add(_colorSpec);
-
-            _vertexArray.Load(_shaderProgram, _buffer);
 
             _player = new Player();
             _player.ShaderProgram = _shaderProgram;
@@ -151,12 +115,6 @@ namespace BeatDetection.GUI
             _player.Update(time);
             _centerPolygon.Update(time, false);
             //SceneManager.ScreenCamera.TargetScale += new Vector2(0.1f, 0.1f);
-
-            _buffer.Bind();
-            _buffer.Initialise();
-            _buffer.SetData(_centerPolygon.GetVertices(), _positionSpec);
-            _buffer.UnBind();
-
         }
 
         public override void Draw(double time)

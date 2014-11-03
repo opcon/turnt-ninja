@@ -86,6 +86,7 @@ namespace BeatDetection.Core
             _width = width;
 
             _evenCount = _oddCount;
+
         }
 
         public static double GetAngleBetweenSides(int numberOfSides)
@@ -122,9 +123,11 @@ namespace BeatDetection.Core
                     verts[index] = PolarVector.ToCartesianCoordinates(sp);
                     verts[index + 1] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, 0);
                     verts[index + 2] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth);
-                    verts[index + 3] = PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth);
-                    _evenCount += 4;
-                    index+=4;
+                    verts[index + 3] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth);
+                    verts[index + 4] = PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth);
+                    verts[index + 5] = PolarVector.ToCartesianCoordinates(sp);
+                    _evenCount += 6;
+                    index+=6;
                 }
             }
             for (int i = 1; i < NumberOfSides; i += 2)
@@ -135,9 +138,11 @@ namespace BeatDetection.Core
                     verts[index] = PolarVector.ToCartesianCoordinates(sp);
                     verts[index + 1] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, 0);
                     verts[index + 2] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth);
-                    verts[index + 3] = PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth);
-                    _oddCount +=4;
-                    index += 4;
+                    verts[index + 3] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth);
+                    verts[index + 4] = PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth);
+                    verts[index + 5] = PolarVector.ToCartesianCoordinates(sp);
+                    _oddCount +=6;
+                    index += 6;
                 }
             }
             return verts.SelectMany(v => new[] {v.X, v.Y});
@@ -197,7 +202,7 @@ namespace BeatDetection.Core
         //    GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth));
         //}
 
-        private void InitialiseRendering()
+        private  void InitialiseRendering()
         {
             _dataSpecification = new BufferDataSpecification
             {
@@ -209,13 +214,13 @@ namespace BeatDetection.Core
                 Type = VertexAttribPointerType.Float
             };
 
-            _vertexArray = new VertexArray {DrawPrimitiveType = PrimitiveType.Quads};
+            _vertexArray = new VertexArray {DrawPrimitiveType = PrimitiveType.Triangles};
             _vertexArray.Bind();
 
             _vertexBuffer = new VertexBuffer
             {
                 BufferUsage = BufferUsageHint.StreamDraw,
-                DrawableIndices = _sides.Count(b => b)*4
+                DrawableIndices = _sides.Count(b => b)*6
             };
             _vertexBuffer.AddSpec(_dataSpecification);
             _vertexBuffer.Bind();
@@ -278,23 +283,6 @@ namespace BeatDetection.Core
         public void SetColour(Color4 evenColour, Color4 evenOutlineColour)
         {
             SetColour(evenColour, evenOutlineColour, evenColour, evenOutlineColour);
-        }
-
-        public IEnumerable<float> GetVertices()
-        {
-            var temp = new List<Vector2>();
-            for (int i = 0; i < NumberOfSides; i += 1)
-            {
-                if (!_sides[i]) continue;
-                var sp = new PolarVector(Position.Azimuth + i * AngleBetweenSides, Position.Radius);
-                temp.Add(PolarVector.ToCartesianCoordinates(sp));
-                temp.Add(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, 0));
-                temp.Add(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth));
-                temp.Add(PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth));
-            }
-            var ret = temp.SelectMany(v => new[] { v.X, v.Y});
-            //var ret = temp.SelectMany(v => new[] {v.X, v.Y, 0.0f});
-            return ret;
         }
     }
 }
