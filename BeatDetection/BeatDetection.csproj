@@ -84,11 +84,14 @@
   <ItemGroup>
     <Compile Include="Audio\AudioFeatures.cs" />
     <Compile Include="Audio\SonicAnnotatorWrapper.cs" />
+    <Compile Include="Game\StageAudio.cs" />
     <Compile Include="Core\Directories.cs" />
     <Compile Include="Core\PolarPolygon.cs" />
     <Compile Include="GameComponents\ComponentBase.cs" />
     <Compile Include="GameComponents\RenderComponent.cs" />
     <Compile Include="Game\Stage.cs" />
+    <Compile Include="Game\StageGeometry.cs" />
+    <Compile Include="Generation\StageGeometryBuilder.cs" />
     <Compile Include="GUI\GameScene.cs" />
     <Compile Include="GUI\LoadingScene.cs" />
     <Compile Include="GUI\MenuScene.cs" />

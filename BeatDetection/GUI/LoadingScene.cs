@@ -54,7 +54,7 @@ namespace BeatDetection.GUI
             _player.ShaderProgram = _shaderProgram;
             _centerPolygon =  new PolarPolygon(Enumerable.Repeat(true, 6).ToList(), new PolarVector(0.5, 0), 50, 80, 0 );
             _centerPolygon.ShaderProgram = _shaderProgram;
-            _stage = new Stage(_player, _centerPolygon, this.SceneManager);
+            _stage = new Stage(this.SceneManager);
             _stage.ShaderProgram = _shaderProgram;
 
             string file = "";
@@ -86,7 +86,7 @@ namespace BeatDetection.GUI
             {
                 _loadingStatus = status;
             });
-            _loadTask = Task.Factory.StartNew(() => _stage.LoadAsync(file, _sonicAnnotatorPath, _pluginPath, _correction, progress));
+            _loadTask = Task.Factory.StartNew(() => _stage.LoadAsync(file, _sonicAnnotatorPath, _pluginPath, _correction, progress, _centerPolygon, _player));
 
             Loaded = true;
         }
@@ -107,7 +107,6 @@ namespace BeatDetection.GUI
         {
             if (_loadTask.IsCompleted)
             {
-                _stage.UpdateColours();
                 SceneManager.RemoveScene(this);
                 SceneManager.AddScene(new GameScene(_stage){ShaderProgram = _shaderProgram});
             }

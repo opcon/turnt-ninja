@@ -20,7 +20,7 @@ namespace BeatDetection.GUI
         public GameScene(Stage stage)
         {
             _stage = stage;
-            _stage.UpdateColours();
+            _stage.StageGeometry.UpdateColours();
         }
 
         public override void Load()
