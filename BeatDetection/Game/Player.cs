@@ -47,6 +47,7 @@ namespace BeatDetection
         public PolarVector Position
         {
             get { return _position; }
+            set { _position = value; }
         }
 
         public int Direction { get; set; }

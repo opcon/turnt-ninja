@@ -11,6 +11,15 @@ using Substructio.Graphics.OpenGL;
 
 namespace BeatDetection.Core
 {
+    struct PulseData
+    {
+        public double PulseWidth;
+        public double PulseWidthMax;
+        public double PulseMultiplier;
+        public bool Pulsing;
+        public int PulseDirection;
+    }
+
     internal class PolarPolygon
     {
         public double PulseWidth = 0;
@@ -20,7 +29,6 @@ namespace BeatDetection.Core
         private int pulseDirection = 1;
         public bool Pulsing;
         public int NumberOfSides;
-        public int Direction { get; set; }
         public double ImpactDistance;
         public bool Destroy = false;
 
@@ -74,7 +82,6 @@ namespace BeatDetection.Core
             var initialRadius = (impactTime*Velocity.Radius + minimumRadius + 20);
             ImpactDistance = minimumRadius;
             Position = new PolarVector(0, initialRadius);
-            Direction = 1;
 
             _sides = sides;
             NumberOfSides = _sides.Count;
@@ -161,46 +168,7 @@ namespace BeatDetection.Core
                 if (even == 0) _shaderProgram.SetUniform("in_color", OddColour);
                 _vertexArray.Draw(time, _evenCount, _oddCount);
             }
-            //_shaderProgram.SetUniform("in_color", EvenOutlineColour);
-            //_vertexArray.Draw(time, 0, _evenCount, PrimitiveType.Lines);
-            //_shaderProgram.SetUniform("in_color", OddOutlineColour);
-            //_vertexArray.Draw(time, _evenCount, _oddCount, PrimitiveType.Lines);
-            //GL.Begin(PrimitiveType.Quads);
-            //GL.Color4(EvenColour);
-            //for (int i = 0; i < NumberOfSides; i+= 2)
-            //{
-            //    if (_sides[i]) DrawPolygonSide(i);
-            //}
-            //GL.Color4(OddColour);
-            //for (int i = 1; i < NumberOfSides; i += 2)
-            //{
-            //    if (_sides[i]) DrawPolygonSide(i);
-            //}
-            //GL.End();
-
-            //GL.LineWidth(3);
-            //GL.Begin(PrimitiveType.Lines);
-            //GL.Color4(EvenOutlineColour);
-            //for (int i = 0; i < NumberOfSides; i+= 2)
-            //{
-            //    if (_sides[i]) DrawPolygonSide(i);
-            //}
-            //GL.Color4(OddOutlineColour);
-            //for (int i = 1; i < NumberOfSides; i += 2)
-            //{
-            //    if (_sides[i]) DrawPolygonSide(i);
-            //}
-            //GL.End();
         }
-
-        //private void DrawPolygonSide(int index)
-        //{
-        //    var sp = new PolarVector(Position.Azimuth + index*AngleBetweenSides, Position.Radius);
-        //    GL.Vertex2(PolarVector.ToCartesianCoordinates(sp));
-        //    GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, 0));
-        //    GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides, _width + PulseWidth));
-        //    GL.Vertex2(PolarVector.ToCartesianCoordinates(sp, 0, _width + PulseWidth));
-        //}
 
         private  void InitialiseRendering()
         {

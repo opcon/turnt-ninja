@@ -54,12 +54,12 @@ namespace BeatDetection.Game
 
         public int CurrentPolygon
         {
-            get {return StageGeometry.PolygonIndex;}
+            get {return StageGeometry.CurrentBeat;}
         }
 
         public int PolygonCount
         {
-            get { return StageGeometry.PolygonCount; }
+            get { return StageGeometry.BeatCount; }
         }
 
         public bool FinishedEaseIn { get; private set; }

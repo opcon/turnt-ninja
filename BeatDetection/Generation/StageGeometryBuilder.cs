@@ -19,7 +19,7 @@ namespace BeatDetection.Generation
         private AudioFeatures _audioFeatures;
         private GeometryBuilderOptions _builderOptions;
 
-        private PolarPolygon[] _polygons;
+        private BeatCollection _beats;
         private Color4[] _segmentColours;
         private SegmentInformation[] _segments;
         private Random _random;
@@ -40,12 +40,12 @@ namespace BeatDetection.Generation
             var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 5000, -20, 0);
             backgroundPolygon.ShaderProgram = _builderOptions.GeometryShaderProgram;
 
-            return new StageGeometry(_polygons, _segments, _segmentColours, _random) {BackgroundPolygon = backgroundPolygon};
+            return new StageGeometry(_beats, _segments, _segmentColours, _random) {BackgroundPolygon = backgroundPolygon};
         }
 
         private void BuildGeometry()
         {
-            _polygons = new PolarPolygon[_audioFeatures.Onsets.Count];
+            _beats = new BeatCollection(_audioFeatures.Onsets.Count, _builderOptions.GeometryShaderProgram);
 
             //intialise state variables for algorithim
             int prevStart = 0;
@@ -97,8 +97,8 @@ namespace BeatDetection.Generation
                     //else disable sides by default
                     else sides[i] = false;
                 }
-                _polygons[index] = new PolarPolygon(sides.ToList(), _builderOptions.PolygonVelocity, _builderOptions.PolygonWidth, _builderOptions.PolygonMinimumRadius, b);
-                _polygons[index].ShaderProgram = _builderOptions.GeometryShaderProgram;
+
+                _beats.AddBeat(sides.ToList(), _builderOptions.PolygonVelocity, _builderOptions.PolygonWidth, _builderOptions.PolygonMinimumRadius, b);
 
                 //update the variables holding the previous state of the algorithim.
                 prevTime = b;
@@ -107,6 +107,7 @@ namespace BeatDetection.Generation
 
                 index++;
             }
+            _beats.Initialise();
         }
 
         private void ProcessSegments()
@@ -135,7 +136,7 @@ namespace BeatDetection.Generation
                 do
                 {
                     angle = MathUtilities.Normalise(step + angle, 0, 360);
-                } while (angle > 275 && angle < 310);
+                } while ((angle > 275 && angle < 310) || (angle > 95 && angle < 140));
                 var col = new Hsl { H = angle, L = _builderOptions.Lightness, S = _builderOptions.Saturation};
                 var rgb = col.ToRgb();
 

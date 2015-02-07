@@ -15,7 +15,7 @@ namespace BeatDetection.Game
     class StageGeometry
     {
         private StageColours _colours;
-        private PolarPolygon[] _polygons;
+        private BeatCollection _beats;
         private SegmentInformation[] _segments;
         private Color4[] _segmentColours;
         public Stage ParentStage;
@@ -29,20 +29,23 @@ namespace BeatDetection.Game
 
         private int _segmentIndex = 0;
         private int _colourIndex = 0;
-        private int _collidedPolygonIndex;
-        private int _polygonsToRemoveCount;
+        private int _collidedBeatIndex;
 
-        public int PolygonIndex { get; private set; }
-        public int PolygonCount {get { return _polygons.Length; }}
+        public int BeatCount {get { return _beats.Count; }}
 
         private bool Collided
         {
-            get { return _collidedPolygonIndex == PolygonIndex; }
+            get { return _collidedBeatIndex == _beats.Index; }
         }
 
-        internal StageGeometry (PolarPolygon[] polygons, SegmentInformation[] segments, Color4[] segmentColours, Random random)
+        public int CurrentBeat
         {
-            _polygons = polygons;
+            get { return _beats.Index; }
+        }
+
+        internal StageGeometry (BeatCollection beats, SegmentInformation[] segments, Color4[] segmentColours, Random random)
+        {
+            _beats = beats;
             _segments = segments;
             _segmentColours = segmentColours;
             _random = random;
@@ -51,56 +54,42 @@ namespace BeatDetection.Game
         public void Update(double time)
         {
             var rotate = time * 0.5 * _direction;
+            var azimuth = CenterPolygon.Position.Azimuth + rotate;
 
-            PolygonIndex += _polygonsToRemoveCount;
-            _polygonsToRemoveCount = 0;
+            _beats.Update(time, ParentStage.Running, azimuth);
 
-            for (int i = PolygonIndex; i < _polygons.Length; i++)
-            {
-                var poly = _polygons[i];
-                poly.Direction = _direction;
-                poly.Position.Azimuth = CenterPolygon.Position.Azimuth + rotate;
-                poly.Update(time, ParentStage.Running);
-                if (ParentStage.Running)
-                {
-                    if (poly.Destroy)
-                        _polygonsToRemoveCount++;
-                    else if ((poly.Position.Radius - poly.ImpactDistance) / (poly.Velocity.Radius) <
-                             (poly.PulseWidthMax / poly.PulseMultiplier))
-                    {
-                        CenterPolygon.Pulsing = true;
-                    }
-                }
+            if (_beats.PulseCenter)
+                CenterPolygon.Pulsing = true;
 
-                //update polygon colours if they are incorrect (i.e. if it has switched to colliding)
-                if (poly.EvenColour != _colours.EvenCollisionColour && poly.EvenColour != _colours.EvenOpposingColour)
-                    poly.SetColour(_colours.EvenOpposingColour, _colours.EvenOutlineColour, _colours.OddOpposingColour, _colours.OddOutlineColour);
-            }
 
-            if (_polygonsToRemoveCount > 0)
+                ////update polygon colours if they are incorrect (i.e. if it has switched to colliding)
+                //if (poly.EvenColour != _colours.EvenCollisionColour && poly.EvenColour != _colours.EvenOpposingColour)
+                //    poly.SetColour(_colours.EvenOpposingColour, _colours.EvenOutlineColour, _colours.OddOpposingColour, _colours.OddOutlineColour);
+
+            if (_beats.BeatsHit > 0)
             {
                 var d = _random.NextDouble();
                 _direction = d > 0.95 ? -_direction : _direction;
-                ParentStage.Multiplier += _polygonsToRemoveCount;
+                ParentStage.Multiplier += _beats.BeatsHit;
             }
 
             UpdatePlayerOverlap();
 
-            if (ParentStage.AI && PolygonIndex < _polygons.Length)
+            if (ParentStage.AI && _beats.Index < _beats.Count)
             {
-                var t = _polygons[PolygonIndex].OpeningAngle + rotate * _direction + CenterPolygon.Position.Azimuth;
+                var t = _beats.CurrentOpeningAngle + rotate * _direction + CenterPolygon.Position.Azimuth;
                 t += MathHelper.DegreesToRadians(30);
                 Player.DoAI(t);
             }
 
             Player.Direction = _direction;
-            CenterPolygon.Direction = _direction;
 
             //update center polygon colour if finished colliding 
             if (CenterPolygon.EvenColour == _colours.EvenCollisionColour && !Collided)
                 CenterPolygon.SetColour(_colours.EvenOpposingColour, _colours.EvenOutlineColour, _colours.OddOpposingColour, _colours.OddOutlineColour);
 
-            Player.Position.Azimuth += rotate;
+            //Player.Position.Azimuth += rotate;
+            Player.Position = new PolarVector(Player.Position.Azimuth + rotate, Player.Position.Radius);
             Player.Update(time, ParentStage.AI);
 
             CenterPolygon.Update(time, false);
@@ -117,25 +106,23 @@ namespace BeatDetection.Game
             BackgroundPolygon.Draw(time);
             GL.LineWidth(3);
             ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenOpposingColour);
-            for (int i = PolygonIndex; i < Math.Min(_polygons.Length, PolygonIndex + 10); i++)
+
+            _beats.Draw(time, 1);
+
+            if (_beats.Index < _beats.Count && Collided)
             {
-                _polygons[i].Draw(time, 1);
-            }
-            if (PolygonIndex < _polygons.Length)
-            {
-                ParentStage.ShaderProgram.SetUniform("in_color", _polygons[PolygonIndex].EvenColour);
-                _polygons[PolygonIndex].Draw(time, 1);
+                ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenCollisionColour);
+                _beats.DrawCurrentBeat(time, 1);
             }
             CenterPolygon.Draw(time, 1);
             ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddOpposingColour);
-            for (int i = PolygonIndex; i < Math.Min(_polygons.Length, PolygonIndex + 10); i++)
+
+            _beats.Draw(time, 2);
+
+            if (_beats.Index < _beats.Count && Collided)
             {
-                _polygons[i].Draw(time, 2);
-            }
-            if (PolygonIndex < _polygons.Length)
-            {
-                ParentStage.ShaderProgram.SetUniform("in_color", _polygons[PolygonIndex].OddColour);
-                _polygons[PolygonIndex].Draw(time, 2);
+                ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddCollisionColour);
+                _beats.DrawCurrentBeat(time, 2);
             }
             CenterPolygon.Draw(time, 2);
             ParentStage.ShaderProgram.SetUniform("in_color", Color4.White);
@@ -144,13 +131,13 @@ namespace BeatDetection.Game
 
         private void UpdatePlayerOverlap()
         {
-            if (PolygonIndex == _collidedPolygonIndex || PolygonIndex >= _polygons.Length)
+            if (_beats.Index == _collidedBeatIndex || _beats.Index >= _beats.Count)
             {
                 ParentStage.Overlap = 0;
                 return;
             }
             var c = new Clipper();
-            c.AddPaths(_polygons[PolygonIndex].GetPolygonBounds(), PolyType.ptSubject, true);
+            c.AddPaths(_beats.GetPolygonBounds(_beats.Index), PolyType.ptSubject, true);
             c.AddPath(Player.GetBounds(), PolyType.ptClip, true);
 
             var soln = new List<List<IntPoint>>();
@@ -161,8 +148,8 @@ namespace BeatDetection.Game
             {
                 ParentStage.Multiplier = -1;
                 Player.Hits++;
-                _collidedPolygonIndex = PolygonIndex;
-                _polygons[_collidedPolygonIndex].SetColour(_colours.EvenCollisionColour, _colours.EvenCollisionOutlineColour, _colours.OddCollisionColour, _colours.OddCollisionOutlienColour);
+                _collidedBeatIndex = _beats.Index;
+                //_polygons[_collidedBeatIndex].SetColour(_colours.EvenCollisionColour, _colours.EvenCollisionOutlineColour, _colours.OddCollisionColour, _colours.OddCollisionOutlienColour);
                 CenterPolygon.SetColour(_colours.EvenCollisionColour, _colours.EvenCollisionOutlineColour, _colours.OddCollisionColour, _colours.OddCollisionOutlienColour);
             }
         }
