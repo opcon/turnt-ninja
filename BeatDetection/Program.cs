@@ -6,22 +6,15 @@ using BeatDetection.Game;
 using BeatDetection.GUI;
 using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
-using NAudio;
 using NAudio.Wave;
 using System.Diagnostics;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
 using System.Reflection;
 using QuickFont;
-using Substructio.Audio;
 using Substructio.Core;
 using Substructio.GUI;
-using Wav2Flac;
-using System.Security.Cryptography;
 
 namespace BeatDetection
 {
@@ -44,13 +37,13 @@ namespace BeatDetection
         Stopwatch stopWatch;
         float tNext = 0;
         bool beatShown = false;
-        float correction = 0.0f;
+        float correction = 0.25f;
         float time = 0;
 
         PolarPolygon _polarPolygon;
 
-        List<PolarPolygonSide> hexagonSides;
-        List<PolarPolygonSide> toRemove;
+        //List<PolarPolygonSide> hexagonSides;
+        //List<PolarPolygonSide> toRemove;
 
         Random random;
 
@@ -62,9 +55,10 @@ namespace BeatDetection
 
         private int dir = 1;
 
+
         private Stage _stage;
         public GameController()
-            : base(1280, 720)
+            : base(1280, 720, new GraphicsMode(32, 24, 8, 4))
         {
             KeyDown += Keyboard_KeyDown;
             //this.VSync = VSyncMode.Off;
@@ -109,7 +103,7 @@ namespace BeatDetection
 
             var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
-            var gameFont = new QFont(fontPath, 18);
+            var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Italic){ProjectionMatrix = gameCamera.ScreenProjectionMatrix};
             _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath);
             _gameSceneManager.AddScene(new LoadingScene(sonicAnnotator, pluginPath, correction));
 
@@ -141,7 +135,7 @@ namespace BeatDetection
             GL.ClearColor(Color.CornflowerBlue);
 
             //_stage = new Stage();
-            //_stage.Load(file, sonicAnnotator, pluginPath, correction);
+            //_stage.LoadAsync(file, sonicAnnotator, pluginPath, correction);
         }
 
         #endregion
@@ -157,12 +151,14 @@ namespace BeatDetection
         {
             GL.Viewport(0, 0, Width, Height);
 
+
             //GL.MatrixMode(MatrixMode.Projection);
             //var mat = Matrix4.CreateOrthographic(Width, Height, 0.0f, 4.0f);
             //GL.LoadMatrix(ref mat);
 
             _gameSceneManager.Resize(e);
         }
+
 
         #endregion
 
@@ -195,9 +191,9 @@ namespace BeatDetection
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
             //_stage.Draw(e.Time);
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadIdentity();
-            GL.Translate(0.375, 0.375, 0.0);
+            //GL.MatrixMode(MatrixMode.Modelview);
+            //GL.LoadIdentity();
+            //GL.Translate(0.375, 0.375, 0.0);
             _gameSceneManager.Draw(e.Time);
 
             this.SwapBuffers();

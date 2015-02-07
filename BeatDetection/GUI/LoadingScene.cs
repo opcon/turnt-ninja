@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,9 +10,12 @@ using System.Windows.Forms;
 using BeatDetection.Core;
 using BeatDetection.Game;
 using OpenTK;
+using OpenTK.Graphics;
 using QuickFont;
+using Substructio.Core.Math;
+using Substructio.Graphics.OpenGL;
 using Substructio.GUI;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 
 namespace BeatDetection.GUI
 {
@@ -25,8 +29,12 @@ namespace BeatDetection.GUI
         private Player _player;
         private PolarPolygon _centerPolygon;
         private ProcessedText _loadingText;
-        private Vector2 _loadingTextPosition;
+        private ProcessedText _songText;
+        private Vector3 _loadingTextPosition;
         private QFont _loadingFont;
+        private ShaderProgram _shaderProgram;
+
+        private string _loadingStatus = "";
 
         public LoadingScene(string sonicAnnotatorPath, string pluginPath, float correction)
         {
@@ -37,9 +45,17 @@ namespace BeatDetection.GUI
 
         public override void Load()
         {
+            var vert = new Shader(Directories.ShaderDirectory + "/simple.vs");
+            var frag = new Shader(Directories.ShaderDirectory + "/simple.fs");
+            _shaderProgram = new ShaderProgram();
+            _shaderProgram.Load(vert, frag);
+
             _player = new Player();
-            _centerPolygon = new PolarPolygon(6, 6, 0, 1, 0, 80);
-            _stage = new Stage(_player, _centerPolygon);
+            _player.ShaderProgram = _shaderProgram;
+            _centerPolygon =  new PolarPolygon(Enumerable.Repeat(true, 6).ToList(), new PolarVector(0.5, 0), 50, 80, 0 );
+            _centerPolygon.ShaderProgram = _shaderProgram;
+            _stage = new Stage(this.SceneManager);
+            _stage.ShaderProgram = _shaderProgram;
 
             string file = "";
             OpenFileDialog ofd = new OpenFileDialog();
@@ -58,14 +74,19 @@ namespace BeatDetection.GUI
                 return;
             }
 
-            _loadingFont = new QFont(SceneManager.FontPath, 30);
-            //_loadingText = _loadingFont.ProcessText(String.Format("Loading {0}", Path.GetFileName(file)), 1000, QFontAlignment.Centre);
-            _loadingText = _loadingFont.ProcessText("Loading ", 1000, QFontAlignment.Centre);
-            _loadingTextPosition = CalculateTextPosition(new Vector2(SceneManager.ScreenCamera.PreferredWidth / 2, SceneManager.ScreenCamera.PreferredHeight / 2), _loadingText);
+            _loadingFont = new QFont(SceneManager.FontPath, 30, new QFontBuilderConfiguration(true), FontStyle.Italic);
+            _loadingFont.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
+            _loadingText = _loadingFont.ProcessText("Loading", new SizeF(200, -1), QFontAlignment.Centre);
+            //_loadingTextPosition = CalculateTextPosition(new Vector2(SceneManager.ScreenCamera.PreferredWidth / 2, SceneManager.ScreenCamera.PreferredHeight / 2), _loadingText);
+            _loadingTextPosition = CalculateTextPosition(new Vector3((float)SceneManager.GameWindow.Width/ 2, SceneManager.GameWindow.Height/ 2, 0f), _loadingText);
 
-            //TODO implement loading of stage in a background thread
-            _loadTask = Task.Factory.StartNew(() => _stage.Load(file, _sonicAnnotatorPath, _pluginPath, _correction));
-            //_stage.Load(file, _sonicAnnotatorPath, _pluginPath, _correction);
+            _songText = _loadingFont.ProcessText(Path.GetFileNameWithoutExtension(file), new SizeF(SceneManager.GameWindow.Width - 40, -1), QFontAlignment.Centre);
+
+            var progress = new Progress<string>(status =>
+            {
+                _loadingStatus = status;
+            });
+            _loadTask = Task.Factory.StartNew(() => _stage.LoadAsync(file, _sonicAnnotatorPath, _pluginPath, _correction, progress, _centerPolygon, _player));
 
             Loaded = true;
         }
@@ -77,8 +98,9 @@ namespace BeatDetection.GUI
 
         public override void Resize(EventArgs e)
         {
-            _loadingText = _loadingFont.ProcessText("Loading", 1000, QFontAlignment.Centre);
-            _loadingTextPosition = CalculateTextPosition(new Vector2(SceneManager.ScreenCamera.PreferredWidth / 2, SceneManager.ScreenCamera.PreferredHeight / 2), _loadingText);
+            _loadingText = _loadingFont.ProcessText("Loading", new SizeF(1000, -1), QFontAlignment.Centre);
+            _loadingFont.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
+            _loadingTextPosition = CalculateTextPosition(new Vector3(SceneManager.ScreenCamera.PreferredWidth / 2, SceneManager.ScreenCamera.PreferredHeight / 2, 0f), _loadingText);
         }
 
         public override void Update(double time, bool focused = false)
@@ -86,39 +108,49 @@ namespace BeatDetection.GUI
             if (_loadTask.IsCompleted)
             {
                 SceneManager.RemoveScene(this);
-                SceneManager.AddScene(new GameScene(_stage));
+                SceneManager.AddScene(new GameScene(_stage){ShaderProgram = _shaderProgram});
             }
 
             _player.Update(time);
             _centerPolygon.Update(time, false);
-
+            //SceneManager.ScreenCamera.TargetScale += new Vector2(0.1f, 0.1f);
         }
 
         public override void Draw(double time)
         {
-            SceneManager.ScreenCamera.EnableScreenDrawing();
-            //SceneManager.DrawTextLine("hello", new Vector2(100, 100));
-            SceneManager.DrawProcessedText(_loadingText, _loadingTextPosition, _loadingFont);
-            //SceneManager.DrawProcessedText(_loadingText, new Vector2(0, 0), _loadingFont);
-            //QFont.Begin();
-            //_loadingFont.Print(_loadingText, _loadingTextPosition);
-            //QFont.End();
-            GL.Disable(EnableCap.Texture2D);
-            SceneManager.ScreenCamera.EnableWorldDrawing();
+            ErrorCode errorCode = GL.GetError();
+            GL.Disable(EnableCap.CullFace);
+            _shaderProgram.Bind();
+            _shaderProgram.SetUniform("mvp", SceneManager.ScreenCamera.ModelViewProjection);
+            _shaderProgram.SetUniform("in_color", Color4.White);
+
+            //Draw the player
             _player.Draw(time);
+
+            //Draw the center polygon
             _centerPolygon.Draw(time);
+
+            //Cleanup the program
+            _shaderProgram.UnBind();
+
+            _loadingFont.ResetVBOs();
+            float yOffset = 0;
+            yOffset += _loadingFont.Print(_loadingText, _loadingTextPosition).Height;
+            yOffset = MathHelper.Clamp(yOffset + 200 - 50*SceneManager.ScreenCamera.Scale.Y, yOffset, SceneManager.GameWindow.Height*0.5f); 
+            var pos = new Vector3(0, -yOffset, 0);
+            yOffset += _loadingFont.Print(_songText, pos).Height;
+            yOffset += _loadingFont.Print(_loadingStatus, new Vector3(0, -yOffset, 0), QFontAlignment.Centre).Height;
+            _loadingFont.Draw();
         }
 
         public override void UnLoad()
         {
         }
 
-        private Vector2 CalculateTextPosition(Vector2 center, ProcessedText text)
+        private Vector3 CalculateTextPosition(Vector3 center, ProcessedText text)
         {
             var size = _loadingFont.Measure(text);
-            return new Vector2(center.X, center.Y + size.Height/2);
-            return center;
-            return new Vector2(center.X - size.Width/2, center.Y - size.Height/2);
+            return new Vector3(0, size.Height/2, 0f);
         }
     }
 }

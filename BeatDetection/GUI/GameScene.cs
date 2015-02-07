@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
+using BeatDetection.Core;
 using BeatDetection.Game;
 using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
+using QuickFont;
+using Substructio.Graphics.OpenGL;
 using Substructio.GUI;
 
 namespace BeatDetection.GUI
@@ -14,14 +14,19 @@ namespace BeatDetection.GUI
     class GameScene : Scene
     {
         private Stage _stage;
+        private ProcessedText _multiplerText;
+        public ShaderProgram ShaderProgram { get; set; }
+
         public GameScene(Stage stage)
         {
             _stage = stage;
+            _stage.StageGeometry.UpdateColours();
         }
 
         public override void Load()
         {
-            //SceneManager.ScreenCamera.TargetScale = new Vector2(10,10);
+
+
             Loaded = true;
         }
 
@@ -32,6 +37,7 @@ namespace BeatDetection.GUI
             
         public override void Resize(EventArgs e)
         {
+            _stage.MultiplierFont.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
         }
 
         public override void Update(double time, bool focused = false)
@@ -41,18 +47,17 @@ namespace BeatDetection.GUI
 
         public override void Draw(double time)
         {
-            //SceneManager.ScreenCamera.Center = new Vector2(0, 0);
-            //SceneManager.ScreenCamera.Update(time);
-            //SceneManager.ScreenCamera.UpdateProjectionMatrix();
-            //SceneManager.ScreenCamera.UpdateModelViewMatrix();
-            SceneManager.ScreenCamera.EnableWorldDrawing();
-            GL.Disable(EnableCap.Texture2D);
+            ShaderProgram.Bind();
+            ShaderProgram.SetUniform("mvp", SceneManager.ScreenCamera.ModelViewProjection);
             _stage.Draw(time);
-            SceneManager.ScreenCamera.EnableScreenDrawing();
-            SceneManager.DrawTextLine(_stage.Overlap.ToString(), new Vector2(50, 50));
-            SceneManager.DrawTextLine(_stage.Hits.ToString(), new Vector2(100, 50));
-            SceneManager.DrawTextLine(String.Format("{0}/{1}", _stage.CurrentPolygon, _stage.PolygonCount), new Vector2(150, 50));
-            SceneManager.DrawTextLine(_stage.FinishedEaseIn.ToString(), new Vector2(250, 50));
+            //Cleanup the program
+            ShaderProgram.UnBind();
+
+            float yOffset = -SceneManager.Height * 0.5f + 30f;
+            float xOffset = -SceneManager.Width * 0.5f + 20;
+            xOffset += SceneManager.Font.Print(_stage.Overlap.ToString(), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
+            xOffset += SceneManager.Font.Print(_stage.Hits.ToString(), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.Red).Width + 20;
+            xOffset += SceneManager.Font.Print(string.Format("{0}/{1}", _stage.CurrentPolygon, _stage.PolygonCount), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
         }
 
         public override void UnLoad()
