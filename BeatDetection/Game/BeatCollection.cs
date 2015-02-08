@@ -195,7 +195,7 @@ namespace BeatDetection.Game
                 }
             }
 
-            for (int i = Index; i < Count; i++)
+            for (int i = Index; i < Math.Min(Count, Index+20); i++)
             {
                 for (int j = 0; j < NumberOfSides[i]; j += 2)
                 {
@@ -216,7 +216,7 @@ namespace BeatDetection.Game
                 }
             }
 
-            for (int i = Index; i < Count; i++)
+            for (int i = Index; i < Math.Min(Count, Index+20); i++)
             {
                 for (int j = 1; j < NumberOfSides[i]; j += 2)
                 {
