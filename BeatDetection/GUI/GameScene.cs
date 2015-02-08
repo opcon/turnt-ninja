@@ -25,8 +25,7 @@ namespace BeatDetection.GUI
 
         public override void Load()
         {
-
-
+            SceneManager.ScreenCamera.Scale = SceneManager.ScreenCamera.TargetScale = new Vector2(4f);
             Loaded = true;
         }
 

@@ -33,7 +33,7 @@ namespace BeatDetection.Game
 
         public double Overlap { get; set; }
 
-        private double _warmupTime = 2.0f;
+        private double _warmupTime = 3.0f;
         private double _elapsedWarmupTime;
         private double _easeInTime = 1.0f;
         public bool Running;
@@ -75,6 +75,7 @@ namespace BeatDetection.Game
             MultiplierFont.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
 
             _stageAudio = new StageAudio();
+
         }
 
         public void LoadAsync(string audioPath, string sonicPath, string pluginPath, float correction, IProgress<string> progress, PolarPolygon centerPolygon, Player player)
@@ -108,6 +109,7 @@ namespace BeatDetection.Game
         {
             if (!Running)
             {
+                SceneManager.ScreenCamera.TargetScale = new Vector2(1.3f);
                 _elapsedWarmupTime += time;
                 if (_elapsedWarmupTime > _warmupTime)
                 {
@@ -123,7 +125,7 @@ namespace BeatDetection.Game
             {
                 _stageAudio.Play();
                 FinishedEaseIn = true;
-                SceneManager.ScreenCamera.TargetScale = new Vector2(1.3f);
+                //SceneManager.ScreenCamera.TargetScale = new Vector2(1.3f);
             }
 
             StageGeometry.Update(time);
