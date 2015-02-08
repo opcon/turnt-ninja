@@ -29,7 +29,7 @@ namespace BeatDetection.Game
 
         private int _segmentIndex = 0;
         private int _colourIndex = 0;
-        private int _collidedBeatIndex;
+        private int _collidedBeatIndex = -1;
 
         public int BeatCount {get { return _beats.Count; }}
 
