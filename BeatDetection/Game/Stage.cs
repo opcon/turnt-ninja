@@ -75,7 +75,6 @@ namespace BeatDetection.Game
             MultiplierFont.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
 
             _stageAudio = new StageAudio();
-
         }
 
         public void LoadAsync(string audioPath, string sonicPath, string pluginPath, float correction, IProgress<string> progress, PolarPolygon centerPolygon, Player player)
@@ -128,6 +127,8 @@ namespace BeatDetection.Game
                 //SceneManager.ScreenCamera.TargetScale = new Vector2(1.3f);
             }
 
+            if (StageGeometry.CurrentBeat < StageGeometry.BeatCount)
+                SceneManager.ScreenCamera.TargetScale = new Vector2(1.3f * (0.80f + Math.Min(1, (StageGeometry.BeatFrequencies[StageGeometry.CurrentBeat] / StageGeometry.MaxBeatFrequency) * 1f)));
             StageGeometry.Update(time);
 
             if (InputSystem.NewKeys.Contains(Key.F2)) AI = !AI;

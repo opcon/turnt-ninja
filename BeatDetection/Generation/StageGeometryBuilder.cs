@@ -20,6 +20,7 @@ namespace BeatDetection.Generation
         private GeometryBuilderOptions _builderOptions;
 
         private BeatCollection _beats;
+        private float[] _beatFrequencies;
         private Color4[] _segmentColours;
         private SegmentInformation[] _segments;
         private Random _random;
@@ -34,13 +35,38 @@ namespace BeatDetection.Generation
             _builderOptions.RandomFunction = _random;
 
             BuildGeometry();
+            BuildBeatFrequencyList();
             ProcessSegments();
             BuildSegmentColours();
 
             var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 5000, -20, 0);
             backgroundPolygon.ShaderProgram = _builderOptions.GeometryShaderProgram;
 
-            return new StageGeometry(_beats, _segments, _segmentColours, _random) {BackgroundPolygon = backgroundPolygon};
+            return new StageGeometry(_beats, _segments, _segmentColours, _random, _beatFrequencies) {BackgroundPolygon = backgroundPolygon};
+        }
+
+        private void BuildBeatFrequencyList()
+        {
+            var sorted = _audioFeatures.Onsets.OrderBy(f => f).ToArray();
+            _beatFrequencies = new float[sorted.Length];
+            int lookAhead = 5;
+
+            for (int i = 0; i < _beatFrequencies.Length; i++)
+            {
+                int count;
+                if (_beatFrequencies.Length - i < lookAhead) count = _beatFrequencies.Length - i;
+                else count = lookAhead;
+
+                float differenceSum = 0;
+                for (int j = 1; j < count; j++)
+                {
+                    differenceSum += sorted[i + j] - sorted[i + j - 1];
+                }
+
+                _beatFrequencies[i] = 1/(differenceSum/count);
+            }
+
+            _beatFrequencies[_beatFrequencies.Length - 1] = _beatFrequencies[_beatFrequencies.Length - 2];
         }
 
         private void BuildGeometry()

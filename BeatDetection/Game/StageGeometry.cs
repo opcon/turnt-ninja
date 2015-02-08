@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BeatDetection.Audio;
 using BeatDetection.Core;
 using ClipperLib;
@@ -30,6 +31,8 @@ namespace BeatDetection.Game
         private int _segmentIndex = 0;
         private int _colourIndex = 0;
         private int _collidedBeatIndex = -1;
+        public float[] BeatFrequencies;
+        public float MaxBeatFrequency;
 
         public int BeatCount {get { return _beats.Count; }}
 
@@ -43,17 +46,19 @@ namespace BeatDetection.Game
             get { return _beats.Index; }
         }
 
-        internal StageGeometry (BeatCollection beats, SegmentInformation[] segments, Color4[] segmentColours, Random random)
+        internal StageGeometry (BeatCollection beats, SegmentInformation[] segments, Color4[] segmentColours, Random random, float[] beatFrequencies)
         {
             _beats = beats;
             _segments = segments;
             _segmentColours = segmentColours;
             _random = random;
+            BeatFrequencies = beatFrequencies;
+            MaxBeatFrequency = BeatFrequencies.Max();
         }
 
         public void Update(double time)
         {
-            var rotate = time * 0.5 * _direction;
+            var rotate = time * 0.5 * _direction * Math.Min(((CurrentBeat < BeatCount ? BeatFrequencies[_beats.Index] : MaxBeatFrequency) / MaxBeatFrequency) * 2, 1);
             var azimuth = CenterPolygon.Position.Azimuth + rotate;
 
             _beats.Update(time, ParentStage.Running, azimuth);
