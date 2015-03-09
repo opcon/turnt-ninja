@@ -82,11 +82,13 @@ namespace BeatDetection.GUI
 
             _songText = _loadingFont.ProcessText(Path.GetFileNameWithoutExtension(file), new SizeF(SceneManager.GameWindow.Width - 40, -1), QFontAlignment.Centre);
 
+            var dOptions = new DifficultyOptions(600f, 0.2f, 0.4f, 1.2f);
+
             var progress = new Progress<string>(status =>
             {
                 _loadingStatus = status;
             });
-            _loadTask = Task.Factory.StartNew(() => _stage.LoadAsync(file, _sonicAnnotatorPath, _pluginPath, _correction, progress, _centerPolygon, _player));
+            _loadTask = Task.Factory.StartNew(() => _stage.LoadAsync(file, _sonicAnnotatorPath, _pluginPath, _correction, progress, _centerPolygon, _player, dOptions));
 
             Loaded = true;
         }
