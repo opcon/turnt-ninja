@@ -29,14 +29,17 @@ namespace BeatDetection.Game
         public double TotalTime { get; private set; }
         private AudioFeatures _audioFeatures;
 
+        private DifficultyOptions _difficultyOptions;
+
         private Random _random;
 
         public double Overlap { get; set; }
 
-        private double _warmupTime = 3.0f;
+        private double _warmupTime = 2.0f;
         private double _elapsedWarmupTime;
         private double _easeInTime = 1.0f;
         public bool Running;
+        public bool Ended;
 
         public bool AI { get; private set; }
 
@@ -62,6 +65,11 @@ namespace BeatDetection.Game
             get { return StageGeometry.BeatCount; }
         }
 
+        public float ScoreMultiplier
+        {
+            get { return _difficultyOptions.GetScoreMultiplier(); }
+        }
+
         public bool FinishedEaseIn { get; private set; }
 
         public StageGeometry StageGeometry;
@@ -77,7 +85,7 @@ namespace BeatDetection.Game
             _stageAudio = new StageAudio();
         }
 
-        public void LoadAsync(string audioPath, string sonicPath, string pluginPath, float correction, IProgress<string> progress, PolarPolygon centerPolygon, Player player)
+        public void LoadAsync(string audioPath, string sonicPath, string pluginPath, float correction, IProgress<string> progress, PolarPolygon centerPolygon, Player player, DifficultyOptions difficultyOptions)
         {
             progress.Report("Loading audio");
             _stageAudio.Load(audioPath);
@@ -87,11 +95,19 @@ namespace BeatDetection.Game
             LoadAudioFeatures(audioPath, sonicPath, pluginPath, correction, progress);
 
             progress.Report("Building stage geometry");
-            StageGeometry = new StageGeometryBuilder().Build(_audioFeatures, _random, new GeometryBuilderOptions(ShaderProgram));
+
+            //Apply difficulty options to builder options
+            var bOptions = new GeometryBuilderOptions(ShaderProgram);
+            bOptions.ApplyDifficulty(difficultyOptions);
+            _difficultyOptions = difficultyOptions;
+
+            //Build stage geometry
+            StageGeometry = new StageGeometryBuilder().Build(_audioFeatures, _random, bOptions);
             StageGeometry.ParentStage = this;
 
             StageGeometry.CenterPolygon = centerPolygon;
             StageGeometry.Player = player;
+            StageGeometry.RotationMultiplier = _difficultyOptions.RotationSpeed;
 
             progress.Report("Load complete");
 
@@ -106,7 +122,7 @@ namespace BeatDetection.Game
 
         public void Update(double time)
         {
-            if (!Running)
+            if (!Running && !Ended)
             {
                 SceneManager.ScreenCamera.TargetScale = new Vector2(1.3f);
                 _elapsedWarmupTime += time;
@@ -119,12 +135,16 @@ namespace BeatDetection.Game
             if (Running)
             {
                 TotalTime += time;
+                if (StageGeometry.CurrentBeat == StageGeometry.BeatCount)
+                {
+                    Ended = true;
+                    Running = false;
+                }
             }
             if (!FinishedEaseIn && TotalTime > _easeInTime)
             {
                 _stageAudio.Play();
                 FinishedEaseIn = true;
-                //SceneManager.ScreenCamera.TargetScale = new Vector2(1.3f);
             }
 
             if (StageGeometry.CurrentBeat < StageGeometry.BeatCount)
@@ -133,8 +153,8 @@ namespace BeatDetection.Game
 
             if (InputSystem.NewKeys.Contains(Key.F2)) AI = !AI;
 
+            //Scale multiplier font with beat
             MultiplierFont.ProjectionMatrix = Matrix4.Mult(Matrix4.CreateScale((float)(0.75 + 0.24f * StageGeometry.CenterPolygon.PulseWidth / StageGeometry.CenterPolygon.PulseWidthMax)), SceneManager.ScreenCamera.ScreenProjectionMatrix);
-
         }
 
         public void Draw(double time)

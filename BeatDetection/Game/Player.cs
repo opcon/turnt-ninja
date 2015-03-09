@@ -57,6 +57,8 @@ namespace BeatDetection
             get { return _velocity; }
         }
 
+        public float Score;
+
         private Input _currentFramesInput;
         private ShaderProgram _shaderProgram;
 

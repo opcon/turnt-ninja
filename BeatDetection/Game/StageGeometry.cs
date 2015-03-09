@@ -27,6 +27,7 @@ namespace BeatDetection.Game
         public PolarPolygon CenterPolygon;
         public PolarPolygon BackgroundPolygon;
         private int _direction = 1;
+        public float RotationMultiplier = 1.0f;
 
         private int _segmentIndex = 0;
         private int _colourIndex = 0;
@@ -58,7 +59,8 @@ namespace BeatDetection.Game
 
         public void Update(double time)
         {
-            var rotate = time * 0.5 * _direction * Math.Min(((CurrentBeat < BeatCount ? BeatFrequencies[_beats.Index] : MaxBeatFrequency) / MaxBeatFrequency) * 2, 1);
+            var rotate = time * 0.5 * _direction * Math.Min(((CurrentBeat < BeatCount ? BeatFrequencies[_beats.Index] : MaxBeatFrequency) / MaxBeatFrequency) * 2, 1) * RotationMultiplier;
+            //CenterPolygon.PulseMultiplier = BeatFrequencies[_beats.Index]*70;
             var azimuth = CenterPolygon.Position.Azimuth + rotate;
 
             _beats.Update(time, ParentStage.Running, azimuth);
@@ -71,14 +73,17 @@ namespace BeatDetection.Game
                 //if (poly.EvenColour != _colours.EvenCollisionColour && poly.EvenColour != _colours.EvenOpposingColour)
                 //    poly.SetColour(_colours.EvenOpposingColour, _colours.EvenOutlineColour, _colours.OddOpposingColour, _colours.OddOutlineColour);
 
+
+
+            UpdatePlayerOverlap();
+
             if (_beats.BeatsHit > 0)
             {
                 var d = _random.NextDouble();
                 _direction = d > 0.95 ? -_direction : _direction;
                 ParentStage.Multiplier += _beats.BeatsHit;
+                Player.Score += ParentStage.Multiplier*ParentStage.ScoreMultiplier;
             }
-
-            UpdatePlayerOverlap();
 
             if (ParentStage.AI && _beats.Index < _beats.Count)
             {
@@ -102,6 +107,8 @@ namespace BeatDetection.Game
 
             BackgroundPolygon.Position.Azimuth = CenterPolygon.Position.Azimuth + rotate;
             BackgroundPolygon.Update(time, false);
+
+            ParentStage.SceneManager.ScreenCamera.ExtraScale = (float)(CenterPolygon.PulseWidth / CenterPolygon.PulseWidthMax)*2f;
 
             UpdateSegments();
         }

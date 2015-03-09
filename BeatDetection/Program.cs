@@ -61,7 +61,7 @@ namespace BeatDetection
             : base(1280, 720, new GraphicsMode(32, 24, 8, 4))
         {
             KeyDown += Keyboard_KeyDown;
-            //this.VSync = VSyncMode.Off;
+            this.VSync = VSyncMode.Off;
         }
 
         #region Keyboard_KeyDown
@@ -74,7 +74,9 @@ namespace BeatDetection
         void Keyboard_KeyDown(object sender, KeyboardKeyEventArgs e)
         {
             if (e.Key == Key.Escape)
+            {
                 this.Exit();
+            }
 
             if (e.Key == Key.F11)
                 if (this.WindowState == WindowState.Fullscreen)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -204,6 +205,13 @@ namespace BeatDetection.Generation
         {
             GeometryShaderProgram = geometryShaderProgram;
             SkipFunction = () => (int) (3*Math.Pow(RandomFunction.NextDouble(), 4)) + 1;
+        }
+
+        public void ApplyDifficulty(DifficultyOptions options)
+        {
+            PolygonVelocity.Radius = options.Speed;
+            VeryCloseDistance = options.VeryCloseDistance;
+            CloseDistance = options.CloseDistance;
         }
     }
 }

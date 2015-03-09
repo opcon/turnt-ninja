@@ -57,9 +57,13 @@ namespace BeatDetection.GUI
             xOffset += SceneManager.Font.Print(_stage.Overlap.ToString(), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
             xOffset += SceneManager.Font.Print(_stage.Hits.ToString(), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.Red).Width + 20;
             xOffset += SceneManager.Font.Print(string.Format("{0}/{1}", _stage.CurrentPolygon, _stage.PolygonCount), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
-            xOffset +=
-                SceneManager.Font.Print(string.Format("{0}/{1}", SceneManager.ScreenCamera.TargetScale, SceneManager.ScreenCamera.Scale), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left,
-                    Color.White).Width + 20;
+            //xOffset +=
+            //    SceneManager.Font.Print(string.Format("{0}/{1}", SceneManager.ScreenCamera.TargetScale, SceneManager.ScreenCamera.Scale), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left,
+            //        Color.White).Width + 20;
+            xOffset += SceneManager.Font.Print(string.Format("Current score is {0}", _stage.StageGeometry.Player.Score), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
+            xOffset += SceneManager.Font.Print(string.Format("Score Multiplier is {0}", _stage.ScoreMultiplier), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
+
+            //if (_stage.Ended) SceneManager.Font.Print("Song Finished", Vector3.Zero, QFontAlignment.Centre, Color.White);
         }
 
         public override void UnLoad()
