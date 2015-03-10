@@ -44,7 +44,8 @@ namespace BeatDetection.Game
         private int _currentBeatOddSum;
 
         public int BeatsHit { get; private set; }
-        public bool PulseCenter { get; private set; }
+        public bool BeginPulse { get; private set; }
+        public bool Pulsing { get; private set; }
         public double CurrentOpeningAngle {get { return Sides[Index].FindIndex(x => x == false)*AngleBetweenSides[Index]; }}
 
         public BeatCollection(int beatCount, ShaderProgram geometryShaderProgram)
@@ -121,8 +122,18 @@ namespace BeatDetection.Game
         public void Update(double time, bool updateRadius, double azimuth)
         {
             Index += BeatsHit;
+            if (BeginPulse)
+            {
+                BeginPulse = false;
+                Pulsing = true;
+            }
+            if (BeatsHit > 0)
+            {
+                BeginPulse = false;
+                Pulsing = false;
+            }
             BeatsHit = 0;
-            PulseCenter = false;
+            BeginPulse = false;
 
             //Set azimuth for all beats 
             for (int i = Index; i < Count; i++)
@@ -144,7 +155,7 @@ namespace BeatDetection.Game
             //Check if need to pulse center polygon
             for (int i = Index; i < Count; i++)
             {
-                if (BeatWithinPulseRadius(i)) PulseCenter = true;
+                if (BeatWithinPulseRadius(i) && !Pulsing) BeginPulse = true;
             }
 
             if (_vertexArray == null) InitialiseRendering();

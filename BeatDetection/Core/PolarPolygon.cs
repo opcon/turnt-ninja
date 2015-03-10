@@ -25,6 +25,7 @@ namespace BeatDetection.Core
         public double PulseWidth = 0;
         public double PulseWidthMax = 25;
         public double PulseMultiplier = 150;
+        private double _currentPulseMultiplier = 150;
         private double _width = 50;
         private int pulseDirection = 1;
         public bool Pulsing;
@@ -198,12 +199,19 @@ namespace BeatDetection.Core
             _vertexArray.UnBind();
         }
 
+        public void BeginPulse()
+        {
+            Pulsing = true;
+            pulseDirection = 1;
+            _currentPulseMultiplier = PulseMultiplier;
+        }
+
         public void Pulse(double time)
         {
             Pulsing = true;
             if (PulseWidth >= PulseWidthMax)
                 pulseDirection = -1;
-            PulseWidth += (pulseDirection) * (PulseMultiplier * time);
+            PulseWidth += (pulseDirection) * (_currentPulseMultiplier * time);
 
             if (PulseWidth <= 0)
             {

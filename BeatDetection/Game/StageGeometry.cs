@@ -65,8 +65,9 @@ namespace BeatDetection.Game
 
             _beats.Update(time, ParentStage.Running, azimuth);
 
-            if (_beats.PulseCenter)
-                CenterPolygon.Pulsing = true;
+            if (_beats.BeginPulse)
+                CenterPolygon.BeginPulse();
+                //CenterPolygon.Pulsing = true;
 
 
                 ////update polygon colours if they are incorrect (i.e. if it has switched to colliding)
