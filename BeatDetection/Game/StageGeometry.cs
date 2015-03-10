@@ -110,7 +110,7 @@ namespace BeatDetection.Game
             BackgroundPolygon.Position.Azimuth = CenterPolygon.Position.Azimuth + rotate;
             BackgroundPolygon.Update(time, false);
 
-            ParentStage.SceneManager.ScreenCamera.ExtraScale = (float)(CenterPolygon.PulseWidth / CenterPolygon.PulseWidthMax)*2f;
+            ParentStage.SceneManager.ScreenCamera.ExtraScale = (float)(CenterPolygon.PulseWidth / CenterPolygon.PulseWidthMax)*BeatFrequencies[CurrentBeat]*1f;
 
             UpdateSegments();
         }
