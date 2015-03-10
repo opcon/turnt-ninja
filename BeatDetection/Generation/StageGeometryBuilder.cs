@@ -59,12 +59,15 @@ namespace BeatDetection.Generation
                 else count = lookAhead;
 
                 float differenceSum = 0;
-                for (int j = 1; j < count; j++)
+                int weight = count;
+                int total = 0;
+                for (int j = 1; j < count; j++,weight--)
                 {
-                    differenceSum += sorted[i + j] - sorted[i + j - 1];
+                    differenceSum += weight*(sorted[i + j] - sorted[i + j - 1]);
+                    total += weight;
                 }
 
-                _beatFrequencies[i] = 1/(differenceSum/count);
+                _beatFrequencies[i] = 1/(differenceSum/total);
             }
 
             _beatFrequencies[_beatFrequencies.Length - 1] = _beatFrequencies[_beatFrequencies.Length - 2];
