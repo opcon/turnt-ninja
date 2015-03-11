@@ -72,17 +72,22 @@ namespace BeatDetection.Game
 
             _beats.Update(time, ParentStage.Running, azimuth);
 
+            if (!OutOfBeats)
+            {
+                CenterPolygon.PulseMultiplier = BeatFrequencies[CurrentBeat] * 60;
+                ParentStage.SceneManager.ScreenCamera.ExtraScale = (float)(CenterPolygon.PulseWidth / CenterPolygon.PulseWidthMax) * BeatFrequencies[CurrentBeat] * 0.45f;
+
+                if (ParentStage.AI)
+                {
+                    var t = _beats.CurrentOpeningAngle + rotate * _direction + CenterPolygon.Position.Azimuth;
+                    t += MathHelper.DegreesToRadians(30);
+                    Player.DoAI(t);
+                }
+            }
+
             if (_beats.BeginPulse)
                 CenterPolygon.BeginPulse();
-                //CenterPolygon.Pulsing = true;
-
-
-                ////update polygon colours if they are incorrect (i.e. if it has switched to colliding)
-                //if (poly.EvenColour != _colours.EvenCollisionColour && poly.EvenColour != _colours.EvenOpposingColour)
-                //    poly.SetColour(_colours.EvenOpposingColour, _colours.EvenOutlineColour, _colours.OddOpposingColour, _colours.OddOutlineColour);
-
-
-
+ 
             UpdatePlayerOverlap();
 
             if (_beats.BeatsHit > 0)
@@ -93,12 +98,7 @@ namespace BeatDetection.Game
                 Player.Score += ParentStage.Multiplier*ParentStage.ScoreMultiplier;
             }
 
-            if (ParentStage.AI && _beats.Index < _beats.Count)
-            {
-                var t = _beats.CurrentOpeningAngle + rotate * _direction + CenterPolygon.Position.Azimuth;
-                t += MathHelper.DegreesToRadians(30);
-                Player.DoAI(t);
-            }
+
 
             Player.Direction = _direction;
 
@@ -116,7 +116,6 @@ namespace BeatDetection.Game
             BackgroundPolygon.Position.Azimuth = CenterPolygon.Position.Azimuth + rotate;
             BackgroundPolygon.Update(time, false);
 
-            ParentStage.SceneManager.ScreenCamera.ExtraScale = (float)(CenterPolygon.PulseWidth / CenterPolygon.PulseWidthMax)*BeatFrequencies[CurrentBeat]*1f;
 
             UpdateSegments();
         }
