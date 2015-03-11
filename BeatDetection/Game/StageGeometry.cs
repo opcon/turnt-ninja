@@ -66,9 +66,8 @@ namespace BeatDetection.Game
 
         public void Update(double time)
         {
-            var rotate = time * 0.5 * _direction * Math.Min(((CurrentBeat < BeatCount ? BeatFrequencies[_beats.Index] : MaxBeatFrequency) / MaxBeatFrequency) * 2, 1) * RotationMultiplier;
-            //CenterPolygon.PulseMultiplier = (1/(_beats.Positions[_beats.Index + 1].Radius - _beats.Positions[_beats.Index].Radius))*15000;
-            CenterPolygon.PulseMultiplier = BeatFrequencies[CurrentBeat]*60;
+            var rotate = time * 0.5 * _direction * Math.Min(((!OutOfBeats ? BeatFrequencies[_beats.Index] : MaxBeatFrequency) / MaxBeatFrequency) * 2, 1) * RotationMultiplier;
+
             var azimuth = CenterPolygon.Position.Azimuth + rotate;
 
             _beats.Update(time, ParentStage.Running, azimuth);
