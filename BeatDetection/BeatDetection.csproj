@@ -85,6 +85,7 @@
     <Compile Include="Audio\AudioFeatures.cs" />
     <Compile Include="Audio\SonicAnnotatorWrapper.cs" />
     <Compile Include="Game\BeatCollection.cs" />
+    <Compile Include="Game\Difficulty.cs" />
     <Compile Include="Game\StageAudio.cs" />
     <Compile Include="Core\Directories.cs" />
     <Compile Include="Core\PolarPolygon.cs" />
