@@ -34,6 +34,7 @@ namespace BeatDetection.Game
         private int _collidedBeatIndex = -1;
         public float[] BeatFrequencies;
         public float MaxBeatFrequency;
+        public float MinBeatFrequency;
 
         public int BeatCount {get { return _beats.Count; }}
 
@@ -55,6 +56,7 @@ namespace BeatDetection.Game
             _random = random;
             BeatFrequencies = beatFrequencies;
             MaxBeatFrequency = BeatFrequencies.Max();
+            MinBeatFrequency = BeatFrequencies.Min();
         }
 
         public void Update(double time)
