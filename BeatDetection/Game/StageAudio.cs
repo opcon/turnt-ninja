@@ -51,6 +51,7 @@ namespace BeatDetection.Game
 
         public void Play()
         {
+            _waveOut.Volume = 1.0f;
             _waveOut.Play();
         }
 
