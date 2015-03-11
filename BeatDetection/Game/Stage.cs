@@ -148,7 +148,12 @@ namespace BeatDetection.Game
             }
 
             if (StageGeometry.CurrentBeat < StageGeometry.BeatCount)
-                SceneManager.ScreenCamera.TargetScale = new Vector2(1.3f * (0.80f + Math.Min(1, (StageGeometry.BeatFrequencies[StageGeometry.CurrentBeat] / StageGeometry.MaxBeatFrequency) * 1f)));
+                SceneManager.ScreenCamera.TargetScale =
+                    new Vector2(0.9f*
+                                (0.80f +
+                                 Math.Min(1,
+                                     ((StageGeometry.BeatFrequencies[StageGeometry.CurrentBeat] - StageGeometry.MinBeatFrequency)/(StageGeometry.MaxBeatFrequency - StageGeometry.MinBeatFrequency))*
+                                     0.5f)));
             StageGeometry.Update(time);
 
             if (InputSystem.NewKeys.Contains(Key.F2)) AI = !AI;
