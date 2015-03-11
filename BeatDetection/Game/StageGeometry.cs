@@ -48,6 +48,11 @@ namespace BeatDetection.Game
             get { return _beats.Index; }
         }
 
+        public bool OutOfBeats
+        {
+            get { return _beats.Index == _beats.Count; }
+        }
+
         internal StageGeometry (BeatCollection beats, SegmentInformation[] segments, Color4[] segmentColours, Random random, float[] beatFrequencies)
         {
             _beats = beats;
