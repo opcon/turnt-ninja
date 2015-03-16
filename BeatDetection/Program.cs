@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Drawing;
+using System.Threading;
 using BeatDetection.Core;
 using BeatDetection.Game;
 using BeatDetection.GUI;
@@ -55,6 +56,10 @@ namespace BeatDetection
 
         private int dir = 1;
 
+        private Stopwatch _watch;
+
+        private double _lag = 0.0;
+        private double _dt = 0.01;
 
         private Stage _stage;
         public GameController()
@@ -136,6 +141,8 @@ namespace BeatDetection
 
             GL.ClearColor(Color.CornflowerBlue);
 
+            _watch = new Stopwatch();
+
             //_stage = new Stage();
             //_stage.LoadAsync(file, sonicAnnotator, pluginPath, correction);
         }
@@ -174,9 +181,25 @@ namespace BeatDetection
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             //_stage.Update(e.Time);
-            _gameSceneManager.Update(e.Time);
+            //_watch.Start();
 
-            InputSystem.Update(this.Focused);
+            _lag += e.Time;
+            while (_lag >= _dt)
+            {
+                _gameSceneManager.Update(_dt);
+
+                InputSystem.Update(this.Focused);
+
+                _lag -= _dt;
+            }
+
+            //_watch.Stop();
+
+            //Debug.Write((_watch.ElapsedTicks/TimeSpan.TicksPerMillisecond).ToString("0.00") + ", ");
+
+            //_watch.Reset();
+
+            //Thread.Sleep(1);
         }
 
         #endregion
@@ -190,6 +213,8 @@ namespace BeatDetection
         /// <remarks>There is no need to call the base implementation.</remarks>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            //Debug.Write((e.Time * 1000).ToString("0.00") + ", ");
+
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
             //_stage.Draw(e.Time);
