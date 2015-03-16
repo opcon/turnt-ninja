@@ -62,6 +62,8 @@ namespace BeatDetection
         private double _dt = 0.01;
 
         private Stage _stage;
+
+        private double MaxFrameTime;
         public GameController()
             : base(1280, 720, new GraphicsMode(32, 24, 8, 4))
         {
@@ -145,6 +147,8 @@ namespace BeatDetection
 
             //_stage = new Stage();
             //_stage.LoadAsync(file, sonicAnnotator, pluginPath, correction);
+
+            MaxFrameTime = 1/DisplayDevice.Default.RefreshRate;
         }
 
         #endregion
@@ -224,6 +228,10 @@ namespace BeatDetection
             _gameSceneManager.Draw(e.Time);
 
             this.SwapBuffers();
+
+            //TODO FIX THIS HACKY SCREEN TEARING REDUCTION HACK!
+            if (e.Time < (MaxFrameTime) - 0.001)
+                Thread.Sleep((int)(MaxFrameTime*1000) - (int)(e.Time*1000) - 1);
         }
 
         #endregion
