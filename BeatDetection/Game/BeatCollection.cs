@@ -48,10 +48,15 @@ namespace BeatDetection.Game
         public bool Pulsing { get; private set; }
         public double CurrentOpeningAngle {get { return Sides[Index].FindIndex(x => x == false)*AngleBetweenSides[Index]; }}
 
+        public const int RenderAheadCount = 20;
+        public readonly int MaxDrawableIndices;
+
         public BeatCollection(int beatCount, ShaderProgram geometryShaderProgram)
         {
             Count = beatCount;
             _shaderProgram = geometryShaderProgram;
+
+            MaxDrawableIndices = RenderAheadCount*6*6;
 
             Index = 0;
             Positions = new PolarVector[Count];
@@ -161,8 +166,10 @@ namespace BeatDetection.Game
             if (_vertexArray == null) InitialiseRendering();
 
             _vertexBuffer.Bind();
+            var data = BuildVertexList();
+            _vertexBuffer.DrawableIndices = data.Count()/2;
             _vertexBuffer.Initialise();
-            _vertexBuffer.SetData(BuildVertexList(), _dataSpecification);
+            _vertexBuffer.SetData(data, _dataSpecification);
             _vertexBuffer.UnBind();
         }
 
@@ -187,7 +194,7 @@ namespace BeatDetection.Game
 
         private IEnumerable<float> BuildVertexList()
         {
-            var verts = new Vector2[_vertexBuffer.DrawableIndices];
+            var verts = new Vector2[MaxDrawableIndices];
             int index = 0;
             _evenCount = 0;
             _oddCount = 0;
@@ -247,7 +254,8 @@ namespace BeatDetection.Game
                     }
                 }
             }
-            return verts.SelectMany(v => new[] { v.X, v.Y });
+
+            return verts.Take(index).SelectMany(v => new[] { v.X, v.Y });
         }
 
         public Vector2[] GetSideBounds(int beatIndex, int sideIndex)
