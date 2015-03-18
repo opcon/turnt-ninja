@@ -108,7 +108,7 @@ namespace BeatDetection.Game
         public void AddBeat(List<bool> sides, PolarVector velocity, double width, double minimumRadius, double impactTime)
         {
             Velocities[Index] = velocity;
-            var initialRadius = (impactTime*velocity.Radius + minimumRadius + 20);
+            var initialRadius = (impactTime*velocity.Radius + minimumRadius);
             ImpactDistances[Index] = minimumRadius;
             Positions[Index] = new PolarVector(0, initialRadius);
             Widths[Index] = width;
@@ -155,7 +155,7 @@ namespace BeatDetection.Game
             if (updateRadius)
                 for (int i = Index; i < Count; i++)
                 {
-                    if (Positions[i].Radius <= ImpactDistances[i]) BeatsHit++;
+                    if (Positions[i].Radius <= ImpactDistances[i] - 25) BeatsHit++;
                 }
             //Check if need to pulse center polygon
             for (int i = Index; i < Count; i++)
