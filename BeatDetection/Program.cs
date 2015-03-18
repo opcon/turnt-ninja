@@ -87,9 +87,15 @@ namespace BeatDetection
 
             if (e.Key == Key.F11)
                 if (this.WindowState == WindowState.Fullscreen)
+                {
                     this.WindowState = WindowState.Normal;
+                    this.VSync = VSyncMode.Off;
+                }
                 else
+                {
                     this.WindowState = WindowState.Fullscreen;
+                    this.VSync = VSyncMode.On;
+                }
         }
 
         #endregion
@@ -229,9 +235,9 @@ namespace BeatDetection
 
             this.SwapBuffers();
 
-            //TODO FIX THIS HACKY SCREEN TEARING REDUCTION HACK!
-            if (e.Time < (MaxFrameTime) - 0.001)
-                Thread.Sleep((int)(MaxFrameTime*1000) - (int)(e.Time*1000) - 1);
+            ////TODO FIX THIS HACKY SCREEN TEARING REDUCTION HACK!
+            //if (e.Time < (MaxFrameTime) - 0.001)
+            //    Thread.Sleep((int)(MaxFrameTime*1000) - (int)(e.Time*1000) - 1);
         }
 
         #endregion
