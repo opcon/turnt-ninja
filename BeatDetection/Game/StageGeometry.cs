@@ -75,7 +75,7 @@ namespace BeatDetection.Game
             if (!OutOfBeats)
             {
                 CenterPolygon.PulseMultiplier = BeatFrequencies[CurrentBeat] * 60;
-                ParentStage.SceneManager.ScreenCamera.ExtraScale = (float)(CenterPolygon.PulseWidth / CenterPolygon.PulseWidthMax) * BeatFrequencies[CurrentBeat] * 0.45f;
+                ParentStage.SceneManager.ScreenCamera.ExtraScale = (float)(CenterPolygon.PulseWidth / CenterPolygon.PulseWidthMax) * BeatFrequencies[CurrentBeat] * 0.2f;
 
                 if (ParentStage.AI)
                 {
