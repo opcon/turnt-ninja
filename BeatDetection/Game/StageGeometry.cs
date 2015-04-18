@@ -75,7 +75,7 @@ namespace BeatDetection.Game
             if (!OutOfBeats)
             {
                 CenterPolygon.PulseMultiplier = BeatFrequencies[CurrentBeat] * 60;
-                ParentStage.SceneManager.ScreenCamera.ExtraScale = (float)(CenterPolygon.PulseWidth / CenterPolygon.PulseWidthMax) * BeatFrequencies[CurrentBeat] * 0.2f;
+                ParentStage.SceneManager.ScreenCamera.ExtraScale = (float)Math.Pow((CenterPolygon.PulseWidth / CenterPolygon.PulseWidthMax), 3) * (float)Math.Pow(BeatFrequencies[CurrentBeat],3) * 0.08f;
 
                 if (ParentStage.AI)
                 {
@@ -98,8 +98,6 @@ namespace BeatDetection.Game
                 Player.Score += ParentStage.Multiplier*ParentStage.ScoreMultiplier;
             }
 
-
-
             Player.Direction = _direction;
 
             //update center polygon colour if finished colliding 
@@ -115,7 +113,6 @@ namespace BeatDetection.Game
 
             BackgroundPolygon.Position.Azimuth = CenterPolygon.Position.Azimuth + rotate;
             BackgroundPolygon.Update(time, false);
-
 
             UpdateSegments();
         }

@@ -46,7 +46,7 @@ namespace BeatDetection.Game
         public int BeatsHit { get; private set; }
         public bool BeginPulse { get; private set; }
         public bool Pulsing { get; private set; }
-        public double CurrentOpeningAngle {get { return Sides[Index].FindIndex(x => x == false)*AngleBetweenSides[Index]; }}
+        public double CurrentOpeningAngle {get { return Sides[Index].FindIndex(x => !x)*AngleBetweenSides[Index]; }}
 
         public const int RenderAheadCount = 20;
         public readonly int MaxDrawableIndices;
