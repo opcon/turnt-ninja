@@ -51,21 +51,45 @@ namespace BeatDetection.Generation
             var sorted = _audioFeatures.Onsets.OrderBy(f => f).ToArray();
             _beatFrequencies = new float[sorted.Length];
             int lookAhead = 5;
+            int halfFrequencySampleSize = 3;
 
             for (int i = 0; i < _beatFrequencies.Length; i++)
             {
-                int count;
-                if (_beatFrequencies.Length - i < lookAhead) count = _beatFrequencies.Length - i;
-                else count = lookAhead;
-
+                //int count;
+                //if (_beatFrequencies.Length - i < lookAhead) count = _beatFrequencies.Length - i;
+                //else count = lookAhead;
+                
+                int weight = 0;
                 float differenceSum = 0;
-                int weight = count;
                 int total = 0;
-                for (int j = 1; j < count; j++,weight--)
+                for (int j = i - halfFrequencySampleSize < 1 ? 1 : i-halfFrequencySampleSize; j <= i; j++)
                 {
-                    differenceSum += weight*(sorted[i + j] - sorted[i + j - 1]);
+                    weight++;
+                    differenceSum += weight*(sorted[j] - sorted[j-1]);
                     total += weight;
                 }
+
+                //weight = halfFrequencySampleSize;
+                //differenceSum += (weight+1)*(sorted[i+1] - sorted[i]);
+                //total += weight;
+
+                weight = halfFrequencySampleSize + 1;
+                int count = i + halfFrequencySampleSize + 1> _beatFrequencies.Length - 1 ? _beatFrequencies.Length - 1 : i + halfFrequencySampleSize + 1;
+                for (int j = i+1; j <= count; j++)
+                {
+                    differenceSum += weight*(sorted[j] - sorted[j-1]);
+                    total += weight;
+                    weight--;
+                }
+
+                //float differenceSum = 0;
+                //int weight = count;
+                //int total = 0;
+                //for (int j = 1; j < count; j++,weight--)
+                //{
+                //    differenceSum += weight*(sorted[i + j] - sorted[i + j - 1]);
+                //    total += weight;
+                //}
 
                 _beatFrequencies[i] = 1/(differenceSum/total);
             }
