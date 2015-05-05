@@ -51,12 +51,17 @@ namespace BeatDetection.Game
         public const int RenderAheadCount = 20;
         public readonly int MaxDrawableIndices;
 
+        private float[] vertexList;
+        private Vector2[] sideBoundsTemp;
+
         public BeatCollection(int beatCount, ShaderProgram geometryShaderProgram)
         {
             Count = beatCount;
             _shaderProgram = geometryShaderProgram;
 
             MaxDrawableIndices = RenderAheadCount*6*6;
+            vertexList = new float[MaxDrawableIndices*2];
+            sideBoundsTemp = new Vector2[6];
 
             Index = 0;
             Positions = new PolarVector[Count];
@@ -166,10 +171,9 @@ namespace BeatDetection.Game
             if (_vertexArray == null) InitialiseRendering();
 
             _vertexBuffer.Bind();
-            var data = BuildVertexList();
-            _vertexBuffer.DrawableIndices = data.Count()/2;
+            _vertexBuffer.DrawableIndices = BuildVertexList();
             _vertexBuffer.Initialise();
-            _vertexBuffer.SetData(data, _dataSpecification);
+            _vertexBuffer.SetData(vertexList, _dataSpecification);
             _vertexBuffer.UnBind();
         }
 
@@ -192,7 +196,7 @@ namespace BeatDetection.Game
             if (evenOrOdd == 2) _vertexArray.Draw(time, _evenCount, _currentBeatOddSum);
         }
 
-        private IEnumerable<float> BuildVertexList()
+        private int BuildVertexList()
         {
             var verts = new Vector2[MaxDrawableIndices];
             int index = 0;
@@ -201,6 +205,7 @@ namespace BeatDetection.Game
             _currentBeatEvenSum = 0;
             _currentBeatOddSum = 0;
 
+            //If there are still beats left to draw, calculate exactly how many vertices are in the current beat
             if (Index < Count)
             {
                 for (int i = 0; i < NumberOfSides[Index]; i++)
@@ -220,56 +225,55 @@ namespace BeatDetection.Game
                     if ((Sides[i])[j])
                     {
                         var bounds = GetSideBounds(i, j);
-                        bounds.CopyTo(verts, index);
-                        //var sp = new PolarVector(Positions[i].Azimuth + j*AngleBetweenSides[i], Positions[i].Radius);
-                        //verts[index] = PolarVector.ToCartesianCoordinates(sp);
-                        //verts[index + 1] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides[i], 0);
-                        //verts[index + 2] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides[i], Widths[i] + PulseDatas[i].PulseWidth);
-                        //verts[index + 3] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides[i], Widths[i] + PulseDatas[i].PulseWidth);
-                        //verts[index + 4] = PolarVector.ToCartesianCoordinates(sp, 0, Widths[i] + PulseDatas[i].PulseWidth);
-                        //verts[index + 5] = PolarVector.ToCartesianCoordinates(sp);
+                        for (int k = 0; k < 6; k++)
+                        {
+                            vertexList[(index + k)*2] = bounds[k].X;
+                            vertexList[(index + k)*2 + 1] = bounds[k].Y;
+                        }
+                        //bounds.CopyTo(verts, index);
                         _evenCount += 6;
                         index += 6;
                     }
                 }
+
+
             }
 
-            for (int i = Index; i < Math.Min(Count, Index+RenderAheadCount); i++)
+            for (int i = Index; i < Math.Min(Count, Index + RenderAheadCount); i++)
             {
                 for (int j = 1; j < NumberOfSides[i]; j += 2)
                 {
                     if ((Sides[i])[j])
                     {
                         var bounds = GetSideBounds(i, j);
-                        bounds.CopyTo(verts, index);
-                        //var sp = new PolarVector(Positions[i].Azimuth + j * AngleBetweenSides[i], Positions[i].Radius);
-                        //verts[index] = PolarVector.ToCartesianCoordinates(sp);
-                        //verts[index + 1] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides[i], 0);
-                        //verts[index + 2] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides[i], Widths[i] + PulseDatas[i].PulseWidth);
-                        //verts[index + 3] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides[i], Widths[i] + PulseDatas[i].PulseWidth);
-                        //verts[index + 4] = PolarVector.ToCartesianCoordinates(sp, 0, Widths[i] + PulseDatas[i].PulseWidth);
-                        //verts[index + 5] = PolarVector.ToCartesianCoordinates(sp);
-                        _oddCount+= 6;
+                        for (int k = 0; k < 6; k++)
+                        {
+                            vertexList[(index + k)*2] = bounds[k].X;
+                            vertexList[(index + k)*2 + 1] = bounds[k].Y;
+                        }
+                        //bounds.CopyTo(verts, index);
+                        _oddCount += 6;
                         index += 6;
                     }
                 }
             }
 
-            return verts.Take(index).SelectMany(v => new[] { v.X, v.Y });
+            return index;
+
+            //return verts.Take(index).SelectMany(v => new[] { v.X, v.Y });
         }
 
         public Vector2[] GetSideBounds(int beatIndex, int sideIndex)
         {
-            var ret = new Vector2[6];
             var sp = new PolarVector(Positions[beatIndex].Azimuth + sideIndex*AngleBetweenSides[beatIndex], Positions[beatIndex].Radius);
-            ret[0] = PolarVector.ToCartesianCoordinates(sp);
-            ret[1] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides[beatIndex], 0);
-            ret[2] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides[beatIndex], Widths[beatIndex] + PulseDatas[beatIndex].PulseWidth);
-            ret[3] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides[beatIndex], Widths[beatIndex] + PulseDatas[beatIndex].PulseWidth);
-            ret[4] = PolarVector.ToCartesianCoordinates(sp, 0, Widths[beatIndex] + PulseDatas[beatIndex].PulseWidth);
-            ret[5] = PolarVector.ToCartesianCoordinates(sp);
+            sideBoundsTemp[0] = PolarVector.ToCartesianCoordinates(sp);
+            sideBoundsTemp[1] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides[beatIndex], 0);
+            sideBoundsTemp[2] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides[beatIndex], Widths[beatIndex] + PulseDatas[beatIndex].PulseWidth);
+            sideBoundsTemp[3] = PolarVector.ToCartesianCoordinates(sp, AngleBetweenSides[beatIndex], Widths[beatIndex] + PulseDatas[beatIndex].PulseWidth);
+            sideBoundsTemp[4] = PolarVector.ToCartesianCoordinates(sp, 0, Widths[beatIndex] + PulseDatas[beatIndex].PulseWidth);
+            sideBoundsTemp[5] = PolarVector.ToCartesianCoordinates(sp);
 
-            return ret;
+            return sideBoundsTemp;
         }
 
         public List<List<IntPoint>> GetPolygonBounds(int beatIndex)
