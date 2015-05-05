@@ -85,7 +85,8 @@ namespace BeatDetection.Game
                 Offset = 0,
                 ShouldBeNormalised = false,
                 Stride = 0,
-                Type = VertexAttribPointerType.Float
+                Type = VertexAttribPointerType.Float,
+                SizeInBytes = sizeof(float)
             };
 
             _vertexArray = new VertexArray { DrawPrimitiveType = PrimitiveType.Triangles };
@@ -100,12 +101,13 @@ namespace BeatDetection.Game
             _vertexBuffer = new VertexBuffer
             {
                 BufferUsage = BufferUsageHint.StreamDraw,
-                DrawableIndices = _sumOfSides
+                DrawableIndices = _sumOfSides,
+                MaxDrawableIndices = this.MaxDrawableIndices
             };
             _vertexBuffer.AddSpec(_dataSpecification);
+            _vertexBuffer.CalculateMaxSize();
             _vertexBuffer.Bind();
             _vertexBuffer.Initialise();
-
             _vertexArray.Load(_shaderProgram, _vertexBuffer);
             _vertexArray.UnBind();
         }
