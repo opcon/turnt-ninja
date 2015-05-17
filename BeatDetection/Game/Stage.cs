@@ -157,7 +157,9 @@ namespace BeatDetection.Game
                                      0.5f)));
                 SceneManager.ScreenCamera.ScaleChangeMultiplier = Math.Min(StageGeometry.BeatFrequencies[StageGeometry.CurrentBeat], 2)*2;
             }
-            StageGeometry.Update(time);
+
+            if (!InputSystem.CurrentKeys.Contains(Key.F3))
+                StageGeometry.Update(time);
 
             if (InputSystem.NewKeys.Contains(Key.F2)) AI = !AI;
 
