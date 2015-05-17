@@ -65,73 +65,73 @@ namespace BeatDetection.GUI
             _stage = new Stage(this.SceneManager);
             _stage.ShaderProgram = _shaderProgram;
 
-            _testLine = new Substructio.Graphics.Lines.StraightLine();
-            _testLine.Line(new Vector2(-100, -100), new Vector2(100, 100), 20, Color4.Black, Color4.White, true);
-
-            var _testSpec1 = new BufferDataSpecification
-            {
-                Count = 2,
-                Name = "in_position",
-                Offset = 0,
-                ShouldBeNormalised = false,
-                Stride = 0,
-                Type = VertexAttribPointerType.Float,
-                SizeInBytes = sizeof(float)
-            };
-
-            var _testSpec2 = new BufferDataSpecification
-            {
-                Count = 4,
-                Name = "in_color",
-                Offset = 0,
-                ShouldBeNormalised = false,
-                Stride = 0,
-                Type = VertexAttribPointerType.Float,
-                SizeInBytes = sizeof(float)
-            };
-
-            _testVAO = new VertexArray { DrawPrimitiveType = PrimitiveType.LineStrip };
-            _testVAO.Bind();
-
-            _testVBO1 = new VertexBuffer
-            {
-                BufferUsage = BufferUsageHint.StaticDraw,
-                DrawableIndices = 20,
-                MaxDrawableIndices = 20
-            };
-            _testVBO1.AddSpec(_testSpec1);
-            _testVBO1.CalculateMaxSize();
-            _testVBO1.Bind();
-            _testVBO1.Initialise();
-
-            _testVBO2 = new VertexBuffer
-            {
-                BufferUsage = BufferUsageHint.StaticDraw,
-                DrawableIndices = 20,
-                MaxDrawableIndices = 20
-            };
-            _testVBO2.AddSpec(_testSpec2);
-            _testVBO2.CalculateMaxSize();
-            _testVBO2.Bind();
-            _testVBO2.Initialise();
-
-            _testVAO.Load(_shaderProgram1, new []{ _testVBO1, _testVBO2 });
-
-            _testVBO1.Bind();
-            _testVBO1.Initialise();
-            var data1 = _testLine.line_vertex.SelectMany(x => new []{ x.X, x.Y });
-            data1 = _testLine.line_cap_vertex.SelectMany(x => new[]{ x.X, x.Y }).Take(12);
-            _testVBO1.DrawableIndices = data1.Count();
-            _testVBO1.SetData(data1.ToArray(), _testSpec1);
-
-            _testVBO2.Bind();
-            _testVBO2.Initialise();
-            var data2 = _testLine.line_colour.SelectMany(c => new []{ c.R, c.G, c.B, c.A });
-            data2 = _testLine.line_cap_colour.SelectMany(c => new []{ c.R, c.G, c.B, c.A }).Take(24);
-            _testVBO2.DrawableIndices = data2.Count();
-            _testVBO2.SetData(data2, _testSpec2);
-            _testVBO2.UnBind();
-            _testVAO.UnBind();
+//            _testLine = new Substructio.Graphics.Lines.StraightLine();
+//            _testLine.Line(new Vector2(-100, -100), new Vector2(100, 100), 20, Color4.Black, Color4.White, true);
+//
+//            var _testSpec1 = new BufferDataSpecification
+//            {
+//                Count = 2,
+//                Name = "in_position",
+//                Offset = 0,
+//                ShouldBeNormalised = false,
+//                Stride = 0,
+//                Type = VertexAttribPointerType.Float,
+//                SizeInBytes = sizeof(float)
+//            };
+//
+//            var _testSpec2 = new BufferDataSpecification
+//            {
+//                Count = 4,
+//                Name = "in_color",
+//                Offset = 0,
+//                ShouldBeNormalised = false,
+//                Stride = 0,
+//                Type = VertexAttribPointerType.Float,
+//                SizeInBytes = sizeof(float)
+//            };
+//
+//            _testVAO = new VertexArray { DrawPrimitiveType = PrimitiveType.LineStrip };
+//            _testVAO.Bind();
+//
+//            _testVBO1 = new VertexBuffer
+//            {
+//                BufferUsage = BufferUsageHint.StaticDraw,
+//                DrawableIndices = 20,
+//                MaxDrawableIndices = 20
+//            };
+//            _testVBO1.AddSpec(_testSpec1);
+//            _testVBO1.CalculateMaxSize();
+//            _testVBO1.Bind();
+//            _testVBO1.Initialise();
+//
+//            _testVBO2 = new VertexBuffer
+//            {
+//                BufferUsage = BufferUsageHint.StaticDraw,
+//                DrawableIndices = 20,
+//                MaxDrawableIndices = 20
+//            };
+//            _testVBO2.AddSpec(_testSpec2);
+//            _testVBO2.CalculateMaxSize();
+//            _testVBO2.Bind();
+//            _testVBO2.Initialise();
+//
+//            _testVAO.Load(_shaderProgram1, new []{ _testVBO1, _testVBO2 });
+//
+//            _testVBO1.Bind();
+//            _testVBO1.Initialise();
+//            var data1 = _testLine.line_vertex.SelectMany(x => new []{ x.X, x.Y });
+//            data1 = _testLine.line_cap_vertex.SelectMany(x => new[]{ x.X, x.Y }).Take(12);
+//            _testVBO1.DrawableIndices = data1.Count();
+//            _testVBO1.SetData(data1.ToArray(), _testSpec1);
+//
+//            _testVBO2.Bind();
+//            _testVBO2.Initialise();
+//            var data2 = _testLine.line_colour.SelectMany(c => new []{ c.R, c.G, c.B, c.A });
+//            data2 = _testLine.line_cap_colour.SelectMany(c => new []{ c.R, c.G, c.B, c.A }).Take(24);
+//            _testVBO2.DrawableIndices = data2.Count();
+//            _testVBO2.SetData(data2, _testSpec2);
+//            _testVBO2.UnBind();
+//            _testVAO.UnBind();
 
             string file = "";
             OpenFileDialog ofd = new OpenFileDialog();
@@ -223,10 +223,10 @@ namespace BeatDetection.GUI
             yOffset += _loadingFont.Print(_loadingStatus, new Vector3(0, -yOffset, 0), QFontAlignment.Centre).Height;
             _loadingFont.Draw();
 
-            _shaderProgram1.Bind();
-            _shaderProgram1.SetUniform("mvp", SceneManager.ScreenCamera.ModelViewProjection);
-
-            _testVAO.Draw(time);
+//            _shaderProgram1.Bind();
+//            _shaderProgram1.SetUniform("mvp", SceneManager.ScreenCamera.ModelViewProjection);
+//
+//            _testVAO.Draw(time);
         }
 
         public override void UnLoad()
