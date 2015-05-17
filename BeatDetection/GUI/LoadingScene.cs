@@ -208,6 +208,9 @@ namespace BeatDetection.GUI
             //Draw the center polygon
             _centerPolygon.Draw(time);
 
+            _shaderProgram.SetUniform("in_color", Color4.Black);
+            _centerPolygon.DrawOutline(time);
+
             //Cleanup the program
             _shaderProgram.UnBind();
 

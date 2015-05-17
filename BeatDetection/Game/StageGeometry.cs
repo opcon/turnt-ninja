@@ -115,12 +115,21 @@ namespace BeatDetection.Game
             BackgroundPolygon.Update(time, false);
 
             UpdateSegments();
+
         }
 
         public void Draw(double time)
         {
-            BackgroundPolygon.Draw(time);
-            GL.LineWidth(3);
+            ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenBackgroundColour);
+            BackgroundPolygon.Draw(time, 1);
+            ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddBackgroundColour);
+            BackgroundPolygon.Draw(time, 2);
+
+            ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenOutlineColour);
+            _beats.DrawOutlines(time, 1);
+            ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddOutlineColour);
+            _beats.DrawOutlines(time, 2);
+
             ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenOpposingColour);
 
             _beats.Draw(time, 1);
@@ -140,7 +149,14 @@ namespace BeatDetection.Game
                 ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddCollisionColour);
                 _beats.DrawCurrentBeat(time, 2);
             }
+
             CenterPolygon.Draw(time, 2);
+
+            ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenOutlineColour);
+            CenterPolygon.DrawOutline(time, 1);
+            ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddOutlineColour);
+            CenterPolygon.DrawOutline(time, 2);
+
             ParentStage.ShaderProgram.SetUniform("in_color", Color4.White);
             Player.Draw(time);
         }
@@ -188,9 +204,8 @@ namespace BeatDetection.Game
             var oddBackground = evenBackground.To<Hsl>();
             oddBackground.S += 5;
             oddBackground.L += 5;
-            BackgroundPolygon.SetColour(Utilities.ColorSpaceToColor4(evenBackground),
-                Utilities.ColorSpaceToColor4(evenBackground), Utilities.ColorSpaceToColor4(oddBackground),
-                Utilities.ColorSpaceToColor4(oddBackground));
+            _colours.EvenBackgroundColour = Utilities.ColorSpaceToColor4(evenBackground);
+            _colours.OddBackgroundColour = Utilities.ColorSpaceToColor4(oddBackground);
 
             var c = evenBackground;
             var d = oddBackground;
@@ -218,10 +233,6 @@ namespace BeatDetection.Game
             c = hsl.ToRgb();
             _colours.OddOpposingColour = Utilities.ColorSpaceToColor4(c);
             _colours.OddOutlineColour = Utilities.ColorSpaceToColor4(GetOutlineColour(hsl));
-
-            CenterPolygon.SetColour(_colours.EvenOpposingColour, _colours.EvenOutlineColour, _colours.OddOpposingColour, _colours.OddOutlineColour);
-
-            GL.ClearColor(_segmentColours[_colourIndex]);
         }
 
         private Hsl GetOutlineColour(Hsl col)
@@ -234,11 +245,13 @@ namespace BeatDetection.Game
 
     struct StageColours
     {
+        public Color4 EvenBackgroundColour;
         public Color4 EvenOpposingColour;
         public Color4 EvenCollisionColour;
         public Color4 EvenCollisionOutlineColour;
         public Color4 EvenOutlineColour;
 
+        public Color4 OddBackgroundColour;
         public Color4 OddOpposingColour;
         public Color4 OddCollisionColour;
         public Color4 OddOutlineColour;
