@@ -54,9 +54,11 @@ namespace BeatDetection.Audio
 
             string pattern = @"\s(\d{1,3})%";
             var p = Process.Start(psi);
+            string output = "";
             while (!p.HasExited)
             {
                 string e = p.StandardError.ReadLine() ?? "";
+                output += e;
                 if (!string.IsNullOrWhiteSpace(e))
                 {
                     var match = Regex.Match(e, pattern).ToString();
