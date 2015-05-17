@@ -158,7 +158,7 @@ namespace BeatDetection.GUI
 
             _songText = _loadingFont.ProcessText(Path.GetFileNameWithoutExtension(file), new SizeF(SceneManager.GameWindow.Width - 40, -1), QFontAlignment.Centre);
 
-            var dOptions = new DifficultyOptions(600f, 0.2f, 0.4f, 1.2f);
+            var dOptions = new DifficultyOptions(600f, 0.2f, 0.4f, 1.5f);
 
             var progress = new Progress<string>(status =>
             {
