@@ -36,6 +36,8 @@ namespace BeatDetection.Game
         public float MaxBeatFrequency;
         public float MinBeatFrequency;
 
+        private double _elapsedTime = 0;
+
         public int BeatCount {get { return _beats.Count; }}
 
         private bool Collided
@@ -66,6 +68,7 @@ namespace BeatDetection.Game
 
         public void Update(double time)
         {
+            _elapsedTime += time;
             var rotate = time * 0.5 * _direction * Math.Min(((!OutOfBeats ? BeatFrequencies[_beats.Index] : MaxBeatFrequency) / MaxBeatFrequency) * 2, 1) * RotationMultiplier;
 
             var azimuth = CenterPolygon.Position.Azimuth + rotate;
