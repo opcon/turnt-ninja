@@ -26,7 +26,7 @@ namespace BeatDetection.Game
         private const float MaxCloseDistance = 0.6f;
         private const float CloseDistanceMultiplier = 0.6f*0.5f;
 
-        private const float MinRotationSpeed = 0.5f;
+        private const float MinRotationSpeed = 0.0f;
         private const float MaxRotationSpeed = 4.0f;
         private const float RotationSpeedMultiplier = 0.5f*3;
 
