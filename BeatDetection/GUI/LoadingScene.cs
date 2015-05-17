@@ -183,6 +183,10 @@ namespace BeatDetection.GUI
 
         public override void Update(double time, bool focused = false)
         {
+            if (_loadTask.Exception != null)
+            {
+                throw new Exception("Loading failed!");
+            }
             if (_loadTask.IsCompleted)
             {
                 SceneManager.RemoveScene(this);
