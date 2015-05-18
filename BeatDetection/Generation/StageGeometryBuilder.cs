@@ -139,6 +139,8 @@ namespace BeatDetection.Generation
                 {
                     //choose a random start position for this polygon
                     start = _random.Next(_builderOptions.MaxSides - 1);
+                    while (start == prevStart && _random.NextDouble() > 0.15)
+                        start = _random.Next(_builderOptions.MaxSides - 1);
                 }
 
                 bool[] sides = new bool[6];
