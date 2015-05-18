@@ -40,7 +40,7 @@ namespace BeatDetection.Generation
             ProcessSegments();
             BuildSegmentColours();
 
-            var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 5000, -20, 0);
+            var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 50000, -20, 0);
             backgroundPolygon.ShaderProgram = _builderOptions.GeometryShaderProgram;
 
             return new StageGeometry(_beats, _segments, _segmentColours, _random, _beatFrequencies) {BackgroundPolygon = backgroundPolygon};
