@@ -28,6 +28,7 @@ namespace BeatDetection.Game
         public PolarPolygon BackgroundPolygon;
         private int _direction = 1;
         public float RotationMultiplier = 1.0f;
+        private float _extraRotation = 0;
 
         private int _segmentIndex = 0;
         private int _colourIndex = 0;
@@ -69,7 +70,8 @@ namespace BeatDetection.Game
         public void Update(double time)
         {
             _elapsedTime += time;
-            var rotate = time * 0.5 * _direction * Math.Min(((!OutOfBeats ? BeatFrequencies[_beats.Index] : MaxBeatFrequency) / MaxBeatFrequency) * 2, 1) * RotationMultiplier;
+            var rotate = time * 0.5 * _direction * Math.Min(((!OutOfBeats ? BeatFrequencies[_beats.Index] : MaxBeatFrequency) / MaxBeatFrequency) * 2, 1) * RotationMultiplier + _direction*_extraRotation;
+            _extraRotation = 0;
 
             var azimuth = CenterPolygon.Position.Azimuth + rotate;
 
@@ -79,6 +81,9 @@ namespace BeatDetection.Game
             {
                 CenterPolygon.PulseMultiplier = Math.Pow(BeatFrequencies[CurrentBeat] * 60,1) + 70;
                 ParentStage.SceneManager.ScreenCamera.ExtraScale = CenterPolygon.Pulsing ?  (float)Math.Pow(BeatFrequencies[CurrentBeat],3) * 0.2f : 0;
+
+                if (_beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] < 50 && _beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] > 20)
+                    _extraRotation = 0.01f;
 
                 if (ParentStage.AI)
                 {
