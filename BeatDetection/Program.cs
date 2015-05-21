@@ -38,7 +38,7 @@ namespace BeatDetection
         Stopwatch stopWatch;
         float tNext = 0;
         bool beatShown = false;
-        float correction = 0.35f;
+        float correction = 0.0f;
         float time = 0;
 
         PolarPolygon _polarPolygon;

@@ -48,9 +48,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="clipper_library">
       <HintPath>..\Dependencies\Clipper\clipper_library.dll</HintPath>
@@ -58,15 +55,8 @@
     <Reference Include="ColorMine">
       <HintPath>..\packages\ColorMine.1.1.3.0\lib\ColorMine.dll</HintPath>
     </Reference>
-    <Reference Include="NAudio">
-      <HintPath>..\packages\NAudio.1.7.1\lib\net35\NAudio.dll</HintPath>
-    </Reference>
     <Reference Include="OpenTK">
       <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
-    </Reference>
-    <Reference Include="QuickFont, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\QuickFont\QuickFont.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -79,6 +69,15 @@
     <Reference Include="System.Xml" />
     <Reference Include="Wav2Flac">
       <HintPath>..\Dependencies\WavFlac\Wav2Flac.dll</HintPath>
+    </Reference>
+    <Reference Include="QuickFont">
+      <HintPath>..\Dependencies\QuickFont\QuickFont.dll</HintPath>
+    </Reference>
+    <Reference Include="HUSL">
+      <HintPath>..\packages\HUSL.1.0.1\lib\net40\HUSL.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio">
+      <HintPath>..\packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -106,7 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Substructio\Substructio.csproj">
-      <Project>{5b3f1066-88da-4f9c-8dfe-646c40b412c2}</Project>
+      <Project>{5B3F1066-88DA-4F9C-8DFE-646C40B412C2}</Project>
       <Name>Substructio</Name>
     </ProjectReference>
   </ItemGroup>
