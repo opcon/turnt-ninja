@@ -189,10 +189,11 @@ namespace BeatDetection.Generation
             {
                 var step = _random.NextDouble() * (maxStep - minStep) + minStep;
                 double angle = prevAngle;
+                //avoid certain colours
                 do
                 {
                     angle = MathUtilities.Normalise(step + angle, 0, 360);
-                } while ((angle > 275 && angle < 310) || (angle > 95 && angle < 140));
+                } while ((angle > 250 && angle < 330) || (angle > 65 && angle < 150));
                 var col = new Hsl { H = angle, L = _builderOptions.Lightness, S = _builderOptions.Saturation};
                 var rgb = col.ToRgb();
 
