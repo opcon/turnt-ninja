@@ -194,12 +194,14 @@ namespace BeatDetection.Generation
                 {
                     angle = MathUtilities.Normalise(step + angle, 0, 360);
                 } while ((angle > 250 && angle < 330) || (angle > 65 && angle < 150));
-                var col = new Hsl { H = angle, L = _builderOptions.Lightness, S = _builderOptions.Saturation};
-                var rgb = col.ToRgb();
+                var rgb = HUSL.ColorConverter.HUSLToRGB(new List<double>{angle, _builderOptions.Lightness, _builderOptions.Saturation});
+
+//                var col = new Hsl { H = angle, L = _builderOptions.Lightness, S = _builderOptions.Saturation};
+//                var rgb1 = col.ToRgb();
 
                 prevAngle = angle;
 
-                _segmentColours[i] = new Color4((byte)rgb.R, (byte)rgb.G, (byte)rgb.B, 255);
+                _segmentColours[i] = new Color4((byte)((rgb[0])*255), (byte)((rgb[1])*255), (byte)((rgb[2])*255), 255);
             }
         }
     }
@@ -225,7 +227,7 @@ namespace BeatDetection.Generation
         public delegate int SkipDistributionFunction();
         public SkipDistributionFunction SkipFunction;
 
-        public int Saturation = 30;
+        public int Saturation = 40;
         public int Lightness = 40;
         public double MinimumColourStepMultiplier = 0.25;
 

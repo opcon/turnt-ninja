@@ -82,7 +82,7 @@ namespace BeatDetection.Game
                 CenterPolygon.PulseMultiplier = Math.Pow(BeatFrequencies[CurrentBeat] * 60,1) + 70;
                 ParentStage.SceneManager.ScreenCamera.ExtraScale = CenterPolygon.Pulsing ?  (float)Math.Pow(BeatFrequencies[CurrentBeat],3) * 0.2f : 0;
 
-                if (_beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] < 50 && _beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] > 20)
+                if (_beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] < 40 && _beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] > 30)
                     _extraRotation = 0.01f;
 
                 if (ParentStage.AI)
@@ -208,42 +208,49 @@ namespace BeatDetection.Game
 
         public void UpdateColours()
         {
-            var evenBackground = Utilities.Color4ToColorSpace(_segmentColours[_colourIndex]).ToRgb();
-            var oddBackground = evenBackground.To<Hsl>();
+            var evenBackground = new HUSLColor(_segmentColours[_colourIndex]);
+
+            //find odd background
+            var oddBackground = evenBackground;
             oddBackground.S += 5;
             oddBackground.L += 5;
-            _colours.EvenBackgroundColour = Utilities.ColorSpaceToColor4(evenBackground);
-            _colours.OddBackgroundColour = Utilities.ColorSpaceToColor4(oddBackground);
 
-            var c = evenBackground;
-            var d = oddBackground;
+            //set the background colours
+            _colours.EvenBackgroundColour = HUSLColor.ToColor4(evenBackground);
+            _colours.OddBackgroundColour = HUSLColor.ToColor4(oddBackground);
 
-            var opp = c.To<Hsl>();
+            //find the collision colours
+            var opp = evenBackground;
             opp.S += 30;
             opp.L += 20;
-            _colours.EvenCollisionColour = Utilities.ColorSpaceToColor4(opp);
-            _colours.EvenCollisionOutlineColour = Utilities.ColorSpaceToColor4(GetOutlineColour(opp));
-            opp = d.To<Hsl>();
+
+            _colours.EvenCollisionColour = HUSLColor.ToColor4(opp);
+            _colours.EvenCollisionOutlineColour = HUSLColor.ToColor4(GetOutlineColour(opp));
+
+            opp = oddBackground;
             opp.S += 30;
             opp.L += 20;
-            _colours.OddCollisionColour = Utilities.ColorSpaceToColor4(opp);
-            _colours.OddCollisionOutlienColour = Utilities.ColorSpaceToColor4(GetOutlineColour(opp));
 
-            var hsl = c.To<Hsl>();
-            hsl.H = MathUtilities.Normalise(hsl.H + 180, 0, 360);
-            hsl.S = 50;
-            c = hsl.ToRgb();
-            _colours.EvenOpposingColour = Utilities.ColorSpaceToColor4(c);
-            _colours.EvenOutlineColour = Utilities.ColorSpaceToColor4(GetOutlineColour(hsl));
-            hsl = d.To<Hsl>();
-            hsl.H = MathUtilities.Normalise(hsl.H + 180, 0, 360);
-            hsl.S += 20;
-            c = hsl.ToRgb();
-            _colours.OddOpposingColour = Utilities.ColorSpaceToColor4(c);
-            _colours.OddOutlineColour = Utilities.ColorSpaceToColor4(GetOutlineColour(hsl));
+            _colours.OddCollisionColour = HUSLColor.ToColor4(opp);
+            _colours.OddCollisionOutlienColour = HUSLColor.ToColor4(GetOutlineColour(opp));
+
+            //find the foreground colours
+            var fEven = evenBackground;
+            var fOdd = oddBackground;
+            fEven.H = MathUtilities.Normalise(fEven.H + 180, 0, 360);
+            fEven.S = 50;
+            fOdd.H = MathUtilities.Normalise(fOdd.H + 180, 0, 360);
+            fOdd.S += 20;
+
+            //set the foreground colours
+            _colours.EvenOpposingColour = HUSLColor.ToColor4(fEven);
+            _colours.EvenOutlineColour = HUSLColor.ToColor4(GetOutlineColour(fEven));
+            _colours.OddOpposingColour = HUSLColor.ToColor4(fOdd);
+            _colours.OddOutlineColour = HUSLColor.ToColor4(GetOutlineColour(fOdd));
         }
 
-        private Hsl GetOutlineColour(Hsl col)
+
+        private HUSLColor GetOutlineColour(HUSLColor col)
         {
             col.L += 10;
             col.S += 20;
