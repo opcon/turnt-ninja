@@ -75,6 +75,7 @@ namespace BeatDetection.Game
             _rotationMultiplier = 0.5*_direction*Math.Min(((!OutOfBeats ? BeatFrequencies[_beats.Index] : MaxBeatFrequency)/MaxBeatFrequency)*2, 1);
             var rotate = time * RotationSpeed * _rotationMultiplier + _extraRotation * _rotationMultiplier;
             _extraRotation = 0;
+            ParentStage.SceneManager.ScreenCamera.ExtraScale = 0;
 
             var azimuth = CenterPolygon.Position.Azimuth + rotate;
 
