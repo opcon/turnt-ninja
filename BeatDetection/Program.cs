@@ -116,6 +116,9 @@ namespace BeatDetection
         {
             //Load correction value
             correction = Properties.Settings.Default.AudioCorrection;
+            //generate settings file if not already existing
+            Properties.Settings.Default.AudioCorrection = 10;
+            Properties.Settings.Default.AudioCorrection = correction;
 
             var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
