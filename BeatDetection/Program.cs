@@ -214,7 +214,7 @@ namespace BeatDetection
 
         protected override void OnUnload(EventArgs e)
         {
-            _gameSceneManager.UnLoad();
+            _gameSceneManager.Dispose();
             Properties.Settings.Default.Save();
             base.OnUnload(e);
         }

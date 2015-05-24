@@ -74,8 +74,9 @@ namespace BeatDetection.GUI
             //if (_stage.Ended) SceneManager.Font.Print("Song Finished", Vector3.Zero, QFontAlignment.Centre, Color.White);
         }
 
-        public override void UnLoad()
+        public override void Dispose()
         {
+            _stage.Dispose(); 
             _stage = null;
         }
     }

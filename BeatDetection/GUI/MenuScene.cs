@@ -34,7 +34,7 @@ namespace BeatDetection.GUI
             throw new NotImplementedException();
         }
 
-        public override void UnLoad()
+        public override void Dispose()
         {
             throw new NotImplementedException();
         }

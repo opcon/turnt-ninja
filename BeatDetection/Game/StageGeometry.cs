@@ -14,7 +14,7 @@ using HUSL;
 
 namespace BeatDetection.Game
 {
-    class StageGeometry
+    class StageGeometry : IDisposable
     {
         private StageColours _colours;
         private BeatCollection _beats;
@@ -261,6 +261,11 @@ namespace BeatDetection.Game
             col.L += 10;
             col.S += 20;
             return col;
+        }
+
+        public void Dispose()
+        {
+            _beats.Dispose();
         }
     }
 

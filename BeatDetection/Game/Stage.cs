@@ -24,7 +24,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace BeatDetection.Game
 {
-    internal class Stage
+    internal class Stage : IDisposable
     {
         public double TotalTime { get; private set; }
         private AudioFeatures _audioFeatures;
@@ -175,6 +175,12 @@ namespace BeatDetection.Game
             MultiplierFont.Print(string.Format("{0}x", Multiplier == -1 ? 0 : Multiplier), new Vector3(0, MultiplierFont.Measure("0", QFontAlignment.Centre).Height * 0.5f, 0),
                 QFontAlignment.Centre);
             MultiplierFont.Draw();
+        }
+
+        public void Dispose()
+        {
+            MultiplierFont.Dispose();
+            StageGeometry.Dispose();
         }
     }
 }

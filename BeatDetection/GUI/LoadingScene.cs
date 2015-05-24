@@ -233,8 +233,9 @@ namespace BeatDetection.GUI
 //            _testVAO.Draw(time);
         }
 
-        public override void UnLoad()
+        public override void Dispose()
         {
+            if (_loadingFont != null) _loadingFont.Dispose();
         }
 
         private Vector3 CalculateTextPosition(Vector3 center, ProcessedText text)

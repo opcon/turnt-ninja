@@ -12,7 +12,7 @@ using Substructio.Graphics.OpenGL;
 
 namespace BeatDetection.Game
 {
-    class BeatCollection
+    class BeatCollection : IDisposable
     {
         public readonly int Count;
         public int Index { get; private set; }
@@ -509,6 +509,15 @@ namespace BeatDetection.Game
         public void Initialise()
         {
             Index = 0;
+        }
+
+        public void Dispose()
+        {
+            _vertexArray.Dispose();
+            _vertexBuffer.Dispose();
+            Positions = null;
+            Velocities = null;
+            NumberOfSides = null;
         }
     }
 }
