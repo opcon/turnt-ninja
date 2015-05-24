@@ -141,7 +141,6 @@ namespace BeatDetection.GUI
             {
                 file = ofd.FileName;
                 file = file.Replace(@"\", "/");
-                //file.Replace("\\", "/");
             }
             else
             {
@@ -153,7 +152,6 @@ namespace BeatDetection.GUI
             _loadingFont = new QFont(SceneManager.FontPath, 30, new QFontBuilderConfiguration(true), FontStyle.Italic);
             _loadingFont.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
             _loadingText = _loadingFont.ProcessText("Loading", new SizeF(200, -1), QFontAlignment.Centre);
-            //_loadingTextPosition = CalculateTextPosition(new Vector2(SceneManager.ScreenCamera.PreferredWidth / 2, SceneManager.ScreenCamera.PreferredHeight / 2), _loadingText);
             _loadingTextPosition = CalculateTextPosition(new Vector3((float)SceneManager.GameWindow.Width/ 2, SceneManager.GameWindow.Height/ 2, 0f), _loadingText);
 
             _songText = _loadingFont.ProcessText(Path.GetFileNameWithoutExtension(file), new SizeF(SceneManager.GameWindow.Width - 40, -1), QFontAlignment.Centre);
