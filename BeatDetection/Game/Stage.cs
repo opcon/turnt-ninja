@@ -37,7 +37,7 @@ namespace BeatDetection.Game
 
         private double _warmupTime = 2.0f;
         private double _elapsedWarmupTime;
-        private double _easeInTime = 1.0f;
+        private double _easeInTime = 2.0f;
         public bool Running;
         public bool Ended;
 
@@ -47,6 +47,7 @@ namespace BeatDetection.Game
         public SceneManager SceneManager { get; set; }
 
         public QFont MultiplierFont;
+        private string _centerText = "";
 
         public int Hits
         {
@@ -126,6 +127,7 @@ namespace BeatDetection.Game
             {
                 SceneManager.ScreenCamera.TargetScale = new Vector2(1.3f);
                 _elapsedWarmupTime += time;
+                _centerText = (Math.Ceiling(_easeInTime + _warmupTime - _elapsedWarmupTime)).ToString();
                 if (_elapsedWarmupTime > _warmupTime)
                 {
                     Running = true;
@@ -140,11 +142,16 @@ namespace BeatDetection.Game
                     Ended = true;
                     Running = false;
                 }
+                _centerText = string.Format("{0}x", Multiplier == -1 ? 0 : Multiplier);
             }
-            if (!FinishedEaseIn && TotalTime > _easeInTime)
+            if (!FinishedEaseIn && Running)
             {
-                _stageAudio.Play();
-                FinishedEaseIn = true;
+                _centerText = (Math.Ceiling(_easeInTime - TotalTime)).ToString();
+                if (TotalTime > _easeInTime)
+                {
+                    _stageAudio.Play();
+                    FinishedEaseIn = true;
+                }
             }
 
             if (StageGeometry.CurrentBeat < StageGeometry.BeatCount)
@@ -165,6 +172,7 @@ namespace BeatDetection.Game
 
             //Scale multiplier font with beat
             MultiplierFont.ProjectionMatrix = Matrix4.Mult(Matrix4.CreateScale((float)(0.75 + 0.24f * StageGeometry.CenterPolygon.PulseWidth / StageGeometry.CenterPolygon.PulseWidthMax)), SceneManager.ScreenCamera.ScreenProjectionMatrix);
+
         }
 
         public void Draw(double time)
@@ -172,7 +180,7 @@ namespace BeatDetection.Game
             StageGeometry.Draw(time);
 
             MultiplierFont.ResetVBOs();
-            MultiplierFont.Print(string.Format("{0}x", Multiplier == -1 ? 0 : Multiplier), new Vector3(0, MultiplierFont.Measure("0", QFontAlignment.Centre).Height * 0.5f, 0),
+            MultiplierFont.Print(_centerText, new Vector3(0, MultiplierFont.Measure("0", QFontAlignment.Centre).Height * 0.5f, 0),
                 QFontAlignment.Centre);
             MultiplierFont.Draw();
         }
