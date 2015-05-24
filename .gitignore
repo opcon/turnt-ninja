@@ -16,6 +16,9 @@ build/
 [Oo]bj/
 [Bb]inaries/
 
+# OpenTK Debug Binaries
+OpenTK Debug/
+
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/
 
@@ -138,6 +141,10 @@ App_Data/*.ldf
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+
+#Performance profiling files
+Performance Profiling/
+*.nvuser
 
 # =========================
 # Windows detritus

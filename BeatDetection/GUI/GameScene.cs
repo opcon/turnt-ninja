@@ -52,7 +52,7 @@ namespace BeatDetection.GUI
         public override void Draw(double time)
         {
             _elapsedTime += time;
-            var rot = Matrix4.CreateRotationX((float)((MathHelper.PiOver4 / 2.5)*Math.Sin(_elapsedTime*0.05)));
+            var rot = Matrix4.CreateRotationX((float)((MathHelper.PiOver4 / 2.0)*Math.Sin(_elapsedTime*0.09)));
             ShaderProgram.Bind();
             ShaderProgram.SetUniform("mvp", Matrix4.Mult(rot, SceneManager.ScreenCamera.ModelViewProjection));
             _stage.Draw(time);

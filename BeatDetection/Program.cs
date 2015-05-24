@@ -63,7 +63,6 @@ namespace BeatDetection
 
         private Stage _stage;
 
-        private double MaxFrameTime;
         public GameController()
             : base(1280, 720, new GraphicsMode(32, 24, 8, 4))
         {
@@ -115,30 +114,14 @@ namespace BeatDetection
         /// <param name="e">Not used.</param>
         protected override void OnLoad(EventArgs e)
         {
+            //Load correction value
+            correction = Properties.Settings.Default.AudioCorrection;
 
             var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
             var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Italic){ProjectionMatrix = gameCamera.ScreenProjectionMatrix};
             _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath);
             _gameSceneManager.AddScene(new LoadingScene(sonicAnnotator, pluginPath, correction));
-
-
-
-            //string file = "";
-            //OpenFileDialog ofd = new OpenFileDialog();
-            //ofd.Multiselect = false;
-            //ofd.Filter = "Audio Files (*.mp3, *.flac, *.wav)|*.mp3;*.flac;*.wav|All Files (*.*)|*.*";
-            //if (ofd.ShowDialog() == DialogResult.OK)
-            //{
-            //    file = ofd.FileName;
-            //    file = file.Replace(@"\", "/");
-            //    //file.Replace("\\", "/");
-            //}
-            //else
-            //{
-            //    this.Exit();
-            //    return;
-            //}
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
             Keyboard.KeyUp += (o, args) => InputSystem.KeyUp(args);
@@ -150,11 +133,6 @@ namespace BeatDetection
             GL.ClearColor(Color.CornflowerBlue);
 
             _watch = new Stopwatch();
-
-            //_stage = new Stage();
-            //_stage.LoadAsync(file, sonicAnnotator, pluginPath, correction);
-
-            MaxFrameTime = 1/DisplayDevice.Default.RefreshRate;
         }
 
         #endregion
@@ -223,21 +201,19 @@ namespace BeatDetection
         /// <remarks>There is no need to call the base implementation.</remarks>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            //Debug.Write((e.Time * 1000).ToString("0.00") + ", ");
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            //_stage.Draw(e.Time);
-            //GL.MatrixMode(MatrixMode.Modelview);
-            //GL.LoadIdentity();
-            //GL.Translate(0.375, 0.375, 0.0);
             _gameSceneManager.Draw(e.Time);
 
             this.SwapBuffers();
+        }
 
-            ////TODO FIX THIS HACKY SCREEN TEARING REDUCTION HACK!
-            //if (e.Time < (MaxFrameTime) - 0.001)
-            //    Thread.Sleep((int)(MaxFrameTime*1000) - (int)(e.Time*1000) - 1);
+        protected override void OnUnload(EventArgs e)
+        {
+            _gameSceneManager.UnLoad();
+            Properties.Settings.Default.Save();
+            base.OnUnload(e);
         }
 
         #endregion

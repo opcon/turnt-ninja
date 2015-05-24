@@ -152,6 +152,8 @@ namespace BeatDetection
         private Input GetUserInput()
         {
             Input i = Input.Default;
+            if (OpenTK.Input.GamePad.GetState(0).Buttons.BigButton == ButtonState.Pressed)
+                i |= Input.Left;
             if (InputSystem.CurrentKeys.Contains(Key.Left))
                 i |= Input.Left;
             if (InputSystem.CurrentKeys.Contains(Key.Right))
