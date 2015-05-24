@@ -10,6 +10,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using Substructio.Core;
 using Substructio.Core.Math;
+using HUSL;
 
 namespace BeatDetection.Game
 {
@@ -183,7 +184,12 @@ namespace BeatDetection.Game
             var soln = new List<List<IntPoint>>();
             c.Execute(ClipType.ctIntersection, soln);
 
-            ParentStage.Overlap = soln.Count > 0 ? (int)((Clipper.Area(soln[0]) / Clipper.Area(Player.GetBounds())) * 100) : 0;
+            //ParentStage.Overlap = soln.Count > 0 ? (int)((Clipper.Area(soln[0]) / Clipper.Area(Player.GetBounds())) * 100) : 0;
+            ParentStage.Overlap = 0;
+            foreach (var a in soln)
+            {
+                ParentStage.Overlap += (int) ((Clipper.Area(a)/Clipper.Area(Player.GetBounds()))*(100.0f));
+            }
             if (ParentStage.Overlap > 80)
             {
                 ParentStage.Multiplier = -1;
