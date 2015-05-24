@@ -108,7 +108,7 @@ namespace BeatDetection.Game
 
             StageGeometry.CenterPolygon = centerPolygon;
             StageGeometry.Player = player;
-            StageGeometry.RotationMultiplier = _difficultyOptions.RotationSpeed;
+            StageGeometry.RotationSpeed = _difficultyOptions.RotationSpeed;
 
             progress.Report("Load complete");
 
