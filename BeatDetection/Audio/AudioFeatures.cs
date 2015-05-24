@@ -13,18 +13,26 @@ namespace BeatDetection.Audio
         public List<float> Onsets = new List<float>();
         public List<SegmentInformation> Segments = new List<SegmentInformation>();
         public float _correction;
-        private IProgress<string> _progressReporter;
+        private IProgress<string> _outerProgressReporter;
+        private IProgress<string> _innerProgressReporter;
+        private string _currentTask = "";
 
         public AudioFeatures(string sonicAnnotatorPath, string pluginPath, string csvDirectory, float correction, IProgress<string> progress = null)
         {
-            _progressReporter = progress ?? new Progress<string>();
+            _outerProgressReporter = progress ?? new Progress<string>();
             _annotatorWrapper = new SonicAnnotatorWrapper(new SonicAnnotatorArguments{SonicAnnotatorPath = sonicAnnotatorPath, PluginsPath = pluginPath, CSVDirectory = csvDirectory});
             _correction = correction;
+            _innerProgressReporter = new Progress<string>(status =>
+            {
+                _outerProgressReporter.Report(_currentTask + ":" + status);
+            });
         }
 
         public void Extract(string audioFilePath)
         {
+            _currentTask = "Extracting Offsets"; 
             ExtractOnsets(audioFilePath);
+            _currentTask = "Extracting Segments";
             ExtractSegments(audioFilePath);
         }
 
@@ -39,7 +47,7 @@ namespace BeatDetection.Audio
                 DescriptorPath = "../../Processed Songs/qmonset.n3"
             };
             string resultPath;
-            bool success = _annotatorWrapper.Run(args, out resultPath, _progressReporter);
+            bool success = _annotatorWrapper.Run(args, out resultPath, _innerProgressReporter);
 
             if (!success) throw new Exception("Error during sonic annotator onset processing");
 
@@ -65,7 +73,7 @@ namespace BeatDetection.Audio
                 DescriptorPath = "../../Processed Songs/qmsegments.n3"
             };
             string resultPath;
-            bool success = _annotatorWrapper.Run(args, out resultPath, _progressReporter);
+            bool success = _annotatorWrapper.Run(args, out resultPath, _innerProgressReporter);
 
             if (!success) throw new Exception("Error during sonic annotator segment processing");
 
