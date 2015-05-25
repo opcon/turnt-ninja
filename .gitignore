@@ -146,6 +146,9 @@ ModelManifest.xml
 Performance Profiling/
 *.nvuser
 
+#MonoDevelop
+*.userprefs
+
 # =========================
 # Windows detritus
 # =========================
