@@ -190,10 +190,10 @@ namespace BeatDetection.Generation
                 var step = _random.NextDouble() * (maxStep - minStep) + minStep;
                 double angle = prevAngle;
                 //avoid certain colours
-                do
-                {
+//                do
+//                {
                     angle = MathUtilities.Normalise(step + angle, 0, 360);
-                } while ((angle > 250 && angle < 330) || (angle > 65 && angle < 150));
+//                } while ((angle > 250 && angle < 330) || (angle > 65 && angle < 150));
                 var rgb = HUSL.ColorConverter.HUSLToRGB(new List<double>{angle, _builderOptions.Lightness, _builderOptions.Saturation});
 
 //                var col = new Hsl { H = angle, L = _builderOptions.Lightness, S = _builderOptions.Saturation};
