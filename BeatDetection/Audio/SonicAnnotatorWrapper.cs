@@ -58,7 +58,7 @@ namespace BeatDetection.Audio
             while (!p.HasExited)
             {
                 string e = p.StandardError.ReadLine() ?? "";
-                output += e;
+                output += e + "\n";
                 if (!string.IsNullOrWhiteSpace(e))
                 {
                     var match = Regex.Match(e, pattern).ToString();
