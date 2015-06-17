@@ -211,7 +211,7 @@ namespace BeatDetection.Generation
         public int MaxSides = 6;
 
         public PolarVector PolygonVelocity = new PolarVector(0, 600);
-        public float PolygonWidth = 50f;
+        public float PolygonWidth = 40f;
         public float PolygonMinimumRadius = 130f;
 
         public float VeryCloseDistance = 0.2f;
