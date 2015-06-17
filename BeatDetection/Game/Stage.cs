@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using BeatDetection.Audio;
 using BeatDetection.Core;
 using BeatDetection.Generation;
@@ -50,6 +51,8 @@ namespace BeatDetection.Game
         public QFontDrawing MultiplierFontDrawing;
         private string _centerText = "";
 
+        public bool Loaded { get; private set; }
+
         public int Hits
         {
             get { return StageGeometry.Player.Hits; }
@@ -75,7 +78,10 @@ namespace BeatDetection.Game
         public bool FinishedEaseIn { get; private set; }
 
         public StageGeometry StageGeometry;
-        private StageAudio _stageAudio;
+        public StageAudio _stageAudio;
+
+        private const float WADSWORTH = 0.30f;
+        private const float MAXVOLUME = 1.0f;
 
         public Stage(SceneManager sceneManager)
         {
@@ -93,6 +99,34 @@ namespace BeatDetection.Game
             progress.Report("Loading audio");
             _stageAudio.Load(audioPath);
             _random = new Random(_stageAudio.AudioHashCode);
+
+            var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
+            var increaseVolumeTask = Task.Factory.StartNew(() =>
+            {
+                var dV = 0.01f;
+                _stageAudio.Seek(WADSWORTH);
+                _stageAudio.Volume = 0.0f;
+                Thread.Sleep(100);
+                _stageAudio.Play();
+                while (!cancellationToken.IsCancellationRequested && _stageAudio.Volume < MAXVOLUME*0.5f)
+                {
+                    _stageAudio.Volume += dV;
+                    Thread.Sleep(50);
+                }
+                while (!cancellationToken.IsCancellationRequested) Thread.Sleep(100);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    while (_stageAudio.Volume > 0)
+                    {
+                        _stageAudio.Volume -= dV;
+                        Thread.Sleep(10);
+                    }
+                    _stageAudio.Stop();
+                    Thread.Sleep(10);
+                    _stageAudio.Volume = MAXVOLUME;
+                }
+            });
 
             progress.Report("Extracting audio features");
             LoadAudioFeatures(audioPath, sonicPath, pluginPath, correction, progress);
@@ -114,7 +148,9 @@ namespace BeatDetection.Game
 
             progress.Report("Load complete");
 
-            Thread.Sleep(1000);
+            cancellationTokenSource.Cancel();
+
+            Loaded = true;
         }
 
         private void LoadAudioFeatures(string audioPath, string sonicPath, string pluginPath, float correction, IProgress<string> progress)
@@ -193,6 +229,12 @@ namespace BeatDetection.Game
             MultiplierFont.Dispose();
             MultiplierFontDrawing.Dispose();
             StageGeometry.Dispose();
+        }
+
+        public void Reset()
+        {
+            _stageAudio.FadeOut(4000, 0, 0.01f, 2);
+            StageGeometry.CenterPolygon.Position.Azimuth = 0;
         }
     }
 }
