@@ -59,7 +59,7 @@ namespace BeatDetection
         private Stopwatch _watch;
 
         private double _lag = 0.0;
-        private double _dt = 0.01;
+        private double _dt = 16.0/1000;
 
         private Stage _stage;
 
@@ -67,7 +67,7 @@ namespace BeatDetection
             : base(1280, 720, new GraphicsMode(32, 24, 8, 4))
         {
             KeyDown += Keyboard_KeyDown;
-            this.VSync = VSyncMode.Off;
+            this.VSync = VSyncMode.On;
         }
 
         #region Keyboard_KeyDown
@@ -85,16 +85,7 @@ namespace BeatDetection
             }
 
             if (e.Key == Key.F11)
-                if (this.WindowState == WindowState.Fullscreen)
-                {
-                    this.WindowState = WindowState.Normal;
-                    this.VSync = VSyncMode.Off;
-                }
-                else
-                {
-                    this.WindowState = WindowState.Fullscreen;
-                    this.VSync = VSyncMode.On;
-                }
+                WindowState = WindowState == WindowState.Fullscreen ? WindowState.Normal : WindowState.Fullscreen;
         }
 
         #endregion
@@ -124,7 +115,7 @@ namespace BeatDetection
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
             var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Italic);
             _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath);
-            _gameSceneManager.AddScene(new LoadingScene(sonicAnnotator, pluginPath, correction));
+            _gameSceneManager.AddScene(new MenuScene(sonicAnnotator, pluginPath, correction));
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
             Keyboard.KeyUp += (o, args) => InputSystem.KeyUp(args);
@@ -233,7 +224,7 @@ namespace BeatDetection
             {
                 // Get the title and category  of this example using reflection.
                 game.Title = "turnt-ninja";
-                game.Run(60.0, 0.0);
+                game.Run();
             }
         }
 
