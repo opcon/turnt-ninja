@@ -37,6 +37,7 @@ namespace BeatDetection.Core
 
         public PolarVector Position;
         public PolarVector Velocity;
+        public Vector2 Translate = Vector2.Zero;
         private List<bool> _sides;
 
         public double AngleBetweenSides { get; private set; }
@@ -202,7 +203,7 @@ namespace BeatDetection.Core
                 }
             }
 
-            return verts.SelectMany(v => new[] {v.X, v.Y});
+            return verts.SelectMany(v => new[] {v.X + Translate.X, v.Y + Translate.Y});
         }
 
         public void Draw(double time, int even = 0)
