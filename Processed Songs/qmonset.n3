@@ -12,7 +12,7 @@
     ] ;
     vamp:parameter_binding [
         vamp:parameter [ vamp:identifier "sensitivity" ] ;
-        vamp:value "30"^^xsd:float ;
+        vamp:value "60"^^xsd:float ;
     ] ;
     vamp:parameter_binding [
         vamp:parameter [ vamp:identifier "whiten" ] ;

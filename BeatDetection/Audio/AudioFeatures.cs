@@ -44,7 +44,7 @@ namespace BeatDetection.Audio
                 Correction = _correction,
                 InitialOutputSuffix = "vamp_qm-vamp-plugins_qm-onsetdetector_onsets",
                 DesiredOutputSuffix = "onsets",
-                DescriptorPath = "../../Processed Songs/qmonset.n3"
+                DescriptorPath = "../../Processed Songs/qmonset.xml"
             };
             string resultPath;
             bool success = _annotatorWrapper.Run(args, out resultPath, _innerProgressReporter);
@@ -70,7 +70,7 @@ namespace BeatDetection.Audio
                 Correction = _correction,
                 InitialOutputSuffix = "vamp_qm-vamp-plugins_qm-segmenter_segmentation",
                 DesiredOutputSuffix = "segments",
-                DescriptorPath = "../../Processed Songs/qmsegments.n3"
+                DescriptorPath = "../../Processed Songs/qmsegments.xml"
             };
             string resultPath;
             bool success = _annotatorWrapper.Run(args, out resultPath, _innerProgressReporter);

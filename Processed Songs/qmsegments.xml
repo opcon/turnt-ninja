@@ -1,0 +1,6 @@
+<transform
+id="vamp:qm-vamp-plugins:qm-segmenter">
+<parameter name="featureType" value="1"/>
+<parameter name="nSegmentTypes" value="7"/>
+<parameter name="neighbourhoodLimit" value="10"/>
+</transform>

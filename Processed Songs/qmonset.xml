@@ -1,0 +1,8 @@
+<transform
+id="vamp:qm-vamp-plugins:qm-onsetdetector"
+stepSize="2048"
+blockSize="4096">
+<parameter name="dftype" value="3"/>
+<parameter name="sensitivity" value="60"/>
+<parameter name="whiten" value="0"/>
+</transform>

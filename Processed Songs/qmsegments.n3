@@ -4,8 +4,8 @@
 
 :transform a vamp:Transform ;
     vamp:plugin <http://vamp-plugins.org/rdf/plugins/qm-vamp-plugins#qm-segmenter> ;
-    vamp:step_size "8820"^^xsd:int ; 
-    vamp:block_size "26460"^^xsd:int ; 
+    vamp:step_size "9600"^^xsd:int ; 
+    vamp:block_size "28800"^^xsd:int ; 
     vamp:parameter_binding [
         vamp:parameter [ vamp:identifier "featureType" ] ;
         vamp:value "1"^^xsd:float ;
