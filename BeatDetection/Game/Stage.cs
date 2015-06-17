@@ -47,6 +47,7 @@ namespace BeatDetection.Game
         public SceneManager SceneManager { get; set; }
 
         public QFont MultiplierFont;
+        public QFontDrawing MultiplierFontDrawing;
         private string _centerText = "";
 
         public int Hits
@@ -81,7 +82,8 @@ namespace BeatDetection.Game
             SceneManager = sceneManager;
 
             MultiplierFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Italic);
-            MultiplierFont.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
+            MultiplierFontDrawing = new QFontDrawing();
+            MultiplierFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
 
             _stageAudio = new StageAudio();
         }
@@ -171,7 +173,7 @@ namespace BeatDetection.Game
             if (InputSystem.NewKeys.Contains(Key.F2)) AI = !AI;
 
             //Scale multiplier font with beat
-            MultiplierFont.ProjectionMatrix = Matrix4.Mult(Matrix4.CreateScale((float)(0.75 + 0.24f * StageGeometry.CenterPolygon.PulseWidth / StageGeometry.CenterPolygon.PulseWidthMax)), SceneManager.ScreenCamera.ScreenProjectionMatrix);
+            MultiplierFontDrawing.ProjectionMatrix = Matrix4.Mult(Matrix4.CreateScale((float)(0.75 + 0.24f * StageGeometry.CenterPolygon.PulseWidth / StageGeometry.CenterPolygon.PulseWidthMax)), SceneManager.ScreenCamera.ScreenProjectionMatrix);
 
         }
 
@@ -179,15 +181,17 @@ namespace BeatDetection.Game
         {
             StageGeometry.Draw(time);
 
-            MultiplierFont.ResetVBOs();
-            MultiplierFont.Print(_centerText, new Vector3(0, MultiplierFont.Measure("0", QFontAlignment.Centre).Height * 0.5f, 0),
+            MultiplierFontDrawing.DrawingPimitiveses.Clear();
+            MultiplierFontDrawing.Print(MultiplierFont, _centerText, new Vector3(0, MultiplierFont.Measure("0", QFontAlignment.Centre).Height * 0.5f, 0),
                 QFontAlignment.Centre);
-            MultiplierFont.Draw();
+            MultiplierFontDrawing.RefreshBuffers();
+            MultiplierFontDrawing.Draw();
         }
 
         public void Dispose()
         {
             MultiplierFont.Dispose();
+            MultiplierFontDrawing.Dispose();
             StageGeometry.Dispose();
         }
     }
