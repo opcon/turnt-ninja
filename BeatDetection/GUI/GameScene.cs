@@ -24,11 +24,8 @@ namespace BeatDetection.GUI
         public ShaderProgram ShaderProgram { get; set; }
         public bool UsingPlaylist { get; set; }
         public List<string> PlaylistFiles { get; set; }
-        private Gwen.Renderer.OpenTK _renderer;
-        private Gwen.Skin.TexturedBase _skin;
-        private Gwen.Control.Canvas _canvas;
-        private Gwen.Control.Button _testButton;
-        private Gwen.Input.OpenTKAlternative _input;
+
+        private const float TIMETOWAIT = 3.0f;
 
         private double _elapsedTime = 0;
 
@@ -36,48 +33,27 @@ namespace BeatDetection.GUI
         {
             Exclusive = true;
             _stage = stage;
-            _stage.StageGeometry.UpdateColours();
+            _stage.StageGeometry.UpdateColours(0);
         }
 
         public override void Load()
         {
             SceneManager.ScreenCamera.Scale = SceneManager.ScreenCamera.TargetScale = new Vector2(1.5f);
-
-            _renderer = new Gwen.Renderer.OpenTK();            
-            var renderMatrix = Matrix4.CreateTranslation(-SceneManager.Width/2.0f, -SceneManager.Height/2.0f,0) * Matrix4.CreateScale(1, -1, 1)*SceneManager.ScreenCamera.ScreenProjectionMatrix;
-            _renderer.Resize(renderMatrix, this.SceneManager.Width, this.SceneManager.Height);
-            _skin = new Gwen.Skin.TexturedBase(_renderer, "DefaultSkin.png");
-
-            _canvas = new Gwen.Control.Canvas(_skin);
-
-            _input = new Gwen.Input.OpenTKAlternative(_canvas);
-
-            _canvas.SetSize(1280, 768);
-            _canvas.ShouldDrawBackground = false;
-
-            _testButton = new Gwen.Control.Button(_canvas);
-            _testButton.Text = "TEST!!";
-            _testButton.SetBounds(200, 30, 300, 200);
-
-            _testButton.IsTabable = true;
-            _testButton.AutoSizeToContents = true;
-
-            _testButton.Focus();
-
-            _testButton.Clicked += (sender, arguments) =>
-            {
-                _stage.Reset();
-                SceneManager.ScreenCamera.ExtraScale = 0;
-                SceneManager.ScreenCamera.Scale = new Vector2(1, 1);
-                SceneManager.RemoveScene(this);
-            };
-
-            _skin.DefaultFont = new Gwen.Font(_renderer, "Arial", 10);
             if (UsingPlaylist)
             {
                 
             }
             Loaded = true;
+        }
+
+        private void Exit(bool GoToEndScene = false)
+        {
+            _stage.Reset();
+            SceneManager.ScreenCamera.ExtraScale = 0;
+            SceneManager.ScreenCamera.Scale = new Vector2(1, 1);
+            SceneManager.GameWindow.Cursor = MouseCursor.Default;
+            if (GoToEndScene) SceneManager.AddScene(new EndGameScene(), this);
+            else SceneManager.RemoveScene(this);
         }
 
         public override void CallBack(GUICallbackEventArgs e)
@@ -88,40 +64,20 @@ namespace BeatDetection.GUI
         public override void Resize(EventArgs e)
         {
             _stage.MultiplierFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
-
-            //_renderer.Resize();
-            var renderMatrix = Matrix4.CreateTranslation(-SceneManager.Width/2.0f, -SceneManager.Height/2.0f,0) * Matrix4.CreateScale(1, -1, 1)*SceneManager.ScreenCamera.ScreenProjectionMatrix;
-            _renderer.Resize(renderMatrix, this.SceneManager.Width, this.SceneManager.Height);
-            _canvas.SetSize(this.SceneManager.Width, this.SceneManager.Height);
         }
 
         public override void Update(double time, bool focused = false)
         {
+            if (InputSystem.NewKeys.Contains(Key.Escape))
+            {
+                Exit();
+                return;
+            }
             _stage.Update(time);
-            //if (InputSystem.NewKeys.Contains(Key.Enter))
-            //    _testButton.IsTabable;
-            foreach (var pressedButton in InputSystem.PressedButtons)
+
+            if (_stage.Ended && (_stage.TotalTime - _stage.EndTime) > TIMETOWAIT)
             {
-                _input.ProcessMouseButton(pressedButton, true);
-            }
-            foreach (var releasedButton in InputSystem.ReleasedButtons)
-            {
-                _input.ProcessMouseButton(releasedButton, false);
-            }
-            _input.ProcessMouseWheel((int) InputSystem.MouseWheelDelta);
-            if (InputSystem.HasMouseMoved)
-                _input.ProcessMouseMove((int) InputSystem.MouseXY.X, (int) InputSystem.MouseXY.Y);
-            foreach (var newKey in InputSystem.NewKeys)
-            {
-                _input.ProcessKeyDown(newKey);
-            }
-            foreach (var releasedKey in InputSystem.ReleasedKeys)
-            {
-                _input.ProcessKeyUp(releasedKey);
-            }
-            foreach (var pressedChar in InputSystem.PressedChars)
-            {
-                _input.KeyPress(pressedChar);
+                    Exit(true);
             }
         }
 
@@ -149,15 +105,10 @@ namespace BeatDetection.GUI
             xOffset += SceneManager.DrawTextLine(string.Format("Mouse coordinates are {0}", InputSystem.MouseXY), new Vector3(xOffset, yOffset, 0), Color.White,  QFontAlignment.Left).Width + 20; 
 
             //if (_stage.Ended) SceneManager.Font.Print("Song Finished", Vector3.Zero, QFontAlignment.Centre, Color.White);
-
-            _canvas.RenderCanvas();
         }
 
         public override void Dispose()
         {
-            _canvas.Dispose();
-            _skin.Dispose();
-            _renderer.Dispose();
             _stage.Dispose(); 
             _stage = null;
         }
