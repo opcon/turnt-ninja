@@ -143,23 +143,31 @@ namespace BeatDetection.Game
                     time = _elapsedWarmupTime - _warmupTime;
                 }
             }
-            if (Running)
+
+            if (Running || Ended)
             {
                 TotalTime += time;
-                if (StageGeometry.CurrentBeat == StageGeometry.BeatCount)
+
+                if (Running)
                 {
-                    Ended = true;
-                    Running = false;
-                }
-                _centerText = string.Format("{0}x", Multiplier == -1 ? 0 : Multiplier);
-            }
-            if (!FinishedEaseIn && Running)
-            {
-                _centerText = (Math.Ceiling(_easeInTime - TotalTime)).ToString();
-                if (TotalTime > _easeInTime)
-                {
-                    _stageAudio.Play();
-                    FinishedEaseIn = true;
+                    if (StageGeometry.CurrentBeat == StageGeometry.BeatCount && _stageAudio.IsStopped)
+                    {
+                        EndTime = TotalTime;
+                        Ended = true;
+                        Running = false;
+                    }
+                    _centerText = string.Format("{0}x", Multiplier == -1 ? 0 : Multiplier);
+
+                    if (!FinishedEaseIn)
+                    {
+                        _centerText = (Math.Ceiling(_easeInTime - TotalTime)).ToString();
+                        if (TotalTime > _easeInTime)
+                        {
+                            _stageAudio.Volume = _stageAudio.MaxVolume;
+                            _stageAudio.Play();
+                            FinishedEaseIn = true;
+                        }
+                    }
                 }
             }
 
