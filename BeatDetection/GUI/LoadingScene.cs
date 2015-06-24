@@ -24,7 +24,10 @@ namespace BeatDetection.GUI
     {
         private string _sonicAnnotatorPath;
         private string _pluginPath;
-        private float _correction;
+
+        private float _audioCorrection;
+        private float _maxAudioVolume;
+
         private Task _loadTask;
         private Stage _stage;
         private Player _player;
@@ -39,18 +42,15 @@ namespace BeatDetection.GUI
         private bool usePlaylist = false;
         private List<string> _files = new List<string>();
 
-        Substructio.Graphics.Lines.StraightLine _testLine;
-        VertexArray _testVAO;
-        VertexBuffer _testVBO1, _testVBO2;
-
         private string _loadingStatus = "";
 
-        public LoadingScene(string sonicAnnotatorPath, string pluginPath, float correction, PolarPolygon centerPolygon, Player player, ShaderProgram shaderProgram)
+        public LoadingScene(string sonicAnnotatorPath, string pluginPath, float audioCorrection, float maxAudioVolume, PolarPolygon centerPolygon, Player player, ShaderProgram shaderProgram)
         {
             Exclusive = true;
             _sonicAnnotatorPath = sonicAnnotatorPath;
             _pluginPath = pluginPath;
-            _correction = correction;
+            _audioCorrection = audioCorrection;
+            _maxAudioVolume = maxAudioVolume;
             _centerPolygon = centerPolygon;
             _player = player;
             _shaderProgram = shaderProgram;
@@ -75,7 +75,6 @@ namespace BeatDetection.GUI
             else
             {
                 SceneManager.RemoveScene(this);
-                SceneManager.GameWindow.Exit();
                 return;
             }
 
@@ -102,7 +101,7 @@ namespace BeatDetection.GUI
             {
                 _loadingStatus = status;
             });
-            _loadTask = Task.Factory.StartNew(() => _stage.LoadAsync((usePlaylist && _files.Count > 0) ? _files[0] : file, _sonicAnnotatorPath, _pluginPath, _correction, progress, _centerPolygon, _player, dOptions));
+            _loadTask = Task.Factory.StartNew(() => _stage.LoadAsync((usePlaylist && _files.Count > 0) ? _files[0] : file, _sonicAnnotatorPath, _pluginPath, _audioCorrection, _maxAudioVolume, progress, _centerPolygon, _player, dOptions));
 
             Loaded = true;
         }
@@ -128,7 +127,7 @@ namespace BeatDetection.GUI
             if (_loadTask.IsCompleted)
             {
                 SceneManager.RemoveScene(this);
-                SceneManager.AddScene(new GameScene(_stage){ShaderProgram = _shaderProgram, UsingPlaylist = usePlaylist, PlaylistFiles = _files});
+                SceneManager.AddScene(new GameScene(_stage){ShaderProgram = _shaderProgram, UsingPlaylist = usePlaylist, PlaylistFiles = _files}, this);
             }
 
             _player.Update(time);
@@ -138,7 +137,6 @@ namespace BeatDetection.GUI
 
         public override void Draw(double time)
         {
-            ErrorCode errorCode = GL.GetError();
             GL.Disable(EnableCap.CullFace);
             _shaderProgram.Bind();
             _shaderProgram.SetUniform("mvp", SceneManager.ScreenCamera.ModelViewProjection);
