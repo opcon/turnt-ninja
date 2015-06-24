@@ -227,8 +227,8 @@ namespace BeatDetection.Generation
         public delegate int SkipDistributionFunction();
         public SkipDistributionFunction SkipFunction;
 
-        public int Saturation = 40;
-        public int Lightness = 40;
+        public int Saturation = 50;
+        public int Lightness = 30;
         public double MinimumColourStepMultiplier = 0.25;
 
         public ShaderProgram GeometryShaderProgram;
