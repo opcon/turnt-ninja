@@ -34,5 +34,77 @@ namespace BeatDetection.Properties {
                 this["AudioCorrection"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public float MaxAudioVolume {
+            get {
+                return ((float)(this["MaxAudioVolume"]));
+            }
+            set {
+                this["MaxAudioVolume"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1280")]
+        public int ResolutionX {
+            get {
+                return ((int)(this["ResolutionX"]));
+            }
+            set {
+                this["ResolutionX"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("720")]
+        public int ResolutionY {
+            get {
+                return ((int)(this["ResolutionY"]));
+            }
+            set {
+                this["ResolutionY"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public int AntiAliasingSamples {
+            get {
+                return ((int)(this["AntiAliasingSamples"]));
+            }
+            set {
+                this["AntiAliasingSamples"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool VSync {
+            get {
+                return ((bool)(this["VSync"]));
+            }
+            set {
+                this["VSync"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
+        public global::OpenTK.WindowState WindowState {
+            get {
+                return ((global::OpenTK.WindowState)(this["WindowState"]));
+            }
+            set {
+                this["WindowState"] = value;
+            }
+        }
     }
 }
