@@ -194,7 +194,7 @@ namespace BeatDetection.Generation
 //                {
                     angle = MathUtilities.Normalise(step + angle, 0, 360);
 //                } while ((angle > 250 && angle < 330) || (angle > 65 && angle < 150));
-                var rgb = HUSL.ColorConverter.HUSLToRGB(new List<double>{angle, _builderOptions.Lightness, _builderOptions.Saturation});
+                var rgb = HUSL.ColorConverter.HUSLToRGB(new List<double>{angle, _builderOptions.Saturation, _builderOptions.Lightness});
 
 //                var col = new Hsl { H = angle, L = _builderOptions.Lightness, S = _builderOptions.Saturation};
 //                var rgb1 = col.ToRgb();
