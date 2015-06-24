@@ -1,33 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatDetection.Audio;
 using BeatDetection.Core;
 using BeatDetection.Generation;
-using ClipperLib;
-using ColorMine.ColorSpaces;
-using NAudio.Wave;
 using OpenTK;
 using OpenTK.Input;
 using QuickFont;
 using Substructio.Core;
-using Substructio.Core.Math;
 using Substructio.Graphics.OpenGL;
 using Substructio.GUI;
-using Wav2Flac;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
 
 namespace BeatDetection.Game
 {
     internal class Stage : IDisposable
     {
         public double TotalTime { get; private set; }
+        public double EndTime { get; private set; }
         private AudioFeatures _audioFeatures;
 
         private DifficultyOptions _difficultyOptions;
@@ -81,7 +71,6 @@ namespace BeatDetection.Game
         public StageAudio _stageAudio;
 
         private const float WADSWORTH = 0.30f;
-        private const float MAXVOLUME = 1.0f;
 
         public Stage(SceneManager sceneManager)
         {
@@ -94,42 +83,20 @@ namespace BeatDetection.Game
             _stageAudio = new StageAudio();
         }
 
-        public void LoadAsync(string audioPath, string sonicPath, string pluginPath, float correction, IProgress<string> progress, PolarPolygon centerPolygon, Player player, DifficultyOptions difficultyOptions)
+        public void LoadAsync(string audioPath, string sonicPath, string pluginPath, float audioCorrection, float maxAudioVolume, IProgress<string> progress, PolarPolygon centerPolygon, Player player, DifficultyOptions difficultyOptions)
         {
             progress.Report("Loading audio");
             _stageAudio.Load(audioPath);
+            _stageAudio.MaxVolume = maxAudioVolume;
             _random = new Random(_stageAudio.AudioHashCode);
 
-            var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-            var increaseVolumeTask = Task.Factory.StartNew(() =>
-            {
-                var dV = 0.01f;
-                _stageAudio.Seek(WADSWORTH);
-                _stageAudio.Volume = 0.0f;
-                Thread.Sleep(100);
-                _stageAudio.Play();
-                while (!cancellationToken.IsCancellationRequested && _stageAudio.Volume < MAXVOLUME*0.5f)
-                {
-                    _stageAudio.Volume += dV;
-                    Thread.Sleep(50);
-                }
-                while (!cancellationToken.IsCancellationRequested) Thread.Sleep(100);
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    while (_stageAudio.Volume > 0)
-                    {
-                        _stageAudio.Volume -= dV;
-                        Thread.Sleep(10);
-                    }
-                    _stageAudio.Stop();
-                    Thread.Sleep(10);
-                    _stageAudio.Volume = MAXVOLUME;
-                }
-            });
+            _stageAudio.Volume = 0.0f;
+            _stageAudio.Seek(WADSWORTH);
+            _stageAudio.Play();
+            _stageAudio.FadeIn(1000, _stageAudio.MaxVolume*0.5f, 0.01f, 0);
 
             progress.Report("Extracting audio features");
-            LoadAudioFeatures(audioPath, sonicPath, pluginPath, correction, progress);
+            LoadAudioFeatures(audioPath, sonicPath, pluginPath, audioCorrection, progress);
 
             progress.Report("Building stage geometry");
 
@@ -148,7 +115,11 @@ namespace BeatDetection.Game
 
             progress.Report("Load complete");
 
-            cancellationTokenSource.Cancel();
+            Thread.Sleep(1000);
+
+            //cancellationTokenSource.Cancel();
+            _stageAudio.CancelAudioFades();
+            _stageAudio.FadeOut(500, 0.0f, 0.01f, 2);
 
             Loaded = true;
         }
@@ -233,7 +204,7 @@ namespace BeatDetection.Game
 
         public void Reset()
         {
-            _stageAudio.FadeOut(4000, 0, 0.01f, 2);
+            _stageAudio.FadeOut(1000, 0, 0.01f, 2);
             StageGeometry.CenterPolygon.Position.Azimuth = 0;
         }
     }
