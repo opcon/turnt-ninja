@@ -92,8 +92,8 @@ namespace BeatDetection.Game
                 CenterPolygon.PulseMultiplier = Math.Pow(BeatFrequencies[CurrentBeat] * 60,1) + 70;
                 ParentStage.SceneManager.ScreenCamera.ExtraScale = CenterPolygon.Pulsing ?  (float)Math.Pow(BeatFrequencies[CurrentBeat],3) * 0.2f : 0;
 
-                if (_beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] < 60 && _beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] > 40)
-                    _extraRotation = 0.02f;
+                //if (_beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] < 60 && _beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] > 40)
+                //    _extraRotation = 0.02f;
 
                 if (ParentStage.AI)
                 {
