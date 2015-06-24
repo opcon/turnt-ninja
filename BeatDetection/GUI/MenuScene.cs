@@ -20,7 +20,6 @@ namespace BeatDetection.GUI
     {
         private string _sonicAnnotator;
         private string _pluginPath;
-        private float _correction = 0.0f;
         private ShaderProgram _shaderProgram;
         private Player _player;
 
@@ -36,10 +35,10 @@ namespace BeatDetection.GUI
         private QFontRenderOptions _menuRenderOptions;
 
         public MenuScene(string sonicAnnotator, string pluginPath, float correction)
+        public MenuScene(string sonicAnnotator, string pluginPath)
         {
             _sonicAnnotator = sonicAnnotator;
             _pluginPath = pluginPath;
-            _correction = correction;
         }
 
         public override void Load()

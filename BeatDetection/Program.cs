@@ -13,8 +13,10 @@ using NAudio.Wave;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using BeatDetection.Core.Settings;
 using QuickFont;
 using Substructio.Core;
+using Substructio.Core.Settings;
 using Substructio.GUI;
 
 namespace BeatDetection
@@ -22,39 +24,17 @@ namespace BeatDetection
     /// <summary>
     /// Demonstrates the GameWindow class.
     /// </summary>
-    public class GameController : GameWindow
+    public sealed class GameController : GameWindow
     {
 
         private SceneManager _gameSceneManager;
         private const float prefWidth = 1920;
         private const float prefHeight = 1080;
 
-        OnsetDetector detector;
         private string sonicAnnotator = "../../External Programs/sonic-annotator-1.0-win32/sonic-annotator.exe";
         private string pluginPath = "../../External Programs/Vamp Plugins";
-        private string fontPath = Directories.FontsDirectory + "./Chamgagne Limousines/Champagne & Limousines Italic.ttf";
-        WaveOut waveOut;
-        RawSourceWaveStream source;
-        Stopwatch stopWatch;
-        float tNext = 0;
-        bool beatShown = false;
+        private string fontPath = "";
         float correction = 0.0f;
-        float time = 0;
-
-        PolarPolygon _polarPolygon;
-
-        //List<PolarPolygonSide> hexagonSides;
-        //List<PolarPolygonSide> toRemove;
-
-        Random random;
-
-        double[] angles;
-
-        Player p;
-
-        IWaveProvider prov;
-
-        private int dir = 1;
 
         private Stopwatch _watch;
 
@@ -63,11 +43,15 @@ namespace BeatDetection
 
         private Stage _stage;
 
-        public GameController()
-            : base(1280, 720, new GraphicsMode(32, 24, 8, 4))
+        private IGameSettings _gameSettings;
+
+        public GameController(IGameSettings gameSettings, int rX, int rY, GraphicsMode graphicsMode)
+            : base(rX, rY, graphicsMode)
         {
             KeyDown += Keyboard_KeyDown;
-            this.VSync = VSyncMode.On;
+            this.VSync = (bool) gameSettings["VSync"] ? VSyncMode.On : VSyncMode.Off;
+            this.WindowState = (WindowState) gameSettings["WindowState"];
+            _gameSettings = gameSettings;
         }
 
         #region Keyboard_KeyDown
@@ -79,13 +63,10 @@ namespace BeatDetection
         /// <param name="e">The key that was pressed.</param>
         void Keyboard_KeyDown(object sender, KeyboardKeyEventArgs e)
         {
-            if (e.Key == Key.Escape)
-            {
-                this.Exit();
-            }
-
             if (e.Key == Key.F11)
-                WindowState = WindowState == WindowState.Fullscreen ? WindowState.Normal : WindowState.Fullscreen;
+            {
+                _gameSettings["WindowState"] = WindowState = WindowState == WindowState.Fullscreen ? WindowState.Normal : WindowState.Fullscreen;
+            }
         }
 
         #endregion
@@ -105,17 +86,19 @@ namespace BeatDetection
         /// <param name="e">Not used.</param>
         protected override void OnLoad(EventArgs e)
         {
-            //Load correction value
-            correction = Properties.Settings.Default.AudioCorrection;
-            //generate settings file if not already existing
-            Properties.Settings.Default.AudioCorrection = 10;
-            Properties.Settings.Default.AudioCorrection = correction;
+            var directoryHandler = new DirectoryHandler();
+            directoryHandler.AddPath("Resources", @"..\..\Resources");
+            directoryHandler.AddPath("Fonts", Path.Combine(directoryHandler["Resources"].FullName, @"Fonts"));
+            directoryHandler.AddPath("Shaders", Path.Combine(directoryHandler["Resources"].FullName, @"Shaders"));
+            directoryHandler.AddPath("Images", Path.Combine(directoryHandler["Resources"].FullName, @"Images"));
+
+            fontPath = Path.Combine(directoryHandler["Fonts"].FullName, "./Chamgagne Limousines/Champagne & Limousines Italic.ttf");
 
             var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
             var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Italic);
-            _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath);
-            _gameSceneManager.AddScene(new MenuScene(sonicAnnotator, pluginPath, correction));
+            _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath, directoryHandler, _gameSettings);
+            _gameSceneManager.AddScene(new MenuScene(sonicAnnotator, pluginPath), null);
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
             Keyboard.KeyUp += (o, args) => InputSystem.KeyUp(args);
@@ -141,11 +124,6 @@ namespace BeatDetection
         protected override void OnResize(EventArgs e)
         {
             GL.Viewport(0, 0, Width, Height);
-
-
-            //GL.MatrixMode(MatrixMode.Projection);
-            //var mat = Matrix4.CreateOrthographic(Width, Height, 0.0f, 4.0f);
-            //GL.LoadMatrix(ref mat);
 
             _gameSceneManager.Resize(e);
         }
@@ -206,7 +184,7 @@ namespace BeatDetection
         protected override void OnUnload(EventArgs e)
         {
             _gameSceneManager.Dispose();
-            Properties.Settings.Default.Save();
+            _gameSettings.Save();
             base.OnUnload(e);
         }
 
@@ -220,10 +198,17 @@ namespace BeatDetection
         [STAThread]
         public static void Main()
         {
-            using (GameController game = new GameController())
+            IGameSettings gameSettings = new PropertySettings();
+            gameSettings.Load();
+
+            int rX = (int) gameSettings["ResolutionX"];
+            int rY = (int) gameSettings["ResolutionY"];
+            int FSAASamples = (int) gameSettings["AntiAliasingSamples"];
+            GraphicsMode graphicsMode = new GraphicsMode(32, 24, 8, FSAASamples);
+
+            using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode))
             {
-                // Get the title and category  of this example using reflection.
-                game.Title = "turnt-ninja";
+                game.Title = "Codename: turnt-ninja";
                 game.Run();
             }
         }
