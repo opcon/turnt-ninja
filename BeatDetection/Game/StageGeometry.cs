@@ -20,6 +20,7 @@ namespace BeatDetection.Game
         private BeatCollection _beats;
         private SegmentInformation[] _segments;
         private Color4[] _segmentColours;
+        private HUSLColor _baseColour;
         public Stage ParentStage;
 
         private Random _random;
@@ -40,6 +41,7 @@ namespace BeatDetection.Game
         public float MinBeatFrequency;
 
         private double _elapsedTime = 0;
+        private int frameCount = 0;
 
         public int BeatCount {get { return _beats.Count; }}
 
@@ -67,10 +69,14 @@ namespace BeatDetection.Game
             BeatFrequencies = beatFrequencies;
             MaxBeatFrequency = BeatFrequencies.Max();
             MinBeatFrequency = BeatFrequencies.Min();
+            _baseColour = HUSLColor.FromColor4(_segmentColours[0]);
         }
 
         public void Update(double time)
         {
+            frameCount++;
+            if (frameCount > 10) frameCount = 0;
+
             _elapsedTime += time;
             _rotationMultiplier = 0.5*_direction*Math.Min(((!OutOfBeats ? BeatFrequencies[_beats.Index] : MaxBeatFrequency)/MaxBeatFrequency)*2, 1);
             var rotate = time * RotationSpeed * _rotationMultiplier + _extraRotation * _rotationMultiplier;
@@ -127,6 +133,8 @@ namespace BeatDetection.Game
             BackgroundPolygon.Update(time, false);
 
             UpdateSegments();
+            if (frameCount == 10)
+                UpdateColours(time);
 
         }
 
@@ -211,13 +219,14 @@ namespace BeatDetection.Game
                 _segmentIndex++;
                 _colourIndex = _segments[_segmentIndex].ID - 1;
 
-                UpdateColours();
+                UpdateColours(0);
             }   
         }
 
-        public void UpdateColours()
+        public void UpdateColours(double time)
         {
-            var evenBackground = new HUSLColor(_segmentColours[_colourIndex]);
+            _baseColour.H += time*10f*(!OutOfBeats ? BeatFrequencies[_beats.Index] : 1);
+            var evenBackground = _baseColour;
 
             //find odd background
             var oddBackground = evenBackground;
@@ -247,7 +256,7 @@ namespace BeatDetection.Game
             var fEven = evenBackground;
             var fOdd = oddBackground;
             fEven.H = MathUtilities.Normalise(fEven.H + 180, 0, 360);
-            fEven.S = 50;
+            fEven.S += 10;
             fOdd.H = MathUtilities.Normalise(fOdd.H + 180, 0, 360);
             fOdd.S += 20;
 
