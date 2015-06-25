@@ -225,7 +225,7 @@ namespace BeatDetection.Game
 
         public void UpdateColours(double time)
         {
-            _baseColour.H += time*10f*(!OutOfBeats ? BeatFrequencies[_beats.Index] : 1);
+            _baseColour.H += time*50f*(!OutOfBeats ? BeatFrequencies[_beats.Index] : 1);
             var evenBackground = _baseColour;
 
             //find odd background
