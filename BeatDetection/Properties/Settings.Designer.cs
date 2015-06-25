@@ -106,5 +106,29 @@ namespace BeatDetection.Properties {
                 this["WindowState"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("../../External Programs/sonic-annotator-1.0-win32/sonic-annotator.exe")]
+        public string SonicAnnotatorPath {
+            get {
+                return ((string)(this["SonicAnnotatorPath"]));
+            }
+            set {
+                this["SonicAnnotatorPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("../../External Programs/Vamp Plugins")]
+        public string PluginPath {
+            get {
+                return ((string)(this["PluginPath"]));
+            }
+            set {
+                this["PluginPath"] = value;
+            }
+        }
     }
 }
