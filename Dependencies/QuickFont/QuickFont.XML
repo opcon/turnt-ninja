@@ -150,7 +150,17 @@
             Measured size.
             </returns>
         </member>
-        <member name="M:QuickFont.QFontDrawingPimitive.RenderGlyph(System.Single,System.Single,System.Char,QuickFont.QFont,System.Collections.Generic.IList{QuickFont.QVertex},System.Drawing.Rectangle)">
+        <member name="P:QuickFont.QFont.MaxLineHeight">
+            <summary>
+            The maximum line height for the glyph set, unscaled
+            </summary>
+        </member>
+        <member name="P:QuickFont.QFont.MaxGlyphHeight">
+            <summary>
+            The maximum glyph height for the glyph set, unscaled
+            </summary>
+        </member>
+        <member name="M:QuickFont.QFontDrawingPrimitive.RenderGlyph(System.Single,System.Single,System.Char,QuickFont.QFont,System.Collections.Generic.IList{QuickFont.QVertex},System.Drawing.Rectangle)">
             <summary>
             Renders the glyph at the position given.
             </summary>
@@ -158,7 +168,7 @@
             <param name="y">The y.</param>
             <param name="c">The character to print.</param>
         </member>
-        <member name="M:QuickFont.QFontDrawingPimitive.Measure(System.String,System.Drawing.SizeF,QuickFont.QFontAlignment)">
+        <member name="M:QuickFont.QFontDrawingPrimitive.Measure(System.String,System.Drawing.SizeF,QuickFont.QFontAlignment)">
             <summary>
                 Measures the actual width and height of the block of text.
             </summary>
@@ -167,14 +177,14 @@
             <param name="alignment"></param>
             <returns></returns>
         </member>
-        <member name="M:QuickFont.QFontDrawingPimitive.Measure(QuickFont.ProcessedText)">
+        <member name="M:QuickFont.QFontDrawingPrimitive.Measure(QuickFont.ProcessedText)">
             <summary>
                 Measures the actual width and height of the block of text
             </summary>
             <param name="processedText"></param>
             <returns></returns>
         </member>
-        <member name="M:QuickFont.QFontDrawingPimitive.TextNodeLineLength(QuickFont.TextNode,System.Single)">
+        <member name="M:QuickFont.QFontDrawingPrimitive.TextNodeLineLength(QuickFont.TextNode,System.Single)">
             <summary>
                 Computes the length of the next line, and whether the line is valid for
                 justification.
@@ -184,13 +194,13 @@
             <param name="justifable"></param>
             <returns></returns>
         </member>
-        <member name="M:QuickFont.QFontDrawingPimitive.JustifyLine(QuickFont.TextNode,System.Single)">
+        <member name="M:QuickFont.QFontDrawingPrimitive.JustifyLine(QuickFont.TextNode,System.Single)">
             <summary>
                 Computes the length of the next line, and whether the line is valid for
                 justification.
             </summary>
         </member>
-        <member name="M:QuickFont.QFontDrawingPimitive.SkipTrailingSpace(QuickFont.TextNode,System.Single,System.Single)">
+        <member name="M:QuickFont.QFontDrawingPrimitive.SkipTrailingSpace(QuickFont.TextNode,System.Single,System.Single)">
             <summary>
                 Checks whether to skip trailing space on line because the next word does not
                 fit.
@@ -202,7 +212,7 @@
             <param name="boundWidth"></param>
             <returns></returns>
         </member>
-        <member name="M:QuickFont.QFontDrawingPimitive.ProcessText(QuickFont.QFont,QuickFont.QFontRenderOptions,System.String,System.Drawing.SizeF,QuickFont.QFontAlignment)">
+        <member name="M:QuickFont.QFontDrawingPrimitive.ProcessText(QuickFont.QFont,QuickFont.QFontRenderOptions,System.String,System.Drawing.SizeF,QuickFont.QFontAlignment)">
             <summary>
                 Creates node list object associated with the text.
             </summary>
@@ -538,6 +548,11 @@
         <member name="F:QuickFont.QFontData.maxGlyphHeight">
             <summary>
             The maximum glyph height
+            </summary>
+        </member>
+        <member name="F:QuickFont.QFontData.maxLineHeight">
+            <summary>
+            The maximum line height
             </summary>
         </member>
         <member name="F:QuickFont.QFontData.dropShadowFont">

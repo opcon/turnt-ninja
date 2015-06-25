@@ -5870,9 +5870,14 @@
             <param name="callback">Callback that is executed after the dialog completes.</param>
             <returns>True if succeeded.</returns>
         </member>
-        <member name="T:Gwen.Skin.Simple">
+        <member name="T:Gwen.Skin.SkinColors">
             <summary>
-            Simple skin (non-textured). Deprecated and incomplete, do not use.
+            UI colors used by skins.
+            </summary>
+        </member>
+        <member name="T:Gwen.Skin.TexturedBase">
+            <summary>
+            Base textured skin.
             </summary>
         </member>
         <member name="T:Gwen.Skin.Base">
@@ -5917,16 +5922,6 @@
         <member name="P:Gwen.Skin.Base.Renderer">
             <summary>
             Renderer used.
-            </summary>
-        </member>
-        <member name="T:Gwen.Skin.SkinColors">
-            <summary>
-            UI colors used by skins.
-            </summary>
-        </member>
-        <member name="T:Gwen.Skin.TexturedBase">
-            <summary>
-            Base textured skin.
             </summary>
         </member>
         <member name="M:Gwen.Skin.TexturedBase.#ctor(Gwen.Renderer.Base,System.String)">
@@ -6147,14 +6142,12 @@
             </summary>
             <param name="font">Font to free.</param>
         </member>
-        <member name="M:Gwen.Renderer.Base.InvalidateCachedText(Gwen.Font,System.Drawing.Point,System.String)">
+        <member name="M:Gwen.Renderer.Base.InvalidateCachedText(Gwen.PrintedTextKey)">
             <summary>
             Invalidates the cached value for the specified text.
             Only used if the renderer uses a string caching mechanism
             </summary>
-            <param name="font">Font to use.</param>
-            <param name="position">Top-left corner of the text.</param>
-            <param name="text">Text to render.</param>
+            <param name="key">The key to use for the cache dictionary</param>
         </member>
         <member name="M:Gwen.Renderer.Base.InvalidateCachedText(System.String)">
             <summary>
@@ -6162,6 +6155,14 @@
             Only used if the renderer uses a string caching mechanism
             </summary>
             <param name="text">Text to render.</param>
+        </member>
+        <member name="M:Gwen.Renderer.Base.InvalidateCachedText(System.String,System.Drawing.Color)">
+            <summary>
+            Invalidates the cached value for the specified text.
+            Only used if the renderer uses a string caching mechanism 
+            </summary>
+            <param name="text">Text</param>
+            <param name="color">Color of text</param>
         </member>
         <member name="M:Gwen.Renderer.Base.MeasureText(Gwen.Font,System.String)">
             <summary>
@@ -6171,7 +6172,7 @@
             <param name="text">Text to measure.</param>
             <returns>Width and height of the rendered text.</returns>
         </member>
-        <member name="M:Gwen.Renderer.Base.RenderText(Gwen.Font,System.Drawing.Point,System.String)">
+        <member name="M:Gwen.Renderer.Base.RenderText(Gwen.Font,System.Drawing.Point,Gwen.TextContainer)">
             <summary>
             Renders text using specified font.
             </summary>
