@@ -196,7 +196,7 @@ namespace BeatDetection.Game
         {
             StageGeometry.Draw(time);
 
-            MultiplierFontDrawing.DrawingPimitiveses.Clear();
+            MultiplierFontDrawing.DrawingPrimitives.Clear();
             MultiplierFontDrawing.Print(MultiplierFont, _centerText, new Vector3(0, MultiplierFont.Measure("0", QFontAlignment.Centre).Height * 0.5f, 0),
                 QFontAlignment.Centre);
             MultiplierFontDrawing.RefreshBuffers();

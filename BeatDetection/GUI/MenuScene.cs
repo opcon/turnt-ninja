@@ -103,7 +103,7 @@ namespace BeatDetection.GUI
 
             if (_selectedItemChanged)
             {
-                _menuFontDrawing.DrawingPimitiveses.Clear();
+                _menuFontDrawing.DrawingPrimitives.Clear();
                 _menuFontDrawing.Print(_menuFont, _selectedMenuItemText, new Vector3(0, -SceneManager.Height*0.5f + 80, 0), QFontAlignment.Centre, Color.White);
                 _selectedItemChanged = false;
             }

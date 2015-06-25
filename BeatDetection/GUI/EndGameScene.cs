@@ -47,7 +47,7 @@ namespace BeatDetection.GUI
         private void UpdateText()
         {
             _fontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
-            _fontDrawing.DrawingPimitiveses.Clear();
+            _fontDrawing.DrawingPrimitives.Clear();
             _endGameTextSize = _font.Measure(_endGameText);
             _fontDrawing.Print(_font, _endGameText, new Vector3(0, +_endGameTextSize.Height*0.5f, 0), QFontAlignment.Centre, Color.White);
             _fontDrawing.RefreshBuffers();
