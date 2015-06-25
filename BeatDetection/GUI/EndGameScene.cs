@@ -55,7 +55,7 @@ namespace BeatDetection.GUI
 
         public override void Update(double time, bool focused = false)
         {
-            if (InputSystem.NewKeys.Contains(Key.Enter) || InputSystem.NewKeys.Contains(Key.Escape))
+            if (InputSystem.NewKeys.Contains(Key.Enter) || InputSystem.NewKeys.Contains(Key.Escape) || InputSystem.NewKeys.Contains(Key.Space))
                 SceneManager.RemoveScene(this);
         }
 
