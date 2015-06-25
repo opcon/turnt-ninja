@@ -214,6 +214,8 @@ namespace BeatDetection.Game
         {
             _stageAudio.FadeOut(1000, 0, 0.01f, 2);
             StageGeometry.CenterPolygon.Position.Azimuth = 0;
+            //reset hit hexagons
+            StageGeometry.Player.Hits = 0;
         }
     }
 }
