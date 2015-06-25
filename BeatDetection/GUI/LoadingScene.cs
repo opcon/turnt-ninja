@@ -17,6 +17,7 @@ using Substructio.Core.Math;
 using Substructio.Graphics.OpenGL;
 using Substructio.GUI;
 using OpenTK.Graphics.OpenGL4;
+using Substructio.Core;
 
 namespace BeatDetection.GUI
 {
@@ -42,9 +43,11 @@ namespace BeatDetection.GUI
         private bool usePlaylist = false;
         private List<string> _files = new List<string>();
 
+        private string _songPath;
+
         private string _loadingStatus = "";
 
-        public LoadingScene(string sonicAnnotatorPath, string pluginPath, float audioCorrection, float maxAudioVolume, PolarPolygon centerPolygon, Player player, ShaderProgram shaderProgram)
+        public LoadingScene(string sonicAnnotatorPath, string pluginPath, float audioCorrection, float maxAudioVolume, PolarPolygon centerPolygon, Player player, ShaderProgram shaderProgram, string songPath = "")
         {
             Exclusive = true;
             _sonicAnnotatorPath = sonicAnnotatorPath;
@@ -54,6 +57,8 @@ namespace BeatDetection.GUI
             _centerPolygon = centerPolygon;
             _player = player;
             _shaderProgram = shaderProgram;
+
+            _songPath = songPath;
         }
 
         public override void Load()
@@ -64,36 +69,44 @@ namespace BeatDetection.GUI
             _stage.ShaderProgram = _shaderProgram;
 
             string file = "";
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Multiselect = false;
-            ofd.Filter = "Audio Files (*.mp3, *.flac, *.wav, *.m3u, *.m3u8)|*.mp3;*.flac;*.wav;*.m3u;*.m3u8|All Files (*.*)|*.*";
-            if (ofd.ShowDialog() == DialogResult.OK)
+
+            if (string.IsNullOrEmpty(_songPath))
             {
-                file = ofd.FileName;
-                file = file.Replace(@"\", "/");
-            }
-            else
-            {
-                SceneManager.RemoveScene(this);
-                return;
-            }
+
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.Multiselect = false;
+                ofd.Filter = "Audio Files (*.mp3, *.flac, *.wav, *.m3u, *.m3u8)|*.mp3;*.flac;*.wav;*.m3u;*.m3u8|All Files (*.*)|*.*";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    file = ofd.FileName;
+                    file = file.Replace(@"\", "/");
+                }
+                else
+                {
+                    SceneManager.RemoveScene(this);
+                    return;
+                }
 
 
-            if (Path.GetExtension(file) == ".m3u" || Path.GetExtension(file) == ".m3u8")
-            {
-                usePlaylist = true;
-                _files = PlaylistHelper.LoadPlaylist(file);
+                if (Path.GetExtension(file) == ".m3u" || Path.GetExtension(file) == ".m3u8")
+                {
+                    usePlaylist = true;
+                    _files = PlaylistHelper.LoadPlaylist(file);
+                }
             }
+            else file = _songPath;
+
+            file = file.Replace(@"\", "/");
 
             _loadingFontRenderOptions = new QFontRenderOptions();;
             _loadingFontRenderOptions.DropShadowActive = true;
             _loadingFont = new QFont(SceneManager.FontPath, 30, new QFontBuilderConfiguration(true), FontStyle.Italic);
             _loadingFontDrawing = new QFontDrawing();
             _loadingFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
-            _loadingText = QFontDrawingPimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, "Loading", new SizeF(200, -1), QFontAlignment.Centre);
+            _loadingText = QFontDrawingPrimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, "Loading", new SizeF(200, -1), QFontAlignment.Centre);
             _loadingTextPosition = CalculateTextPosition(new Vector3((float)SceneManager.GameWindow.Width/ 2, SceneManager.GameWindow.Height/ 2, 0f), _loadingText);
 
-            _songText = QFontDrawingPimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, Path.GetFileNameWithoutExtension(file), new SizeF(SceneManager.GameWindow.Width - 40, -1), QFontAlignment.Centre);
+            _songText = QFontDrawingPrimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, Path.GetFileNameWithoutExtension(file), new SizeF(SceneManager.GameWindow.Width - 40, -1), QFontAlignment.Centre);
 
             var dOptions = new DifficultyOptions(600f, 0.2f, 0.4f, 1.5f);
 
@@ -113,7 +126,7 @@ namespace BeatDetection.GUI
 
         public override void Resize(EventArgs e)
         {
-            _loadingText = QFontDrawingPimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, "Loading", new SizeF(1000, -1), QFontAlignment.Centre);
+            _loadingText = QFontDrawingPrimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, "Loading", new SizeF(1000, -1), QFontAlignment.Centre);
             _loadingFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
             _loadingTextPosition = CalculateTextPosition(new Vector3(SceneManager.ScreenCamera.PreferredWidth / 2, SceneManager.ScreenCamera.PreferredHeight / 2, 0f), _loadingText);
         }
@@ -154,7 +167,7 @@ namespace BeatDetection.GUI
             //Cleanup the program
             _shaderProgram.UnBind();
 
-            _loadingFontDrawing.DrawingPimitiveses.Clear();
+            _loadingFontDrawing.DrawingPrimitives.Clear();
             float yOffset = 0;
             yOffset += _loadingFontDrawing.Print(_loadingFont, _loadingText, _loadingTextPosition).Height;
             yOffset = MathHelper.Clamp(yOffset + 200 - 50*SceneManager.ScreenCamera.Scale.Y, yOffset, SceneManager.GameWindow.Height*0.5f); 
