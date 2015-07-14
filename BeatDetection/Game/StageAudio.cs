@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NAudio.Wave;
+using CSCore;
+using CSCore.Codecs;
+using CSCore.SoundOut;
 using OpenTK;
 using Substructio.Core;
 using Wav2Flac;
+
 
 namespace BeatDetection.Game
 {
@@ -14,19 +18,21 @@ namespace BeatDetection.Game
     {
         public int AudioHashCode { get; private set; }
         private const int HashCount = 10000;
-        private WaveOut _waveOut;
-        private WaveStream _waveProvider;
+        //private WaveOut _waveOut;
+        //private WaveStream _waveProvider;
         private float _maxVolume;
 
         private CancellationTokenSource _tokenSource = new CancellationTokenSource();
+
+        private IAudio _audio;
 
         /// <summary>
         /// Volume is clamped between 0 and MaxVolume
         /// </summary>
         public float Volume
         {
-            get { return _waveOut.Volume; }
-            set { _waveOut.Volume = MathHelper.Clamp(value, 0, 1); }
+            get { return _audio.Volume; }
+            set { _audio.Volume = MathHelper.Clamp(value, 0, 1); }
         }
 
         /// <summary>
@@ -40,69 +46,75 @@ namespace BeatDetection.Game
 
         public bool IsStopped
         {
-            get { return _waveOut.PlaybackState == PlaybackState.Stopped; }
+            get { return _audio.PlaybackState == PlaybackState.Stopped; }
         }
 
         public void Load(string audioPath)
         {
             //assert that the audio path given is valid.
             Debug.Assert(!string.IsNullOrWhiteSpace(audioPath));
-            var hashBytes = new byte[HashCount];
-            _waveOut = new WaveOut();
+            //var hashBytes = new byte[HashCount];
+            //_waveOut = new WaveOut();
 
-            if (Path.GetExtension(audioPath).Equals(".flac", StringComparison.CurrentCultureIgnoreCase))
-            {
-                var str = new MemoryStream();
-                var output = new WavWriter(str);
-                var fr = new FlacReader(audioPath, output);
-                fr.Process();
-                str.Position = 0;
-                str.Read(hashBytes, 0, HashCount);
-                str.Position = 0;
+            //if (Path.GetExtension(audioPath).Equals(".flac", StringComparison.CurrentCultureIgnoreCase))
+            //{
+            //    var str = new MemoryStream();
+            //    var output = new WavWriter(str);
+            //    var fr = new FlacReader(audioPath, output);
+            //    fr.Process();
+            //    str.Position = 0;
+            //    str.Read(hashBytes, 0, HashCount);
+            //    str.Position = 0;
 
-                var fmt = new WaveFormat(fr.inputSampleRate, fr.inputBitDepth, fr.inputChannels);
-                _waveProvider = new RawSourceWaveStream(str, fmt);
-                _waveOut.Init(_waveProvider);
-            }
-            else
-            {
+            //    var fmt = new WaveFormat(fr.inputSampleRate, fr.inputBitDepth, fr.inputChannels);
+            //    _waveProvider = new RawSourceWaveStream(str, fmt);
+            //    _waveOut.Init(_waveProvider);
+            //}
+            //else
+            //{
 
-                var audioReader = new AudioFileReader(audioPath);
-                audioReader.Read(hashBytes, 0, HashCount);
-                audioReader.Position = 0;
-                _waveProvider = audioReader;
-                _waveOut.Init(_waveProvider);
-            }
+            //    var audioReader = new AudioFileReader(audioPath);
+            //    audioReader.Read(hashBytes, 0, HashCount);
+            //    audioReader.Position = 0;
+            //    _waveProvider = audioReader;
+            //    _waveOut.Init(_waveProvider);
+            //}
 
-            AudioHashCode = CRC16.Instance().ComputeChecksum(hashBytes);
+            //AudioHashCode = CRC16.Instance().ComputeChecksum(hashBytes);
+
+            _audio = new CSCoreAudio();
+            _audio.Init(audioPath);
+            AudioHashCode = CRC16.Instance().ComputeChecksum(_audio.GetHashBytes(HashCount));
         }
 
         public void Play()
         {
-            _waveOut.Play();
+            _audio.Play();
         }
 
         public void Pause()
         {
-            _waveOut.Pause();
+            _audio.Pause();
         }
 
         public void Stop()
         {
-            _waveOut.Stop();
-            _waveProvider.Position = 0;
+            _audio.Stop();
+            _audio.Seek(0);
+            //_waveProvider.Position = 0;
         }
 
         public void Resume()
         {
-            _waveOut.Resume();
+            _audio.Resume();
         }
 
         public void Seek(float percent)
         {
-            int newPos = (int) (percent*_waveProvider.Length);
-            newPos = newPos - newPos%_waveProvider.BlockAlign;
-            _waveProvider.Position = newPos;
+            _audio.Seek(percent);
+            //int newPos = (int) (percent*_waveProvider.Length);
+            //newPos = newPos - newPos%_waveProvider.BlockAlign;
+            //_waveProvider.Position = newPos;
         }
 
         /// <summary>
@@ -174,9 +186,119 @@ namespace BeatDetection.Game
 
         public void Dispose()
         {
-            _waveOut.Dispose();
-            //may error here if _waveOut disposes _waveProvider?
-            _waveProvider.Dispose();
+            //_waveOut.Dispose();
+            ////may error here if _waveOut disposes _waveProvider?
+            //_waveProvider.Dispose();
+            if (_audio != null) _audio.Dispose();
+        }
+    }
+
+
+    internal interface IAudio : IDisposable
+    {
+        PlaybackState PlaybackState { get; }
+        float Volume { get; set; }
+        void Init(string audioFilePath);
+        byte[] GetHashBytes(int hashByteCount);
+        void Play();
+        void Pause();
+        void Resume();
+        void Stop();
+        void Seek(float percent);
+    }
+
+    enum PlaybackState
+    {
+        Paused,
+        Playing,
+        Stopped
+    }
+
+    class CSCoreAudio : IAudio
+    {
+        private ISoundOut _soundOut;
+        private IWaveSource _soundSource;
+
+        public void Dispose()
+        {
+            if (_soundOut != null)
+            {
+                _soundOut.Stop();
+                _soundOut.Dispose();
+                _soundOut = null;
+            }
+            if (_soundSource != null)
+            {
+                _soundSource.Dispose();
+                _soundSource = null;
+            }
+        }
+
+        public PlaybackState PlaybackState
+        {
+            get
+            {
+                switch (_soundOut.PlaybackState)
+                {
+                    case CSCore.SoundOut.PlaybackState.Paused:
+                        return PlaybackState.Paused;
+                    case CSCore.SoundOut.PlaybackState.Playing:
+                        return PlaybackState.Playing;
+                    case CSCore.SoundOut.PlaybackState.Stopped:
+                        return PlaybackState.Stopped;
+                }
+                return PlaybackState.Stopped;
+            }
+        }
+
+        public float Volume { get { return _soundOut.Volume; } set { _soundOut.Volume = value; } }
+
+        public void Init(string audioFilePath)
+        {
+            _soundSource = CodecFactory.Instance.GetCodec(audioFilePath);
+            var wo = new WaveOut();
+            foreach (var sf in wo.Device.SupportedFormats)
+            {
+                if (sf == _soundSource.WaveFormat) throw new Exception();
+            }
+            _soundOut = wo;
+            _soundOut.Initialize(_soundSource);
+            _soundOut.Play();
+        }
+
+        public byte[] GetHashBytes(int hashByteCount)
+        {
+            var ret = new byte[hashByteCount];
+            _soundSource.Read(ret, 0, hashByteCount);
+            _soundSource.Position = 0;
+            return ret;
+        }
+
+
+        public void Play()
+        {
+            _soundOut.Play();
+        }
+
+        public void Resume()
+        {
+            _soundOut.Resume();
+        }
+
+        public void Stop()
+        {
+            _soundOut.Stop();
+            _soundSource.SetPosition(TimeSpan.Zero);
+        }
+
+        public void Seek(float percent)
+        {
+            _soundSource.SetPosition(TimeSpan.FromMilliseconds(percent * _soundSource.GetLength().Milliseconds));
+        }
+
+        public void Pause()
+        {
+            _soundOut.Pause();
         }
     }
 }
