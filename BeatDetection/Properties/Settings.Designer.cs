@@ -131,15 +131,21 @@ namespace BeatDetection.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(".mp3,.flac,.wav")]
+        [global::System.Configuration.DefaultSettingValueAttribute(".mp3,.flac,.wav,.m4a,.wma")]
         public string FileFilter {
             get {
                 return ((string)(this["FileFilter"]));
             }
-            set {
-                this["FileFilter"] = value;
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("turnt-ninja")]
+        public string TempFolderName {
+            get {
+                return ((string)(this["TempFolderName"]));
             }
         }
     }

@@ -28,6 +28,36 @@ namespace BeatDetection.Audio
             });
         }
 
+        public bool SongAnalysed(string audioPath)
+        {
+            string f1, f2;
+            return _annotatorWrapper.GetAnalysisFile(GetOnsetArguments(audioPath), out f1) && _annotatorWrapper.GetAnalysisFile(GetSegmentArguments(audioPath), out f2);
+        }
+
+        private SonicAnnotatorArguments GetOnsetArguments(string audioFilePath)
+        {
+            return new SonicAnnotatorArguments
+            {
+                AudioFilePath = audioFilePath,
+                Correction = _correction,
+                InitialOutputSuffix = "vamp_qm-vamp-plugins_qm-onsetdetector_onsets",
+                DesiredOutputSuffix = "onsets",
+                DescriptorPath = "../../Processed Songs/qmonset.xml"
+            }; 
+        }
+
+        private SonicAnnotatorArguments GetSegmentArguments(string audioFilePath)
+        {
+            return new SonicAnnotatorArguments
+            {
+                AudioFilePath = audioFilePath,
+                Correction = _correction,
+                InitialOutputSuffix = "vamp_qm-vamp-plugins_qm-segmenter_segmentation",
+                DesiredOutputSuffix = "segments",
+                DescriptorPath = "../../Processed Songs/qmsegments.xml"
+            };
+        }
+
         public void Extract(string audioFilePath)
         {
             _currentTask = "Extracting Offsets"; 
@@ -38,14 +68,8 @@ namespace BeatDetection.Audio
 
         private void ExtractOnsets(string audioFilePath)
         {
-            var args = new SonicAnnotatorArguments
-            {
-                AudioFilePath = audioFilePath,
-                Correction = _correction,
-                InitialOutputSuffix = "vamp_qm-vamp-plugins_qm-onsetdetector_onsets",
-                DesiredOutputSuffix = "onsets",
-                DescriptorPath = "../../Processed Songs/qmonset.xml"
-            };
+            var args = GetOnsetArguments(audioFilePath);
+
             string resultPath;
             bool success = _annotatorWrapper.Run(args, out resultPath, _innerProgressReporter);
 
@@ -64,14 +88,8 @@ namespace BeatDetection.Audio
 
         private void ExtractSegments(string audioFilePath)
         {
-            var args = new SonicAnnotatorArguments
-            {
-                AudioFilePath = audioFilePath,
-                Correction = _correction,
-                InitialOutputSuffix = "vamp_qm-vamp-plugins_qm-segmenter_segmentation",
-                DesiredOutputSuffix = "segments",
-                DescriptorPath = "../../Processed Songs/qmsegments.xml"
-            };
+            var args = GetSegmentArguments(audioFilePath);
+
             string resultPath;
             bool success = _annotatorWrapper.Run(args, out resultPath, _innerProgressReporter);
 

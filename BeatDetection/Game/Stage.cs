@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatDetection.Audio;
@@ -87,6 +88,7 @@ namespace BeatDetection.Game
         {
             progress.Report("Loading audio");
             _stageAudio.Load(audioPath);
+
             _stageAudio.MaxVolume = maxAudioVolume;
             _random = new Random(_stageAudio.AudioHashCode);
 
@@ -95,11 +97,9 @@ namespace BeatDetection.Game
             _stageAudio.Play();
             _stageAudio.FadeIn(1000, _stageAudio.MaxVolume*0.5f, 0.01f, 0);
 
-            progress.Report("Extracting audio features");
             LoadAudioFeatures(audioPath, sonicPath, pluginPath, audioCorrection, progress);
 
             progress.Report("Building stage geometry");
-
             //Apply difficulty options to builder options
             var bOptions = new GeometryBuilderOptions(ShaderProgram);
             bOptions.ApplyDifficulty(difficultyOptions);
@@ -114,7 +114,6 @@ namespace BeatDetection.Game
             StageGeometry.RotationSpeed = _difficultyOptions.RotationSpeed;
 
             progress.Report("Load complete");
-
             Thread.Sleep(1000);
 
             //cancellationTokenSource.Cancel();
@@ -127,7 +126,21 @@ namespace BeatDetection.Game
         private void LoadAudioFeatures(string audioPath, string sonicPath, string pluginPath, float correction, IProgress<string> progress)
         {
             _audioFeatures = new AudioFeatures(sonicPath, pluginPath, "../../Processed Songs/", correction + (float)_easeInTime, progress);
-            _audioFeatures.Extract(audioPath);
+
+            progress.Report("Decoding audio");
+
+            var fileToAnalyse = audioPath;
+            bool useTempFile = false;
+            if (!_audioFeatures.SongAnalysed(audioPath) && !audioPath.EndsWith(".wav", StringComparison.OrdinalIgnoreCase) && !audioPath.EndsWith(".flac", StringComparison.OrdinalIgnoreCase))
+            {
+                fileToAnalyse = _stageAudio.CreateTempWavFile(audioPath, (string)SceneManager.GameSettings["TempFolderName"]).Replace(@"\", "/"); ;
+                useTempFile = true;
+            }
+
+            progress.Report("Extracting audio features");
+            _audioFeatures.Extract(fileToAnalyse);
+
+            if (useTempFile && fileToAnalyse != audioPath) File.Delete(fileToAnalyse);
         }
 
         public void Update(double time)

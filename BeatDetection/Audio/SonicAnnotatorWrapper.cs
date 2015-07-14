@@ -22,14 +22,29 @@ namespace BeatDetection.Audio
         public bool Run(SonicAnnotatorArguments arguments, out string resultPath, IProgress<string> progress = null)
         {
             _progressReporter = progress ?? new Progress<string>();
+            arguments = SanitizeArguments(arguments);
+
+            return ExecuteSonicAnnotator(arguments, out resultPath);
+        }
+
+        private SonicAnnotatorArguments SanitizeArguments(SonicAnnotatorArguments arguments)
+        {
             if (string.IsNullOrWhiteSpace(arguments.SonicAnnotatorPath))
                 arguments.SonicAnnotatorPath = _baseArguments.SonicAnnotatorPath;
             if (string.IsNullOrWhiteSpace(arguments.PluginsPath))
                 arguments.PluginsPath = _baseArguments.PluginsPath;
             if (string.IsNullOrWhiteSpace(arguments.CSVDirectory))
                 arguments.CSVDirectory = _baseArguments.CSVDirectory;
+            return arguments;
+        }
 
-            return ExecuteSonicAnnotator(arguments, out resultPath);
+        public bool GetAnalysisFile(SonicAnnotatorArguments args, out string file )
+        {
+            args = SanitizeArguments(args);
+            var result = Path.Combine(args.CSVDirectory, String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(args.AudioFilePath), args.InitialOutputSuffix) + ".csv");
+            file = Path.Combine(Path.GetDirectoryName(result), String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(args.AudioFilePath), args.DesiredOutputSuffix + ".csv"));
+
+            return File.Exists(file);
         }
 
         private bool ExecuteSonicAnnotator(SonicAnnotatorArguments arguments, out string resultPath)

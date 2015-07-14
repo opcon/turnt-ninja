@@ -43,6 +43,8 @@ namespace BeatDetection.GUI
         public override void Load()
         {
             _fileFilter = ((string)SceneManager.GameSettings["FileFilter"]).Split(',');
+            var ext = CSCore.Codecs.CodecFactory.Instance.GetSupportedFileExtensions();
+            _fileFilter = ext;
 
             _guiComponents.Resize(SceneManager.ScreenCamera.ScreenProjectionMatrix, WindowWidth, WindowHeight);
             _canvas = new Canvas(_guiComponents.Skin);

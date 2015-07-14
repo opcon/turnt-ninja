@@ -53,34 +53,6 @@ namespace BeatDetection.Game
         {
             //assert that the audio path given is valid.
             Debug.Assert(!string.IsNullOrWhiteSpace(audioPath));
-            //var hashBytes = new byte[HashCount];
-            //_waveOut = new WaveOut();
-
-            //if (Path.GetExtension(audioPath).Equals(".flac", StringComparison.CurrentCultureIgnoreCase))
-            //{
-            //    var str = new MemoryStream();
-            //    var output = new WavWriter(str);
-            //    var fr = new FlacReader(audioPath, output);
-            //    fr.Process();
-            //    str.Position = 0;
-            //    str.Read(hashBytes, 0, HashCount);
-            //    str.Position = 0;
-
-            //    var fmt = new WaveFormat(fr.inputSampleRate, fr.inputBitDepth, fr.inputChannels);
-            //    _waveProvider = new RawSourceWaveStream(str, fmt);
-            //    _waveOut.Init(_waveProvider);
-            //}
-            //else
-            //{
-
-            //    var audioReader = new AudioFileReader(audioPath);
-            //    audioReader.Read(hashBytes, 0, HashCount);
-            //    audioReader.Position = 0;
-            //    _waveProvider = audioReader;
-            //    _waveOut.Init(_waveProvider);
-            //}
-
-            //AudioHashCode = CRC16.Instance().ComputeChecksum(hashBytes);
 
             _audio = new CSCoreAudio();
             _audio.Init(audioPath);
@@ -101,7 +73,6 @@ namespace BeatDetection.Game
         {
             _audio.Stop();
             _audio.Seek(0);
-            //_waveProvider.Position = 0;
         }
 
         public void Resume()
@@ -112,9 +83,18 @@ namespace BeatDetection.Game
         public void Seek(float percent)
         {
             _audio.Seek(percent);
-            //int newPos = (int) (percent*_waveProvider.Length);
-            //newPos = newPos - newPos%_waveProvider.BlockAlign;
-            //_waveProvider.Position = newPos;
+        }
+
+        public string CreateTempWavFile(string audioFilePath, string tempFolderName = "")
+        {
+            var newFile = Path.Combine(Path.GetTempPath() + tempFolderName, Path.GetFileNameWithoutExtension(audioFilePath)) + ".wav";
+            
+            //create directory if it doesn't exist
+            var dir = Path.GetDirectoryName(newFile);
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+            _audio.ConvertToWav(newFile);
+            return newFile;
         }
 
         /// <summary>
@@ -186,9 +166,6 @@ namespace BeatDetection.Game
 
         public void Dispose()
         {
-            //_waveOut.Dispose();
-            ////may error here if _waveOut disposes _waveProvider?
-            //_waveProvider.Dispose();
             if (_audio != null) _audio.Dispose();
         }
     }
@@ -205,6 +182,7 @@ namespace BeatDetection.Game
         void Resume();
         void Stop();
         void Seek(float percent);
+        void ConvertToWav(string wavFilePath);
     }
 
     enum PlaybackState
@@ -255,14 +233,15 @@ namespace BeatDetection.Game
 
         public void Init(string audioFilePath)
         {
-            _soundSource = CodecFactory.Instance.GetCodec(audioFilePath);
+            _soundSource = CodecFactory.Instance.GetCodec(audioFilePath).ToSampleSource().ToWaveSource();
             var wo = new WaveOut();
             foreach (var sf in wo.Device.SupportedFormats)
             {
                 if (sf == _soundSource.WaveFormat) throw new Exception();
             }
-            _soundOut = wo;
+            _soundOut = new WasapiOut();
             _soundOut.Initialize(_soundSource);
+            _soundOut.Stopped += (sender, args) => { var f = args; };
             _soundOut.Play();
         }
 
@@ -294,6 +273,11 @@ namespace BeatDetection.Game
         public void Seek(float percent)
         {
             _soundSource.SetPosition(TimeSpan.FromMilliseconds(percent * _soundSource.GetLength().Milliseconds));
+        }
+
+        public void ConvertToWav(string wavFilePath)
+        {
+            _soundSource.WriteToFile(wavFilePath);
         }
 
         public void Pause()
