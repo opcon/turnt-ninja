@@ -93,7 +93,7 @@ namespace BeatDetection.GUI
 
             float yOffset = -SceneManager.Height * 0.5f + 30f;
             float xOffset = -SceneManager.Width * 0.5f + 20;
-            xOffset += SceneManager.DrawTextLine(_stage.Overlap.ToString(), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width;;
+            xOffset += SceneManager.DrawTextLine(_stage.Overlap.ToString(), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
             xOffset += SceneManager.DrawTextLine(_stage.Hits.ToString(), new Vector3(xOffset, yOffset, 0), Color.Red, QFontAlignment.Left).Width + 20;
             xOffset += SceneManager.DrawTextLine(string.Format("{0}/{1}", _stage.CurrentPolygon, _stage.PolygonCount), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
             //xOffset +=

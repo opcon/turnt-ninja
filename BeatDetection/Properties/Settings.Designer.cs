@@ -130,5 +130,17 @@ namespace BeatDetection.Properties {
                 this["PluginPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(".mp3,.flac,.wav")]
+        public string FileFilter {
+            get {
+                return ((string)(this["FileFilter"]));
+            }
+            set {
+                this["FileFilter"] = value;
+            }
+        }
     }
 }

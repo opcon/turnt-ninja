@@ -9,7 +9,6 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
-using NAudio.Wave;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;

@@ -25,6 +25,10 @@ namespace BeatDetection.GUI
         private Canvas _canvas;
         private OpenTKAlternative _input;
 
+        private string[] _fileFilter;
+
+        private TreeControl tV;
+
         private int frameCount = 0;
 
         public ChooseSongScene(GUIComponentContainer guiComponents, PolarPolygon centerPolygon, Player player, ShaderProgram shaderProgram)
@@ -38,6 +42,8 @@ namespace BeatDetection.GUI
 
         public override void Load()
         {
+            _fileFilter = ((string)SceneManager.GameSettings["FileFilter"]).Split(',');
+
             _guiComponents.Resize(SceneManager.ScreenCamera.ScreenProjectionMatrix, WindowWidth, WindowHeight);
             _canvas = new Canvas(_guiComponents.Skin);
             _canvas.SetSize(WindowWidth, WindowHeight);
@@ -45,31 +51,51 @@ namespace BeatDetection.GUI
             InputSystem.AddGUIInput(_input);
 
 
-            var tV = new Gwen.Control.TreeControl(_canvas);
-            tV.ShouldDrawBackground = false;
+            tV = new TreeControl(_canvas){AutoUpdateBounds = true};
             tV.Selected += (sender, arguments) =>
             {
                 TreeNode n = sender as TreeNode;
                 string path = n.UserData as string;
-                if (Path.GetExtension(path) != ".mp3") return;
+                //var ext = Path.GetExtension(path);
+                if (!_fileFilter.Any(s => path.EndsWith(s, StringComparison.OrdinalIgnoreCase))) return;
                 SceneManager.RemoveScene(this);
                 SceneManager.AddScene(
-                    new LoadingScene((string) SceneManager.GameSettings["SonicAnnotatorPath"], (string) SceneManager.GameSettings["PluginPath"], (float) SceneManager.GameSettings["AudioCorrection"],
+                    new LoadingScene((string) SceneManager.GameSettings["SonicAnnotatorPath"], (string) SceneManager.GameSettings["PluginPath"],
+                        (float) SceneManager.GameSettings["AudioCorrection"],
                         (float) SceneManager.GameSettings["MaxAudioVolume"], _centerPolygon, _player, _shaderProgram, path), this);
             };
 
-            LoadFiles(tV, @"D:\Patrick\Music\My Music");
-            
+            tV.Expanded += (sender, arguments) =>
+            {
+                TreeNode n = sender as TreeNode;
+                string path = n.UserData as string;
+                //This is a directory, not a file
+                LoadFiles(n, path);
+                n.Invalidate();
+                n.InvalidateParent();
+                n.SizeToChildren(false, true);
+            };
 
-            //var n1 = tV.AddNode("test");
-            ////n1.SetSize(400, 300);
-            //n1.AddNode("Node1 Child 1");
-            //var n12 = n1.AddNode("Node1 Child 2");
-            //n12.AddNode("Node 1 Child 2 Child 1");
+            tV.Collapsed += (sender, arguments) =>
+            {
+                TreeNode n = sender as TreeNode;
+                foreach (var c in n.Children)
+                {
+                    tV.RemoveChild(c, true);
+                }
+            };
+
+            foreach (var driveInfo in DriveInfo.GetDrives().Where(d => d.IsReady))
+            {
+                var n = tV.AddNode(string.IsNullOrWhiteSpace(driveInfo.VolumeLabel) ? driveInfo.Name : string.Format("{1} ({0})", driveInfo.Name, driveInfo.VolumeLabel));
+                n.UserData = driveInfo.RootDirectory.FullName;
+                n.ForceShowToggle = true;
+            }
+
+            tV.AutoUpdateBounds = true;
+            tV.UpdateBounds();
+
             tV.Dock = Pos.Fill;
-
-            //tV.Invalidate();
-            //tV.ExpandAll();
 
             Loaded = true;
         }
@@ -77,20 +103,26 @@ namespace BeatDetection.GUI
         private void LoadFiles(TreeNode parentNode, string directory)
         {
             var directories = Directory.EnumerateDirectories(directory);
-            foreach (var dir in directories)
+            foreach (var dir in directories.Where(Directory.Exists))
             {
-                var allFiles = Directory.EnumerateFiles(dir, "*.mp3", SearchOption.AllDirectories);
-                if (!allFiles.Any()) continue;
-                var dNode = parentNode.AddNode(Path.GetFileName(dir));
-                dNode.UserData = dir;
-                var files = Directory.EnumerateFiles(dir, "*.mp3");
-                foreach (var file in files)
+                TreeNode dNode = null;
+                try
                 {
-                    var fNode = dNode.AddNode(Path.GetFileName(file));
-                    fNode.UserData = file;
+                    if (new DirectoryInfo(dir).Attributes.HasFlag(FileAttributes.Hidden)) continue;
+                    dNode = parentNode.AddNode(Path.GetFileName(dir));
+                    dNode.ForceShowToggle = true;
+                    dNode.UserData = dir;
+                    var files = Directory.EnumerateFiles(dir);
+                    foreach (var file in files.Where(p => _fileFilter.Any(f => p.EndsWith(f, StringComparison.OrdinalIgnoreCase))))
+                    {
+                        var fNode = dNode.AddNode(Path.GetFileNameWithoutExtension(file));
+                        fNode.UserData = file;
+                    }
                 }
-
-                LoadFiles(dNode, dir);
+                catch (UnauthorizedAccessException)
+                {
+                    if (dNode != null) dNode.TreeControl.RemoveChild(dNode, true);
+                }
             }
         }
 
@@ -110,7 +142,10 @@ namespace BeatDetection.GUI
             if (frameCount > 60) frameCount = 0;
             if (InputSystem.NewKeys.Contains(Key.Escape)) SceneManager.RemoveScene(this);
 
+            _guiComponents.Renderer.Update(time);
+
             if (frameCount == 60) _guiComponents.Renderer.FlushTextCache();
+
         }
 
         public override void Draw(double time)
