@@ -1,18 +1,16 @@
 ﻿
 using System;
+using System.Diagnostics;
 using System.Drawing;
-using System.Threading;
-using BeatDetection.Core;
+using System.IO;
+using System.Reflection;
+using BeatDetection.Core.Settings;
 using BeatDetection.Game;
 using BeatDetection.GUI;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using BeatDetection.Core.Settings;
 using QuickFont;
 using Substructio.Core;
 using Substructio.Core.Settings;
@@ -70,7 +68,7 @@ namespace BeatDetection
 
         #endregion
 
-        protected override void OnKeyPress(OpenTK.KeyPressEventArgs e)
+        protected override void OnKeyPress(KeyPressEventArgs e)
         {
             if (Focused)
                 InputSystem.KeyPressed(e);
@@ -195,14 +193,14 @@ namespace BeatDetection
         /// Entry point of this example.
         /// </summary>
         [STAThread]
-        public static void Main()
+        public static void Main(string[] args)
         {
             IGameSettings gameSettings = new PropertySettings();
             gameSettings.Load();
 
-            int rX = (int) gameSettings["ResolutionX"];
-            int rY = (int) gameSettings["ResolutionY"];
-            int FSAASamples = (int) gameSettings["AntiAliasingSamples"];
+            int rX = (int)gameSettings["ResolutionX"];
+            int rY = (int)gameSettings["ResolutionY"];
+            int FSAASamples = (int)gameSettings["AntiAliasingSamples"];
             GraphicsMode graphicsMode = new GraphicsMode(32, 24, 8, FSAASamples);
 
             using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode))

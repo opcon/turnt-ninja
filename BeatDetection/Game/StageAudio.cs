@@ -6,10 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using CSCore;
 using CSCore.Codecs;
+using CSCore.CoreAudioAPI;
 using CSCore.SoundOut;
+using CSCore.Streams;
 using OpenTK;
 using Substructio.Core;
-using Wav2Flac;
 
 
 namespace BeatDetection.Game
@@ -233,16 +234,10 @@ namespace BeatDetection.Game
 
         public void Init(string audioFilePath)
         {
-            _soundSource = CodecFactory.Instance.GetCodec(audioFilePath).ToSampleSource().ToWaveSource();
-            var wo = new WaveOut();
-            foreach (var sf in wo.Device.SupportedFormats)
-            {
-                if (sf == _soundSource.WaveFormat) throw new Exception();
-            }
-            _soundOut = new WasapiOut();
+            _soundOut = new WaveOut();
+            _soundSource = CodecFactory.Instance.GetCodec(audioFilePath);
             _soundOut.Initialize(_soundSource);
-            _soundOut.Stopped += (sender, args) => { var f = args; };
-            _soundOut.Play();
+            _soundOut.Stopped += (sender, args) => { if (args.HasError) throw args.Exception; };
         }
 
         public byte[] GetHashBytes(int hashByteCount)
