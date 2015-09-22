@@ -12,6 +12,7 @@ using QuickFont;
 using Substructio.Core;
 using Substructio.Graphics.OpenGL;
 using Substructio.GUI;
+using OnsetDetection;
 
 namespace BeatDetection.Game
 {
@@ -125,7 +126,9 @@ namespace BeatDetection.Game
 
         private void LoadAudioFeatures(string audioPath, string sonicPath, string pluginPath, float correction, IProgress<string> progress)
         {
-            _audioFeatures = new AudioFeatures(sonicPath, pluginPath, "../../Processed Songs/", correction + (float)_easeInTime, progress);
+            var options = DetectorOptions.Default;
+            options.ActivationThreshold = 8.0f;
+            _audioFeatures = new AudioFeatures(options, "../../Processed Songs/", correction + (float)_easeInTime, progress);
 
             progress.Report("Decoding audio");
 

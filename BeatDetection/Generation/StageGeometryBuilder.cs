@@ -22,11 +22,8 @@ namespace BeatDetection.Generation
 
         private BeatCollection _beats;
         private float[] _beatFrequencies;
-        private Color4[] _segmentColours;
-        private SegmentInformation[] _segments;
+        private Color4 _segmentStartColour;
         private Random _random;
-
-        private int _maxID;
 
         public StageGeometry Build(AudioFeatures audioFeatures, Random random, GeometryBuilderOptions builderOptions)
         {
@@ -37,13 +34,12 @@ namespace BeatDetection.Generation
 
             BuildGeometry();
             BuildBeatFrequencyList();
-            ProcessSegments();
-            BuildSegmentColours();
+            SetStartColour();
 
             var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 50000, -20, 0);
             backgroundPolygon.ShaderProgram = _builderOptions.GeometryShaderProgram;
 
-            return new StageGeometry(_beats, _segments, _segmentColours, _random, _beatFrequencies) {BackgroundPolygon = backgroundPolygon};
+            return new StageGeometry(_beats, _segmentStartColour, _random, _beatFrequencies) {BackgroundPolygon = backgroundPolygon};
         }
 
         private void BuildBeatFrequencyList()
@@ -166,43 +162,22 @@ namespace BeatDetection.Generation
             _beats.Initialise();
         }
 
-        private void ProcessSegments()
+        private void SetStartColour()
         {
-            //order audio segments by increasing start time.
-            _segments = _audioFeatures.Segments.OrderBy(x => x.StartTime).ToArray();
-            //find max id number from segments
-            _maxID = _audioFeatures.Segments.Max(x => x.ID);
-        }
-
-        private void BuildSegmentColours()
-        {
-            _segmentColours = new Color4[_maxID];
-
             //initialise algorithim values
-            double maxStep = (double)360 / (_maxID + 1);
+            double maxStep = (double)360 / (20);
             double minStep = _builderOptions.MinimumColourStepMultiplier * maxStep;
             double startAngle = _random.NextDouble() * 360;
             double prevAngle = startAngle - maxStep;
 
-            //generate all the colour values
-            for (int i = 0; i < _maxID; i++)
-            {
-                var step = _random.NextDouble() * (maxStep - minStep) + minStep;
-                double angle = prevAngle;
-                //avoid certain colours
-//                do
-//                {
-                    angle = MathUtilities.Normalise(step + angle, 0, 360);
-//                } while ((angle > 250 && angle < 330) || (angle > 65 && angle < 150));
-                var rgb = HUSL.ColorConverter.HUSLToRGB(new List<double>{angle, _builderOptions.Saturation, _builderOptions.Lightness});
+            var step = _random.NextDouble() * (maxStep - minStep) + minStep;
+            double angle = prevAngle;
+            angle = MathUtilities.Normalise(step + angle, 0, 360);
+            var rgb = HUSL.ColorConverter.HUSLToRGB(new List<double>{angle, _builderOptions.Saturation, _builderOptions.Lightness});
 
-//                var col = new Hsl { H = angle, L = _builderOptions.Lightness, S = _builderOptions.Saturation};
-//                var rgb1 = col.ToRgb();
+            prevAngle = angle;
 
-                prevAngle = angle;
-
-                _segmentColours[i] = new Color4((byte)((rgb[0])*255), (byte)((rgb[1])*255), (byte)((rgb[2])*255), 255);
-            }
+            _segmentStartColour = new Color4((byte)((rgb[0])*255), (byte)((rgb[1])*255), (byte)((rgb[2])*255), 255);
         }
     }
 
