@@ -13,6 +13,8 @@ using Substructio.Core;
 using Substructio.Graphics.OpenGL;
 using Substructio.GUI;
 using Key = OpenTK.Input.Key;
+using OpenTK;
+using OpenTK.Graphics;
 
 namespace BeatDetection.GUI
 {
@@ -30,6 +32,9 @@ namespace BeatDetection.GUI
         private TreeControl tV;
 
         private int frameCount = 0;
+
+        List<string> _files;
+        int _index = 0;
 
         public ChooseSongScene(GUIComponentContainer guiComponents, PolarPolygon centerPolygon, Player player, ShaderProgram shaderProgram)
         {
@@ -99,6 +104,10 @@ namespace BeatDetection.GUI
 
             tV.Dock = Pos.Fill;
 
+            //tV.Hide();
+
+            _files = Directory.EnumerateDirectories(@"D:\Patrick\Music\My Music\").ToList();
+
             Loaded = true;
         }
 
@@ -148,11 +157,23 @@ namespace BeatDetection.GUI
 
             if (frameCount == 60) _guiComponents.Renderer.FlushTextCache();
 
+            if (InputSystem.CurrentKeys.Contains(Key.Up))
+                _index--;
+            if (InputSystem.CurrentKeys.Contains(Key.Down))
+                _index++;
+            if (_index > _files.Count || _index < 0) _index = 0;
         }
 
         public override void Draw(double time)
         {
             _canvas.RenderCanvas();
+            //float ypos = 30 * 8;
+            //for (int i = _index - 8; i < _index + 8; i++)
+            //{
+            //   if(i >= 0 && i < _files.Count && i != _index) SceneManager.DrawTextLine(_files[i], new Vector3(0, ypos, 0), Color4.Black, QuickFont.QFontAlignment.Centre);
+            //    ypos -= 30;
+            //}
+            //SceneManager.DrawTextLine(_files[_index], new Vector3(0, 0, 0), Color4.White, QuickFont.QFontAlignment.Centre);
         }
 
         public override void Dispose()
