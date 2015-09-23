@@ -33,7 +33,8 @@ namespace BeatDetection.GUI
 
         private int frameCount = 0;
 
-        List<string> _files;
+        List<FileBrowserEntry> _fileBrowserEntries;
+        List<FileBrowserEntry> _drives;
         int _index = 0;
 
         public ChooseSongScene(GUIComponentContainer guiComponents, PolarPolygon centerPolygon, Player player, ShaderProgram shaderProgram)
@@ -47,6 +48,12 @@ namespace BeatDetection.GUI
 
         public override void Load()
         {
+
+            InputSystem.RepeatingKeys.Add(Key.Down, KeyRepeatSettings.Default);
+            InputSystem.RepeatingKeys.Add(Key.Up, KeyRepeatSettings.Default);
+            InputSystem.RepeatingKeys.Add(Key.Left, KeyRepeatSettings.Default);
+            InputSystem.RepeatingKeys.Add(Key.Right, KeyRepeatSettings.Default);
+
             _fileFilter = ((string)SceneManager.GameSettings["FileFilter"]).Split(',');
             var ext = CSCore.Codecs.CodecFactory.Instance.GetSupportedFileExtensions();
             _fileFilter = ext;
@@ -64,12 +71,7 @@ namespace BeatDetection.GUI
                 TreeNode n = sender as TreeNode;
                 string path = n.UserData as string;
                 //var ext = Path.GetExtension(path);
-                if (!_fileFilter.Any(s => path.EndsWith(s, StringComparison.OrdinalIgnoreCase))) return;
-                SceneManager.RemoveScene(this);
-                SceneManager.AddScene(
-                    new LoadingScene((string) SceneManager.GameSettings["SonicAnnotatorPath"], (string) SceneManager.GameSettings["PluginPath"],
-                        (float) SceneManager.GameSettings["AudioCorrection"],
-                        (float) SceneManager.GameSettings["MaxAudioVolume"], _centerPolygon, _player, _shaderProgram, path), this);
+                StartGame(path);
             };
 
             tV.Expanded += (sender, arguments) =>
@@ -104,11 +106,22 @@ namespace BeatDetection.GUI
 
             tV.Dock = Pos.Fill;
 
-            //tV.Hide();
+            tV.Hide();
 
-            _files = Directory.EnumerateDirectories(@"D:\Patrick\Music\My Music\").ToList();
+            SetUpFileBrowser();
+            EnterDirectory(@"D:\");
 
             Loaded = true;
+        }
+
+        private void StartGame(string path)
+        {
+            if (!_fileFilter.Any(s => path.EndsWith(s, StringComparison.OrdinalIgnoreCase))) return;
+            SceneManager.RemoveScene(this);
+            SceneManager.AddScene(
+                new LoadingScene((string)SceneManager.GameSettings["SonicAnnotatorPath"], (string)SceneManager.GameSettings["PluginPath"],
+                    (float)SceneManager.GameSettings["AudioCorrection"],
+                    (float)SceneManager.GameSettings["MaxAudioVolume"], _centerPolygon, _player, _shaderProgram, path), this);
         }
 
         private void LoadFiles(TreeNode parentNode, string directory)
@@ -137,6 +150,41 @@ namespace BeatDetection.GUI
             }
         }
 
+        private void SetUpFileBrowser()
+        {
+            _drives = new List<FileBrowserEntry>();
+            _fileBrowserEntries = new List<FileBrowserEntry>();
+            foreach (var driveInfo in DriveInfo.GetDrives().Where(d => d.IsReady))
+            {
+                _drives.Add(new FileBrowserEntry { Path = driveInfo.RootDirectory.FullName, EntryType = FileBrowserEntryType.Directory | FileBrowserEntryType.Drive | FileBrowserEntryType.Special,
+                    Name = string.IsNullOrWhiteSpace(driveInfo.VolumeLabel) ? driveInfo.Name : string.Format("{1} ({0})", driveInfo.Name, driveInfo.VolumeLabel) });
+            }
+        }
+
+        private void EnterDirectory(string directoryPath)
+        {
+            if (!Directory.Exists(directoryPath)) throw new Exception("Directory doesn't exist");
+            var directories = Directory.EnumerateDirectories(directoryPath).Where(d => !new DirectoryInfo(d).Attributes.HasFlag(FileAttributes.Hidden));
+            var files = Directory.EnumerateFiles(directoryPath).Where(p => _fileFilter.Any(f => p.EndsWith(f, StringComparison.OrdinalIgnoreCase)));
+
+            _fileBrowserEntries.Clear();
+            _fileBrowserEntries.Add(new FileBrowserEntry { Path = Path.Combine(directoryPath, "../"), EntryType = FileBrowserEntryType.Directory | FileBrowserEntryType.Special, Name = "Parent Directory" });
+            _fileBrowserEntries.AddRange(_drives);
+
+            foreach (var dir in directories.OrderBy(d => Path.GetDirectoryName(d)))
+            {
+                _fileBrowserEntries.Add(new FileBrowserEntry { Path = dir, Name = Path.GetFileName(dir), EntryType = FileBrowserEntryType.Directory });
+            }
+
+            foreach (var file in files.OrderBy(f => Path.GetFileName(f)))
+            {
+                _fileBrowserEntries.Add(new FileBrowserEntry { Path = file, Name = Path.GetFileNameWithoutExtension(file), EntryType = FileBrowserEntryType.File });
+            }
+
+            _index = _drives.Count;
+
+        }
+
         public override void CallBack(GUICallbackEventArgs e)
         {
         }
@@ -155,31 +203,74 @@ namespace BeatDetection.GUI
 
             _guiComponents.Renderer.Update(time);
 
+            if (InputSystem.NewKeys.Contains(Key.Enter))
+            {
+                if (_fileBrowserEntries[_index].EntryType.HasFlag(FileBrowserEntryType.Directory))
+                    EnterDirectory(_fileBrowserEntries[_index].Path);
+                else if (_fileBrowserEntries[_index].EntryType.HasFlag(FileBrowserEntryType.File))
+                    StartGame(_fileBrowserEntries[_index].Path);
+            }
+
             if (frameCount == 60) _guiComponents.Renderer.FlushTextCache();
 
-            if (InputSystem.CurrentKeys.Contains(Key.Up))
+            if (InputSystem.NewKeys.Contains(Key.Up))
                 _index--;
-            if (InputSystem.CurrentKeys.Contains(Key.Down))
+            if (InputSystem.NewKeys.Contains(Key.Down))
                 _index++;
-            if (_index > _files.Count || _index < 0) _index = 0;
+            if (InputSystem.NewKeys.Contains(Key.Left))
+                _index -= 10;
+            if (InputSystem.NewKeys.Contains(Key.Right))
+                _index += 10;
+
+            foreach (var c in InputSystem.PressedChars)
+            {
+                int match = _fileBrowserEntries.FindIndex(fbe => fbe.Name.StartsWith(c.ToString(), StringComparison.CurrentCultureIgnoreCase) && !fbe.EntryType.HasFlag(FileBrowserEntryType.Special));
+                if (match >= 0) _index = match;
+            }
+
+
+            if (_index < 0) _index = 0;
+            if (_index >= _fileBrowserEntries.Count) _index = _fileBrowserEntries.Count - 1;
         }
 
         public override void Draw(double time)
         {
             _canvas.RenderCanvas();
-            //float ypos = 30 * 8;
-            //for (int i = _index - 8; i < _index + 8; i++)
-            //{
-            //   if(i >= 0 && i < _files.Count && i != _index) SceneManager.DrawTextLine(_files[i], new Vector3(0, ypos, 0), Color4.Black, QuickFont.QFontAlignment.Centre);
-            //    ypos -= 30;
-            //}
-            //SceneManager.DrawTextLine(_files[_index], new Vector3(0, 0, 0), Color4.White, QuickFont.QFontAlignment.Centre);
+            float ypos = 30 * 8;
+            for (int i = _index - 8; i < _index + 8; i++)
+            {
+                if (i >= 0 && i < _fileBrowserEntries.Count && i != _index) SceneManager.DrawTextLine(_fileBrowserEntries[i].Name, new Vector3(0, ypos, 0), Color4.Black, QuickFont.QFontAlignment.Centre);
+                ypos -= 30;
+            }
+            SceneManager.DrawTextLine(_fileBrowserEntries[_index].Name, new Vector3(0, 0, 0), Color4.White, QuickFont.QFontAlignment.Centre);
         }
 
         public override void Dispose()
         {
             InputSystem.RemoveGUIInput(_input);
+
+            InputSystem.RepeatingKeys.Remove(Key.Down);
+            InputSystem.RepeatingKeys.Remove(Key.Up);
+            InputSystem.RepeatingKeys.Remove(Key.Left);
+            InputSystem.RepeatingKeys.Remove(Key.Right);
+
             _canvas.Dispose();
         }
+    }
+
+    struct FileBrowserEntry
+    {
+        public string Path;
+        public string Name;
+        public FileBrowserEntryType EntryType;
+    }
+
+    [Flags]
+    enum FileBrowserEntryType
+    {
+        File = 0,
+        Directory = 1 << 0,
+        Drive = 1 << 1,
+        Special = 1 << 2
     }
 }
