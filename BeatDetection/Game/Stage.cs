@@ -128,7 +128,8 @@ namespace BeatDetection.Game
         private void LoadAudioFeatures(string audioPath, string sonicPath, string pluginPath, float correction, IProgress<string> progress)
         {
             var options = DetectorOptions.Default;
-            options.ActivationThreshold = 8.0f;
+            options.ActivationThreshold = 7.0f;
+            options.AdaptiveWhitening = true;
             _audioFeatures = new AudioFeatures(options, "../../Processed Songs/", correction + (float)_easeInTime, progress);
 
             //progress.Report("Decoding audio");
