@@ -145,7 +145,8 @@ namespace BeatDetection
             {
                 _gameSceneManager.Update(_dt);
 
-                InputSystem.Update(this.Focused);
+                //only update input system once per frame!
+                InputSystem.Update(this.Focused, _dt);
 
                 _lag -= _dt;
             }
