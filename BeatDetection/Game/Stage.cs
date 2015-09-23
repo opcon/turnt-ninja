@@ -93,10 +93,11 @@ namespace BeatDetection.Game
             _stageAudio.MaxVolume = maxAudioVolume;
             _random = new Random(_stageAudio.AudioHashCode);
 
-            _stageAudio.Volume = 0.0f;
+            _stageAudio.Volume = 0f;
             _stageAudio.Seek(WADSWORTH);
             _stageAudio.Play();
-            _stageAudio.FadeIn(1000, _stageAudio.MaxVolume*0.5f, 0.01f, 0);
+
+            _stageAudio.FadeIn(1000, _stageAudio.MaxVolume * 0.5f, 0.01f, 0);
 
             LoadAudioFeatures(audioPath, sonicPath, pluginPath, audioCorrection, progress);
 
@@ -130,20 +131,20 @@ namespace BeatDetection.Game
             options.ActivationThreshold = 8.0f;
             _audioFeatures = new AudioFeatures(options, "../../Processed Songs/", correction + (float)_easeInTime, progress);
 
-            progress.Report("Decoding audio");
+            //progress.Report("Decoding audio");
 
             var fileToAnalyse = audioPath;
-            bool useTempFile = false;
-            if (!_audioFeatures.SongAnalysed(audioPath) && !audioPath.EndsWith(".wav", StringComparison.OrdinalIgnoreCase) && !audioPath.EndsWith(".flac", StringComparison.OrdinalIgnoreCase))
-            {
-                fileToAnalyse = _stageAudio.CreateTempWavFile(audioPath, (string)SceneManager.GameSettings["TempFolderName"]).Replace(@"\", "/"); ;
-                useTempFile = true;
-            }
+            //bool useTempFile = false;
+            //if (!_audioFeatures.SongAnalysed(audioPath) && !audioPath.EndsWith(".wav", StringComparison.OrdinalIgnoreCase) && !audioPath.EndsWith(".flac", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    fileToAnalyse = _stageAudio.CreateTempWavFile(audioPath, (string)SceneManager.GameSettings["TempFolderName"]).Replace(@"\", "/"); ;
+            //    useTempFile = true;
+            //}
 
             progress.Report("Extracting audio features");
             _audioFeatures.Extract(fileToAnalyse);
 
-            if (useTempFile && fileToAnalyse != audioPath) File.Delete(fileToAnalyse);
+            //if (useTempFile && fileToAnalyse != audioPath) File.Delete(fileToAnalyse);
         }
 
         public void Update(double time)
