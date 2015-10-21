@@ -109,7 +109,7 @@ namespace BeatDetection.GUI
             tV.Hide();
 
             SetUpFileBrowser();
-            EnterDirectory(@"D:\");
+            EnterDirectory(_drives.First().Path);
 
             Loaded = true;
         }
@@ -171,10 +171,15 @@ namespace BeatDetection.GUI
             _fileBrowserEntries.Add(new FileBrowserEntry { Path = Path.Combine(directoryPath, "../"), EntryType = FileBrowserEntryType.Directory | FileBrowserEntryType.Special, Name = "Parent Directory" });
             _fileBrowserEntries.AddRange(_drives);
 
+            _fileBrowserEntries.Add(new FileBrowserEntry { Path = "./", Name = "--------------------", EntryType = FileBrowserEntryType.Separator });
+
             foreach (var dir in directories.OrderBy(d => Path.GetDirectoryName(d)))
             {
                 _fileBrowserEntries.Add(new FileBrowserEntry { Path = dir, Name = Path.GetFileName(dir), EntryType = FileBrowserEntryType.Directory });
             }
+
+            //add separator
+            _fileBrowserEntries.Add(new FileBrowserEntry { Path = "./", Name = "--------------------", EntryType = FileBrowserEntryType.Separator });
 
             foreach (var file in files.OrderBy(f => Path.GetFileName(f)))
             {
@@ -271,6 +276,7 @@ namespace BeatDetection.GUI
         File = 0,
         Directory = 1 << 0,
         Drive = 1 << 1,
-        Special = 1 << 2
+        Special = 1 << 2,
+        Separator = 1 << 3
     }
 }
