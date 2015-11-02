@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BeatDetection</RootNamespace>
-    <AssemblyName>BeatDetection</AssemblyName>
+    <AssemblyName>turnt-ninja</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>
@@ -28,6 +28,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -38,6 +39,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -47,6 +49,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="clipper_library">
@@ -61,8 +64,19 @@
     <Reference Include="Gwen.Renderer.OpenTK">
       <HintPath>..\Dependencies\Gwen.NET\Gwen.Renderer.OpenTK.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OnsetDetection">
+      <HintPath>..\..\onset-detection\bin\Release\OnsetDetection.dll</HintPath>
+    </Reference>
     <Reference Include="OpenTK">
       <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="SoundCloud.API.Client, Version=1.0.0.4, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Programs\SoundCloud.API.Client\SoundCloud.API.Client\bin\Debug\SoundCloud.API.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -73,24 +87,28 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Wav2Flac">
-      <HintPath>..\Dependencies\WavFlac\Wav2Flac.dll</HintPath>
-    </Reference>
     <Reference Include="QuickFont">
       <HintPath>..\Dependencies\QuickFont\QuickFont.dll</HintPath>
     </Reference>
     <Reference Include="HUSL">
       <HintPath>..\packages\HUSL.1.0.1\lib\net40\HUSL.dll</HintPath>
     </Reference>
-    <Reference Include="NAudio">
-      <HintPath>..\packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
+    <Reference Include="CSCore, Version=1.1.5697.25221, Culture=neutral, PublicKeyToken=5a08f2b6f4415dea">
+      <HintPath>..\packages\CSCore.1.1-alpha1\lib\net35-client\CSCore.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio\AudioFeatures.cs" />
+    <Compile Include="FileSystem\FileBrowserEntry.cs" />
     <Compile Include="Audio\PlaylistHelper.cs" />
+    <Compile Include="Audio\Song.cs" />
+    <Compile Include="Audio\SongCache.cs" />
     <Compile Include="Audio\SonicAnnotatorWrapper.cs" />
     <Compile Include="Core\Settings\PropertySettings.cs" />
+    <Compile Include="FileSystem\DirectoryBrowser.cs" />
+    <Compile Include="FileSystem\IFileSystem.cs" />
+    <Compile Include="FileSystem\LocalFileSystem.cs" />
+    <Compile Include="FileSystem\SoundCloudFileSystem.cs" />
     <Compile Include="Game\BeatCollection.cs" />
     <Compile Include="Game\Difficulty.cs" />
     <Compile Include="Game\StageAudio.cs" />
@@ -103,7 +121,6 @@
     <Compile Include="GUI\GameScene.cs" />
     <Compile Include="GUI\LoadingScene.cs" />
     <Compile Include="GUI\MenuScene.cs" />
-    <Compile Include="Audio\OnsetDetector.cs" />
     <Compile Include="Game\Player.cs" />
     <Compile Include="GUI\OptionsScene.cs" />
     <Compile Include="Program.cs" />
@@ -145,12 +162,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="..\Dependencies\WavFlac\LibFlac.dll">
-      <Link>LibFlac.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

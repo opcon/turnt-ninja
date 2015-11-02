@@ -169,4 +169,9 @@ $RECYCLE.BIN/
 /BeatDetection.sln.DotSettings
 /BeatDetection.vshost.exe.config
 /Substructio/packages.config
+/CrashLogs
+
+# Sublime Text Stuff
+*.sublime*
+
 *.csv

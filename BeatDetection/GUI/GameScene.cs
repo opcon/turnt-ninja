@@ -84,7 +84,7 @@ namespace BeatDetection.GUI
         public override void Draw(double time)
         {
             _elapsedTime += time;
-            var rot = Matrix4.CreateRotationX((float)((MathHelper.PiOver4 / 2.0)*Math.Sin(_elapsedTime*0.09)));
+            var rot = Matrix4.CreateRotationX((float)((MathHelper.PiOver4 / 2.0)*Math.Sin(_elapsedTime*0.13)));
             ShaderProgram.Bind();
             ShaderProgram.SetUniform("mvp", Matrix4.Mult(rot, SceneManager.ScreenCamera.ModelViewProjection));
             _stage.Draw(time);
@@ -102,7 +102,8 @@ namespace BeatDetection.GUI
             //xOffset += SceneManager.Font.Print(string.Format("Current score is {0}", _stage.StageGeometry.Player.Score), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
             //xOffset += SceneManager.Font.Print(string.Format("Scale is {0}", SceneManager.ScreenCamera.Scale), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
             //xOffset += SceneManager.Font.Print(string.Format("Pulse Multiplier is {0}", _stage.StageGeometry.CenterPolygon.PulseMultiplier), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
-            xOffset += SceneManager.DrawTextLine(string.Format("Mouse coordinates are {0}", InputSystem.MouseXY), new Vector3(xOffset, yOffset, 0), Color.White,  QFontAlignment.Left).Width + 20; 
+            xOffset += SceneManager.DrawTextLine(string.Format("Mouse coordinates are {0}", InputSystem.MouseXY), new Vector3(xOffset, yOffset, 0), Color.White,  QFontAlignment.Left).Width + 20;
+            xOffset += SceneManager.DrawTextLine(string.Format("Song Playing {0}", !_stage._stageAudio.IsStopped), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20; 
 
             //if (_stage.Ended) SceneManager.Font.Print("Song Finished", Vector3.Zero, QFontAlignment.Centre, Color.White);
         }

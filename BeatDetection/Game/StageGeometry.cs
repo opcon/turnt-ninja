@@ -18,8 +18,7 @@ namespace BeatDetection.Game
     {
         private StageColours _colours;
         private BeatCollection _beats;
-        private SegmentInformation[] _segments;
-        private Color4[] _segmentColours;
+        private Color4 _segmentStartColour;
         private HUSLColor _baseColour;
         public Stage ParentStage;
 
@@ -33,8 +32,6 @@ namespace BeatDetection.Game
         private double _rotationMultiplier = 0.0f;
         private float _extraRotation = 0;
 
-        private int _segmentIndex = 0;
-        private int _colourIndex = 0;
         private int _collidedBeatIndex = -1;
         public float[] BeatFrequencies;
         public float MaxBeatFrequency;
@@ -60,16 +57,15 @@ namespace BeatDetection.Game
             get { return _beats.Index == _beats.Count; }
         }
 
-        internal StageGeometry (BeatCollection beats, SegmentInformation[] segments, Color4[] segmentColours, Random random, float[] beatFrequencies)
+        internal StageGeometry (BeatCollection beats, Color4 segmentStartColour, Random random, float[] beatFrequencies)
         {
             _beats = beats;
-            _segments = segments;
-            _segmentColours = segmentColours;
+            _segmentStartColour = segmentStartColour;
             _random = random;
             BeatFrequencies = beatFrequencies;
             MaxBeatFrequency = BeatFrequencies.Max();
             MinBeatFrequency = BeatFrequencies.Min();
-            _baseColour = HUSLColor.FromColor4(_segmentColours[0]);
+            _baseColour = HUSLColor.FromColor4(_segmentStartColour);
         }
 
         public void Update(double time)
@@ -132,7 +128,6 @@ namespace BeatDetection.Game
             BackgroundPolygon.Position.Azimuth = CenterPolygon.Position.Azimuth + rotate;
             BackgroundPolygon.Update(time, false);
 
-            UpdateSegments();
             if (frameCount == 10)
                 UpdateColours(time);
 
@@ -209,18 +204,6 @@ namespace BeatDetection.Game
                 //_polygons[_collidedBeatIndex].SetColour(_colours.EvenCollisionColour, _colours.EvenCollisionOutlineColour, _colours.OddCollisionColour, _colours.OddCollisionOutlienColour);
                 CenterPolygon.SetColour(_colours.EvenCollisionColour, _colours.EvenCollisionOutlineColour, _colours.OddCollisionColour, _colours.OddCollisionOutlienColour);
             }
-        }
-
-        private void UpdateSegments()
-        {
-            var seg = _segments[_segmentIndex];
-            if (seg.EndTime > 0 && seg.EndTime < ParentStage.TotalTime)
-            {
-                _segmentIndex++;
-                _colourIndex = _segments[_segmentIndex].ID - 1;
-
-                UpdateColours(0);
-            }   
         }
 
         public void UpdateColours(double time)

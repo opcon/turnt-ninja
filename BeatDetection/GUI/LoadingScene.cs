@@ -18,6 +18,7 @@ using Substructio.Graphics.OpenGL;
 using Substructio.GUI;
 using OpenTK.Graphics.OpenGL4;
 using Substructio.Core;
+using System.Diagnostics;
 
 namespace BeatDetection.GUI
 {
@@ -98,7 +99,7 @@ namespace BeatDetection.GUI
 
             file = file.Replace(@"\", "/");
 
-            _loadingFontRenderOptions = new QFontRenderOptions();;
+            _loadingFontRenderOptions = new QFontRenderOptions();
             _loadingFontRenderOptions.DropShadowActive = true;
             _loadingFont = new QFont(SceneManager.FontPath, 30, new QFontBuilderConfiguration(true), FontStyle.Italic);
             _loadingFontDrawing = new QFontDrawing();
@@ -108,7 +109,7 @@ namespace BeatDetection.GUI
 
             _songText = QFontDrawingPrimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, Path.GetFileNameWithoutExtension(file), new SizeF(SceneManager.GameWindow.Width - 40, -1), QFontAlignment.Centre);
 
-            var dOptions = new DifficultyOptions(600f, 0.2f, 0.4f, 1.5f);
+            var dOptions = new DifficultyOptions(600f, 0.15f, 0.35f, 1.5f);
 
             var progress = new Progress<string>(status =>
             {
@@ -135,6 +136,7 @@ namespace BeatDetection.GUI
         {
             if (_loadTask.Exception != null)
             {
+                Trace.WriteLine(_loadTask.Exception.Message);
                 throw new Exception("Loading failed!");
             }
             if (_loadTask.IsCompleted)

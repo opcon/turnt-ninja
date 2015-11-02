@@ -4,103 +4,123 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OnsetDetection;
+using CSCore;
 
 namespace BeatDetection.Audio
 {
     class AudioFeatures
     {
-        private SonicAnnotatorWrapper _annotatorWrapper;
+        private OnsetDetector _onsetDetector;
+        string _csvDirectory;
+        string _outputSuffix = "onsets";
+
         public List<float> Onsets = new List<float>();
-        public List<SegmentInformation> Segments = new List<SegmentInformation>();
         public float _correction;
         private IProgress<string> _outerProgressReporter;
         private IProgress<string> _innerProgressReporter;
         private string _currentTask = "";
 
-        public AudioFeatures(string sonicAnnotatorPath, string pluginPath, string csvDirectory, float correction, IProgress<string> progress = null)
+        public AudioFeatures(DetectorOptions options, string csvDirectory, float correction, IProgress<string> progress = null)
         {
+            //force garbage collection
+            GC.Collect(2, GCCollectionMode.Forced, true);
+
+            _csvDirectory = csvDirectory;
             _outerProgressReporter = progress ?? new Progress<string>();
-            _annotatorWrapper = new SonicAnnotatorWrapper(new SonicAnnotatorArguments{SonicAnnotatorPath = sonicAnnotatorPath, PluginsPath = pluginPath, CSVDirectory = csvDirectory});
             _correction = correction;
             _innerProgressReporter = new Progress<string>(status =>
             {
                 _outerProgressReporter.Report(_currentTask + ":" + status);
             });
+
+            _onsetDetector = new OnsetDetector(options, _innerProgressReporter);
+        }
+
+        public bool SongAnalysed(string audioPath)
+        {
+            return File.Exists(GetOnsetFilePath(audioPath));
         }
 
         public void Extract(string audioFilePath)
         {
-            _currentTask = "Extracting Offsets"; 
+            _currentTask = "Extracting Onsets"; 
             ExtractOnsets(audioFilePath);
-            _currentTask = "Extracting Segments";
-            ExtractSegments(audioFilePath);
+
+            //force garbage collection
+            GC.Collect(2, GCCollectionMode.Forced, true);
+        }
+
+        public void Extract(CSCore.IWaveSource audioSource)
+        {
+            _currentTask = "Extracting Onsets";
+            ExtractOnsets(audioSource);
+
+            //force garbage collection
+            GC.Collect(2, GCCollectionMode.Forced, true);
         }
 
         private void ExtractOnsets(string audioFilePath)
         {
-            var args = new SonicAnnotatorArguments
+            List<float> onsets;
+            if (SongAnalysed(audioFilePath))
+                onsets = LoadOnsets(GetOnsetFilePath(audioFilePath));
+            else
             {
-                AudioFilePath = audioFilePath,
-                Correction = _correction,
-                InitialOutputSuffix = "vamp_qm-vamp-plugins_qm-onsetdetector_onsets",
-                DesiredOutputSuffix = "onsets",
-                DescriptorPath = "../../Processed Songs/qmonset.xml"
-            };
-            string resultPath;
-            bool success = _annotatorWrapper.Run(args, out resultPath, _innerProgressReporter);
+                onsets = _onsetDetector.Detect(audioFilePath);
+                SaveOnsets(GetOnsetFilePath(audioFilePath), onsets);
+            }
 
-            if (!success) throw new Exception("Error during sonic annotator onset processing");
+            ApplyCorrection(onsets, _correction);
+            Onsets = onsets;
+        }
 
-            using (StreamReader sr = new StreamReader(resultPath))
+        private void ExtractOnsets(CSCore.IWaveSource audioSource)
+        {
+            var onsets = _onsetDetector.Detect(audioSource.ToSampleSource());
+
+            ApplyCorrection(onsets, _correction);
+            Onsets = onsets;
+        }
+
+        private void SaveOnsets(string onsetFile, List<float> onsets)
+        {
+            using (StreamWriter sw = new StreamWriter(onsetFile))
+            {
+                foreach (var onset in onsets)
+                {
+                    sw.WriteLine(onset);
+                }
+                sw.Close();
+            }
+        }
+
+        private List<float> LoadOnsets(string onsetFile)
+        {
+            List<float> onsets = new List<float>();
+            using (StreamReader sr = new StreamReader(onsetFile))
             {
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    Onsets.Add(float.Parse(line.Split(',')[0]) + _correction);
+                    onsets.Add(float.Parse(line.Split(',')[0]));
                 }
                 sr.Close();
             }
+            return onsets;
         }
 
-        private void ExtractSegments(string audioFilePath)
+        private void ApplyCorrection(List<float> onsets, float correction)
         {
-            var args = new SonicAnnotatorArguments
+            for (int i = 0; i < onsets.Count; i++)
             {
-                AudioFilePath = audioFilePath,
-                Correction = _correction,
-                InitialOutputSuffix = "vamp_qm-vamp-plugins_qm-segmenter_segmentation",
-                DesiredOutputSuffix = "segments",
-                DescriptorPath = "../../Processed Songs/qmsegments.xml"
-            };
-            string resultPath;
-            bool success = _annotatorWrapper.Run(args, out resultPath, _innerProgressReporter);
-
-            if (!success) throw new Exception("Error during sonic annotator segment processing");
-
-            using (StreamReader sr = new StreamReader(resultPath))
-            {
-                string line = null, nextLine;
-                bool done = sr.EndOfStream;
-                if (!done) line = sr.ReadLine();
-                while (!done)
-                {
-                    var segment = new SegmentInformation();
-                    var pieces1 = line.Split(',');
-                    segment.StartTime = double.Parse(pieces1[0]);
-                    segment.ID = int.Parse(pieces1[1]);
-                    if (!sr.EndOfStream)
-                    {
-                        nextLine = sr.ReadLine();
-                        var pieces2 = nextLine.Split(',');
-                        segment.EndTime = double.Parse(pieces2[0]);
-                        line = nextLine;
-                    }
-                    else
-                        done = true;
-                    Segments.Add(segment);
-                }
+                onsets[i] += correction;
             }
         }
 
+        private string GetOnsetFilePath(string audioPath)
+        {
+            return Path.Combine(_csvDirectory, String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(audioPath), _outputSuffix) + ".csv");
+        }
     }
 }
