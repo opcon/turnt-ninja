@@ -15,6 +15,7 @@ using Substructio.GUI;
 using Key = OpenTK.Input.Key;
 using OpenTK;
 using OpenTK.Graphics;
+using BeatDetection.FileSystem;
 
 namespace BeatDetection.GUI
 {
@@ -116,7 +117,7 @@ namespace BeatDetection.GUI
 
         private void StartGame(string path)
         {
-            if (!_fileFilter.Any(s => path.EndsWith(s, StringComparison.OrdinalIgnoreCase))) return;
+            if (!_fileFilter.Any(s => path.EndsWith(s, StringComparison.OrdinalIgnoreCase)) && !path.Contains("SOUNDCLOUD")) return;
             SceneManager.RemoveScene(this);
             SceneManager.AddScene(
                 new LoadingScene((string)SceneManager.GameSettings["SonicAnnotatorPath"], (string)SceneManager.GameSettings["PluginPath"],
@@ -171,6 +172,7 @@ namespace BeatDetection.GUI
             _fileBrowserEntries.Add(new FileBrowserEntry { Path = Path.Combine(directoryPath, "../"), EntryType = FileBrowserEntryType.Directory | FileBrowserEntryType.Special, Name = "Parent Directory" });
             _fileBrowserEntries.AddRange(_drives);
 
+            _fileBrowserEntries.Add(new FileBrowserEntry { Path = "SOUNDCLOUD", Name = "Soundcloud", EntryType = FileBrowserEntryType.File });
             _fileBrowserEntries.Add(new FileBrowserEntry { Path = "./", Name = "--------------------", EntryType = FileBrowserEntryType.Separator });
 
             foreach (var dir in directories.OrderBy(d => Path.GetDirectoryName(d)))
@@ -233,7 +235,6 @@ namespace BeatDetection.GUI
                 if (match >= 0) _index = match;
             }
 
-
             if (_index < 0) _index = 0;
             if (_index >= _fileBrowserEntries.Count) _index = _fileBrowserEntries.Count - 1;
         }
@@ -261,22 +262,5 @@ namespace BeatDetection.GUI
 
             _canvas.Dispose();
         }
-    }
-
-    struct FileBrowserEntry
-    {
-        public string Path;
-        public string Name;
-        public FileBrowserEntryType EntryType;
-    }
-
-    [Flags]
-    enum FileBrowserEntryType
-    {
-        File = 0,
-        Directory = 1 << 0,
-        Drive = 1 << 1,
-        Special = 1 << 2,
-        Separator = 1 << 3
     }
 }

@@ -50,6 +50,11 @@ namespace BeatDetection.Game
             get { return _audio.PlaybackState == PlaybackState.Stopped; }
         }
 
+        public IWaveSource Source
+        {
+            get { return _audio.GetSource(); }
+        }
+
         public void Load(string audioPath)
         {
             //assert that the audio path given is valid.
@@ -58,6 +63,12 @@ namespace BeatDetection.Game
             _audio = new CSCoreAudio();
             _audio.Init(audioPath);
             AudioHashCode = CRC16.Instance().ComputeChecksum(_audio.GetHashBytes(HashCount));
+        }
+
+        public void Load(IWaveSource source)
+        {
+            _audio = new CSCoreAudio();
+            _audio.Init(source);
         }
 
         public void Play()
@@ -177,6 +188,7 @@ namespace BeatDetection.Game
         PlaybackState PlaybackState { get; }
         float Volume { get; set; }
         void Init(string audioFilePath);
+        void Init(IWaveSource source);
         byte[] GetHashBytes(int hashByteCount);
         void Play();
         void Pause();
@@ -184,6 +196,7 @@ namespace BeatDetection.Game
         void Stop();
         void Seek(float percent);
         void ConvertToWav(string wavFilePath);
+        IWaveSource GetSource();
     }
 
     enum PlaybackState
@@ -232,12 +245,22 @@ namespace BeatDetection.Game
 
         public float Volume { get { return _soundOut.Volume; } set { _soundOut.Volume = value; } }
 
+        public IWaveSource GetSource()
+        {
+            return _soundSource;
+        }
+
         public void Init(string audioFilePath)
         {
+            Init(CodecFactory.Instance.GetCodec(audioFilePath));
+        }
+
+        public void Init(IWaveSource source)
+        {
+            _soundSource = source;
             _soundOut = new WaveOut();
-            _soundSource = CodecFactory.Instance.GetCodec(audioFilePath);
             _soundOut.Initialize(_soundSource);
-            _soundOut.Stopped += (sender, args) => { if (args.HasError) throw args.Exception; };
+            _soundOut.Stopped += (sender, args) => { if (args.HasError) throw new Exception("exception thrown on stoping audio", args.Exception); };
         }
 
         public byte[] GetHashBytes(int hashByteCount)
@@ -267,7 +290,11 @@ namespace BeatDetection.Game
 
         public void Seek(float percent)
         {
+            var pos1 = _soundSource.Position;
+            var span = percent * _soundSource.GetLength().Milliseconds;
+            //_soundSource.Position = (_soundSource.GetRawElements(TimeSpan.FromMilliseconds(span)));
             _soundSource.SetPosition(TimeSpan.FromMilliseconds(percent * _soundSource.GetLength().Milliseconds));
+            var pos2 = _soundSource.Position;
         }
 
         public void ConvertToWav(string wavFilePath)

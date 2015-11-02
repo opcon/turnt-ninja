@@ -35,5 +35,11 @@
     <Setting Name="TempFolderName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">turnt-ninja</Value>
     </Setting>
+    <Setting Name="OnsetActivationThreshold" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">9</Value>
+    </Setting>
+    <Setting Name="OnsetAdaptiveWhitening" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

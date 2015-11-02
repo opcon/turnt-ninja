@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OnsetDetection;
+using CSCore;
 
 namespace BeatDetection.Audio
 {
@@ -50,6 +51,15 @@ namespace BeatDetection.Audio
             GC.Collect(2, GCCollectionMode.Forced, true);
         }
 
+        public void Extract(CSCore.IWaveSource audioSource)
+        {
+            _currentTask = "Extracting Onsets";
+            ExtractOnsets(audioSource);
+
+            //force garbage collection
+            GC.Collect(2, GCCollectionMode.Forced, true);
+        }
+
         private void ExtractOnsets(string audioFilePath)
         {
             List<float> onsets;
@@ -60,6 +70,14 @@ namespace BeatDetection.Audio
                 onsets = _onsetDetector.Detect(audioFilePath);
                 SaveOnsets(GetOnsetFilePath(audioFilePath), onsets);
             }
+
+            ApplyCorrection(onsets, _correction);
+            Onsets = onsets;
+        }
+
+        private void ExtractOnsets(CSCore.IWaveSource audioSource)
+        {
+            var onsets = _onsetDetector.Detect(audioSource.ToSampleSource());
 
             ApplyCorrection(onsets, _correction);
             Onsets = onsets;

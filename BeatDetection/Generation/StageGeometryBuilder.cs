@@ -47,7 +47,8 @@ namespace BeatDetection.Generation
             var sorted = _audioFeatures.Onsets.OrderBy(f => f).ToArray();
             _beatFrequencies = new float[sorted.Length];
             int lookAhead = 5;
-            int halfFrequencySampleSize = 3;
+            int halfFrequencySampleSize = 4;
+            int forwardWeighting = 1;
 
             for (int i = 0; i < _beatFrequencies.Length; i++)
             {
@@ -69,7 +70,7 @@ namespace BeatDetection.Generation
                 //differenceSum += (weight+1)*(sorted[i+1] - sorted[i]);
                 //total += weight;
 
-                weight = halfFrequencySampleSize + 1;
+                weight = halfFrequencySampleSize + forwardWeighting;
                 int count = i + halfFrequencySampleSize + 1> _beatFrequencies.Length - 1 ? _beatFrequencies.Length - 1 : i + halfFrequencySampleSize + 1;
                 for (int j = i+1; j <= count; j++)
                 {
@@ -107,6 +108,22 @@ namespace BeatDetection.Generation
 
             //sort onset list by time
             var sorted = _audioFeatures.Onsets.OrderBy(f => f);
+
+            var structureList = new List<List<int>>();
+
+            ////first pass to look for structures
+            //int structStart = -1;
+            //int structCount = 0;
+            //List<int> tempList = new List<int>();
+            //for (var i = 0; i < sorted.Count(); i++)
+            //{
+            //    var b = i.Current;
+            //    if (b - prevTime < _builderOptions.VeryCloseDistance)
+            //    {
+            //        if (structCount == 0) tempList = new List<int>();
+            //        tempList.Add()
+            //    }
+            //}
 
             //traverse sorted onset list and generate geometry for each onset
             foreach (var b in sorted)

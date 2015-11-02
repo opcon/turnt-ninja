@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -64,11 +64,19 @@
     <Reference Include="Gwen.Renderer.OpenTK">
       <HintPath>..\Dependencies\Gwen.NET\Gwen.Renderer.OpenTK.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="OnsetDetection">
       <HintPath>..\..\onset-detection\bin\Release\OnsetDetection.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK">
       <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="SoundCloud.API.Client, Version=1.0.0.4, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Programs\SoundCloud.API.Client\SoundCloud.API.Client\bin\Debug\SoundCloud.API.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -91,9 +99,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio\AudioFeatures.cs" />
+    <Compile Include="FileSystem\FileBrowserEntry.cs" />
     <Compile Include="Audio\PlaylistHelper.cs" />
+    <Compile Include="Audio\Song.cs" />
+    <Compile Include="Audio\SongCache.cs" />
     <Compile Include="Audio\SonicAnnotatorWrapper.cs" />
     <Compile Include="Core\Settings\PropertySettings.cs" />
+    <Compile Include="FileSystem\DirectoryBrowser.cs" />
+    <Compile Include="FileSystem\IFileSystem.cs" />
+    <Compile Include="FileSystem\LocalFileSystem.cs" />
+    <Compile Include="FileSystem\SoundCloudFileSystem.cs" />
     <Compile Include="Game\BeatCollection.cs" />
     <Compile Include="Game\Difficulty.cs" />
     <Compile Include="Game\StageAudio.cs" />

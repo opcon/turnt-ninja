@@ -15,6 +15,7 @@ using QuickFont;
 using Substructio.Core;
 using Substructio.Core.Settings;
 using Substructio.GUI;
+using Substructio.IO;
 
 namespace BeatDetection
 {
@@ -41,14 +42,17 @@ namespace BeatDetection
         private Stage _stage;
 
         private IGameSettings _gameSettings;
+        private DirectoryHandler _directoryHandler;
+        private static CrashReporter _crashReporter;
 
-        public GameController(IGameSettings gameSettings, int rX, int rY, GraphicsMode graphicsMode)
+        public GameController(IGameSettings gameSettings, int rX, int rY, GraphicsMode graphicsMode, DirectoryHandler directoryHandler)
             : base(rX, rY, graphicsMode)
         {
             KeyDown += Keyboard_KeyDown;
             this.VSync = (bool) gameSettings["VSync"] ? VSyncMode.On : VSyncMode.Off;
             this.WindowState = (WindowState) gameSettings["WindowState"];
             _gameSettings = gameSettings;
+            _directoryHandler = directoryHandler;
         }
 
         #region Keyboard_KeyDown
@@ -83,18 +87,12 @@ namespace BeatDetection
         /// <param name="e">Not used.</param>
         protected override void OnLoad(EventArgs e)
         {
-            var directoryHandler = new DirectoryHandler();
-            directoryHandler.AddPath("Resources", @"..\..\Resources");
-            directoryHandler.AddPath("Fonts", Path.Combine(directoryHandler["Resources"].FullName, @"Fonts"));
-            directoryHandler.AddPath("Shaders", Path.Combine(directoryHandler["Resources"].FullName, @"Shaders"));
-            directoryHandler.AddPath("Images", Path.Combine(directoryHandler["Resources"].FullName, @"Images"));
-
-            fontPath = Path.Combine(directoryHandler["Fonts"].FullName, "./Chamgagne Limousines/Champagne & Limousines Italic.ttf");
+            fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Chamgagne Limousines/Champagne & Limousines Italic.ttf");
 
             var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
             var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Italic);
-            _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath, directoryHandler, _gameSettings);
+            _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath, _directoryHandler, _gameSettings);
             _gameSceneManager.AddScene(new MenuScene(sonicAnnotator, pluginPath), null);
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
@@ -137,9 +135,6 @@ namespace BeatDetection
         /// <remarks>There is no need to call the base implementation.</remarks>
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            //_stage.Update(e.Time);
-            //_watch.Start();
-
             _lag += e.Time;
             while (_lag >= _dt)
             {
@@ -150,14 +145,6 @@ namespace BeatDetection
 
                 _lag -= _dt;
             }
-
-            //_watch.Stop();
-
-            //Debug.Write((_watch.ElapsedTicks/TimeSpan.TicksPerMillisecond).ToString("0.00") + ", ");
-
-            //_watch.Reset();
-
-            //Thread.Sleep(1);
         }
 
         #endregion
@@ -188,14 +175,27 @@ namespace BeatDetection
 
         #endregion
 
-        #region public static void Main()
-
-        /// <summary>
-        /// Entry point of this example.
-        /// </summary>
         [STAThread]
         public static void Main(string[] args)
         {
+            //initialise directory handler
+            var directoryHandler = new DirectoryHandler();
+            directoryHandler.AddPath("Resources", @"..\..\Resources");
+            directoryHandler.AddPath("Fonts", Path.Combine(directoryHandler["Resources"].FullName, @"Fonts"));
+            directoryHandler.AddPath("Shaders", Path.Combine(directoryHandler["Resources"].FullName, @"Shaders"));
+            directoryHandler.AddPath("Images", Path.Combine(directoryHandler["Resources"].FullName, @"Images"));
+            directoryHandler.AddPath("Crash", @"..\..\CrashLogs");
+
+            if (!Debugger.IsAttached)
+            {
+                //initialise crash reporter
+                _crashReporter = new CrashReporter(directoryHandler["Crash"].FullName);
+
+                //attach exception handlers
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            }
+
+
             IGameSettings gameSettings = new PropertySettings();
             gameSettings.Load();
 
@@ -204,10 +204,23 @@ namespace BeatDetection
             int FSAASamples = (int)gameSettings["AntiAliasingSamples"];
             GraphicsMode graphicsMode = new GraphicsMode(32, 24, 8, FSAASamples);
 
-            using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode))
+            using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode, directoryHandler))
             {
                 game.Title = "Codename: turnt-ninja";
                 game.Run();
+            }
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            try
+            {
+                Exception ex = (Exception)e.ExceptionObject;
+                _crashReporter.LogError(ex);
+            }
+            finally
+            {
+                System.Environment.Exit(-1);
             }
         }
 
@@ -221,7 +234,5 @@ namespace BeatDetection
                 return Path.GetDirectoryName(path);
             }
         }
-
-        #endregion
     }
 }
