@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,11 +21,9 @@ namespace BeatDetection.Generation
         private GeometryBuilderOptions _builderOptions;
 
         private BeatCollection _beats;
-        private Color4[] _segmentColours;
-        private SegmentInformation[] _segments;
+        private float[] _beatFrequencies;
+        private Color4 _segmentStartColour;
         private Random _random;
-
-        private int _maxID;
 
         public StageGeometry Build(AudioFeatures audioFeatures, Random random, GeometryBuilderOptions builderOptions)
         {
@@ -34,13 +33,65 @@ namespace BeatDetection.Generation
             _builderOptions.RandomFunction = _random;
 
             BuildGeometry();
-            ProcessSegments();
-            BuildSegmentColours();
+            BuildBeatFrequencyList();
+            SetStartColour();
 
-            var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 5000, -20, 0);
+            var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 50000, -20, 0);
             backgroundPolygon.ShaderProgram = _builderOptions.GeometryShaderProgram;
 
-            return new StageGeometry(_beats, _segments, _segmentColours, _random) {BackgroundPolygon = backgroundPolygon};
+            return new StageGeometry(_beats, _segmentStartColour, _random, _beatFrequencies) {BackgroundPolygon = backgroundPolygon};
+        }
+
+        private void BuildBeatFrequencyList()
+        {
+            var sorted = _audioFeatures.Onsets.OrderBy(f => f).ToArray();
+            _beatFrequencies = new float[sorted.Length];
+            int lookAhead = 5;
+            int halfFrequencySampleSize = 4;
+            int forwardWeighting = 1;
+
+            for (int i = 0; i < _beatFrequencies.Length; i++)
+            {
+                //int count;
+                //if (_beatFrequencies.Length - i < lookAhead) count = _beatFrequencies.Length - i;
+                //else count = lookAhead;
+                
+                int weight = 0;
+                float differenceSum = 0;
+                int total = 0;
+                for (int j = i - halfFrequencySampleSize < 1 ? 1 : i-halfFrequencySampleSize; j <= i; j++)
+                {
+                    weight++;
+                    differenceSum += weight*(sorted[j] - sorted[j-1]);
+                    total += weight;
+                }
+
+                //weight = halfFrequencySampleSize;
+                //differenceSum += (weight+1)*(sorted[i+1] - sorted[i]);
+                //total += weight;
+
+                weight = halfFrequencySampleSize + forwardWeighting;
+                int count = i + halfFrequencySampleSize + 1> _beatFrequencies.Length - 1 ? _beatFrequencies.Length - 1 : i + halfFrequencySampleSize + 1;
+                for (int j = i+1; j <= count; j++)
+                {
+                    differenceSum += weight*(sorted[j] - sorted[j-1]);
+                    total += weight;
+                    weight--;
+                }
+
+                //float differenceSum = 0;
+                //int weight = count;
+                //int total = 0;
+                //for (int j = 1; j < count; j++,weight--)
+                //{
+                //    differenceSum += weight*(sorted[i + j] - sorted[i + j - 1]);
+                //    total += weight;
+                //}
+
+                _beatFrequencies[i] = 1/(differenceSum/total);
+            }
+
+            _beatFrequencies[_beatFrequencies.Length - 1] = _beatFrequencies[_beatFrequencies.Length - 2];
         }
 
         private void BuildGeometry()
@@ -57,6 +108,22 @@ namespace BeatDetection.Generation
 
             //sort onset list by time
             var sorted = _audioFeatures.Onsets.OrderBy(f => f);
+
+            var structureList = new List<List<int>>();
+
+            ////first pass to look for structures
+            //int structStart = -1;
+            //int structCount = 0;
+            //List<int> tempList = new List<int>();
+            //for (var i = 0; i < sorted.Count(); i++)
+            //{
+            //    var b = i.Current;
+            //    if (b - prevTime < _builderOptions.VeryCloseDistance)
+            //    {
+            //        if (structCount == 0) tempList = new List<int>();
+            //        tempList.Add()
+            //    }
+            //}
 
             //traverse sorted onset list and generate geometry for each onset
             foreach (var b in sorted)
@@ -85,6 +152,8 @@ namespace BeatDetection.Generation
                 {
                     //choose a random start position for this polygon
                     start = _random.Next(_builderOptions.MaxSides - 1);
+                    while (start == prevStart && _random.NextDouble() > 0.15)
+                        start = _random.Next(_builderOptions.MaxSides - 1);
                 }
 
                 bool[] sides = new bool[6];
@@ -110,40 +179,22 @@ namespace BeatDetection.Generation
             _beats.Initialise();
         }
 
-        private void ProcessSegments()
+        private void SetStartColour()
         {
-            //order audio segments by increasing start time.
-            _segments = _audioFeatures.Segments.OrderBy(x => x.StartTime).ToArray();
-            //find max id number from segments
-            _maxID = _audioFeatures.Segments.Max(x => x.ID);
-        }
-
-        private void BuildSegmentColours()
-        {
-            _segmentColours = new Color4[_maxID];
-
             //initialise algorithim values
-            double maxStep = (double)360 / (_maxID + 1);
+            double maxStep = (double)360 / (20);
             double minStep = _builderOptions.MinimumColourStepMultiplier * maxStep;
             double startAngle = _random.NextDouble() * 360;
             double prevAngle = startAngle - maxStep;
 
-            //generate all the colour values
-            for (int i = 0; i < _maxID; i++)
-            {
-                var step = _random.NextDouble() * (maxStep - minStep) + minStep;
-                double angle = prevAngle;
-                do
-                {
-                    angle = MathUtilities.Normalise(step + angle, 0, 360);
-                } while ((angle > 275 && angle < 310) || (angle > 95 && angle < 140));
-                var col = new Hsl { H = angle, L = _builderOptions.Lightness, S = _builderOptions.Saturation};
-                var rgb = col.ToRgb();
+            var step = _random.NextDouble() * (maxStep - minStep) + minStep;
+            double angle = prevAngle;
+            angle = MathUtilities.Normalise(step + angle, 0, 360);
+            var rgb = HUSL.ColorConverter.HUSLToRGB(new List<double>{angle, _builderOptions.Saturation, _builderOptions.Lightness});
 
-                prevAngle = angle;
+            prevAngle = angle;
 
-                _segmentColours[i] = new Color4((byte)rgb.R, (byte)rgb.G, (byte)rgb.B, 255);
-            }
+            _segmentStartColour = new Color4((byte)((rgb[0])*255), (byte)((rgb[1])*255), (byte)((rgb[2])*255), 255);
         }
     }
 
@@ -152,8 +203,8 @@ namespace BeatDetection.Generation
         public int MaxSides = 6;
 
         public PolarVector PolygonVelocity = new PolarVector(0, 600);
-        public float PolygonWidth = 50f;
-        public float PolygonMinimumRadius = 125f;
+        public float PolygonWidth = 40f;
+        public float PolygonMinimumRadius = 130f;
 
         public float VeryCloseDistance = 0.2f;
         public float CloseDistance = 0.4f;
@@ -168,8 +219,8 @@ namespace BeatDetection.Generation
         public delegate int SkipDistributionFunction();
         public SkipDistributionFunction SkipFunction;
 
-        public int Saturation = 30;
-        public int Lightness = 40;
+        public int Saturation = 50;
+        public int Lightness = 30;
         public double MinimumColourStepMultiplier = 0.25;
 
         public ShaderProgram GeometryShaderProgram;
@@ -178,6 +229,13 @@ namespace BeatDetection.Generation
         {
             GeometryShaderProgram = geometryShaderProgram;
             SkipFunction = () => (int) (3*Math.Pow(RandomFunction.NextDouble(), 4)) + 1;
+        }
+
+        public void ApplyDifficulty(DifficultyOptions options)
+        {
+            PolygonVelocity.Radius = options.Speed;
+            VeryCloseDistance = options.VeryCloseDistance;
+            CloseDistance = options.CloseDistance;
         }
     }
 }

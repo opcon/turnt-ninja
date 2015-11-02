@@ -25,6 +25,7 @@ namespace BeatDetection.Core
         public double PulseWidth = 0;
         public double PulseWidthMax = 25;
         public double PulseMultiplier = 150;
+        private double _currentPulseMultiplier = 150;
         private double _width = 50;
         private int pulseDirection = 1;
         public bool Pulsing;
@@ -32,8 +33,11 @@ namespace BeatDetection.Core
         public double ImpactDistance;
         public bool Destroy = false;
 
+        public double OutlineWidth = 4;
+
         public PolarVector Position;
         public PolarVector Velocity;
+        public Vector2 Translate = Vector2.Zero;
         private List<bool> _sides;
 
         public double AngleBetweenSides { get; private set; }
@@ -152,7 +156,54 @@ namespace BeatDetection.Core
                     index += 6;
                 }
             }
-            return verts.SelectMany(v => new[] {v.X, v.Y});
+
+            //generate vertices for outline of even side
+            for (int i = 0; i < NumberOfSides; i += 2)
+            {
+                if (_sides[i])
+                {
+                    var pInner = new PolarVector(Position.Azimuth + i * AngleBetweenSides, Position.Radius);
+                    var pOuter = new PolarVector(Position.Azimuth + i*AngleBetweenSides, Position.Radius + _width + PulseWidth);
+                    verts[index] = PolarVector.ToCartesianCoordinates(pOuter);
+                    verts[index + 1] = PolarVector.ToCartesianCoordinates(pOuter, AngleBetweenSides, 0);
+                    verts[index + 2] = PolarVector.ToCartesianCoordinates(pOuter, AngleBetweenSides, OutlineWidth);
+                    verts[index + 3] = PolarVector.ToCartesianCoordinates(pOuter, AngleBetweenSides, OutlineWidth);
+                    verts[index + 4] = PolarVector.ToCartesianCoordinates(pOuter, 0, OutlineWidth);
+                    verts[index + 5] = PolarVector.ToCartesianCoordinates(pOuter);
+                    verts[index + 6] = PolarVector.ToCartesianCoordinates(pInner);
+                    verts[index + 7] = PolarVector.ToCartesianCoordinates(pInner, AngleBetweenSides, 0);
+                    verts[index + 8] = PolarVector.ToCartesianCoordinates(pInner, AngleBetweenSides, OutlineWidth);
+                    verts[index + 9] = PolarVector.ToCartesianCoordinates(pInner, AngleBetweenSides, OutlineWidth);
+                    verts[index + 10] = PolarVector.ToCartesianCoordinates(pInner, 0, OutlineWidth);
+                    verts[index + 11] = PolarVector.ToCartesianCoordinates(pInner);
+                    index+=12;
+                }
+            }
+
+            //generate vertices for outline of odd side
+            for (int i = 1; i < NumberOfSides; i += 2)
+            {
+                if (_sides[i])
+                {
+                    var pInner = new PolarVector(Position.Azimuth + i * AngleBetweenSides, Position.Radius);
+                    var pOuter = new PolarVector(Position.Azimuth + i*AngleBetweenSides, Position.Radius + _width + PulseWidth);
+                    verts[index] = PolarVector.ToCartesianCoordinates(pOuter);
+                    verts[index + 1] = PolarVector.ToCartesianCoordinates(pOuter, AngleBetweenSides, 0);
+                    verts[index + 2] = PolarVector.ToCartesianCoordinates(pOuter, AngleBetweenSides, OutlineWidth);
+                    verts[index + 3] = PolarVector.ToCartesianCoordinates(pOuter, AngleBetweenSides, OutlineWidth);
+                    verts[index + 4] = PolarVector.ToCartesianCoordinates(pOuter, 0, OutlineWidth);
+                    verts[index + 5] = PolarVector.ToCartesianCoordinates(pOuter);
+                    verts[index + 6] = PolarVector.ToCartesianCoordinates(pInner);
+                    verts[index + 7] = PolarVector.ToCartesianCoordinates(pInner, AngleBetweenSides, 0);
+                    verts[index + 8] = PolarVector.ToCartesianCoordinates(pInner, AngleBetweenSides, OutlineWidth);
+                    verts[index + 9] = PolarVector.ToCartesianCoordinates(pInner, AngleBetweenSides, OutlineWidth);
+                    verts[index + 10] = PolarVector.ToCartesianCoordinates(pInner, 0, OutlineWidth);
+                    verts[index + 11] = PolarVector.ToCartesianCoordinates(pInner);
+                    index += 12;
+                }
+            }
+
+            return verts.SelectMany(v => new[] {v.X + Translate.X, v.Y + Translate.Y});
         }
 
         public void Draw(double time, int even = 0)
@@ -160,13 +211,27 @@ namespace BeatDetection.Core
             if (_vertexArray == null) InitialiseRendering();
             if (even == 0 || even == 1)
             {
-                if (even == 0) _shaderProgram.SetUniform("in_color", EvenColour);
+//                if (even == 0) _shaderProgram.SetUniform("in_color", EvenColour);
                 _vertexArray.Draw(time, 0, _evenCount);
             }
             if (even == 0 || even == 2)
             {
-                if (even == 0) _shaderProgram.SetUniform("in_color", OddColour);
+//                if (even == 0) _shaderProgram.SetUniform("in_color", OddColour);
                 _vertexArray.Draw(time, _evenCount, _oddCount);
+            }
+        }
+
+        public void DrawOutline(double time, int even = 0)
+        {
+            if (_vertexArray == null)
+                InitialiseRendering();
+            if (even == 0 || even == 1)
+            {
+                _vertexArray.Draw(time, _evenCount + _oddCount, _evenCount * 2);
+            }
+            if (even == 0 || even == 2)
+            {
+                _vertexArray.Draw(time, (_evenCount + _oddCount) * 2, _oddCount * 2);
             }
         }
 
@@ -179,7 +244,8 @@ namespace BeatDetection.Core
                 Offset = 0,
                 ShouldBeNormalised = false,
                 Stride = 0,
-                Type = VertexAttribPointerType.Float
+                Type = VertexAttribPointerType.Float,
+                SizeInBytes = sizeof(float)
             };
 
             _vertexArray = new VertexArray {DrawPrimitiveType = PrimitiveType.Triangles};
@@ -188,9 +254,11 @@ namespace BeatDetection.Core
             _vertexBuffer = new VertexBuffer
             {
                 BufferUsage = BufferUsageHint.StreamDraw,
-                DrawableIndices = _sides.Count(b => b)*6
+                DrawableIndices = _sides.Count(b => b)*6*3,
+                MaxDrawableIndices = _sides.Count(b => b)*6*3
             };
             _vertexBuffer.AddSpec(_dataSpecification);
+            _vertexBuffer.CalculateMaxSize();
             _vertexBuffer.Bind();
             _vertexBuffer.Initialise();
 
@@ -198,12 +266,19 @@ namespace BeatDetection.Core
             _vertexArray.UnBind();
         }
 
+        public void BeginPulse()
+        {
+            Pulsing = true;
+            pulseDirection = 1;
+            _currentPulseMultiplier = PulseMultiplier;
+        }
+
         public void Pulse(double time)
         {
             Pulsing = true;
             if (PulseWidth >= PulseWidthMax)
                 pulseDirection = -1;
-            PulseWidth += (pulseDirection) * (PulseMultiplier * time);
+            PulseWidth += (pulseDirection) * (_currentPulseMultiplier * time);
 
             if (PulseWidth <= 0)
             {

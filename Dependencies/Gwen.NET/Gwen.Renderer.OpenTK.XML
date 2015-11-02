@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Gwen.Renderer.OpenTK</name>
+    </assembly>
+    <members>
+        <member name="M:Gwen.Input.OpenTK.TranslateKeyCode(OpenTK.Input.Key)">
+            <summary>
+            Translates control key's OpenTK key code to GWEN's code.
+            </summary>
+            <param name="key">OpenTK key code.</param>
+            <returns>GWEN key code.</returns>
+        </member>
+        <member name="M:Gwen.Input.OpenTK.TranslateChar(OpenTK.Input.Key)">
+            <summary>
+            Translates alphanumeric OpenTK key code to character value.
+            </summary>
+            <param name="key">OpenTK key code.</param>
+            <returns>Translated character.</returns>
+        </member>
+        <member name="M:Gwen.Input.OpenTKAlternative.TranslateKeyCode(OpenTK.Input.Key)">
+            <summary>
+            Translates control key's OpenTK key code to GWEN's code.
+            </summary>
+            <param name="key">OpenTK key code.</param>
+            <returns>GWEN key code.</returns>
+        </member>
+        <member name="M:Gwen.Input.OpenTKAlternative.TranslateChar(OpenTK.Input.Key)">
+            <summary>
+            Translates alphanumeric OpenTK key code to character value.
+            </summary>
+            <param name="key">OpenTK key code.</param>
+            <returns>Translated character.</returns>
+        </member>
+        <member name="M:Gwen.Renderer.OpenTK.FlushTextCache">
+            <summary>
+            Clears the text rendering cache. Make sure to call this if cached strings size becomes too big (check TextCacheSize).
+            </summary>
+        </member>
+        <member name="M:Gwen.Renderer.OpenTK.Resize(OpenTK.Matrix4@,System.Int32,System.Int32)">
+            <summary>
+            Updates the current projection matrix for the render. NOTE the Gwen.NET coordinate system expects (x,y) = (0,0) to be the top left hand corner
+            </summary>
+            <param name="projMatrix"></param>
+        </member>
+        <member name="P:Gwen.Renderer.OpenTK.TextCacheSize">
+            <summary>
+            Returns number of cached strings in the text cache.
+            </summary>
+        </member>
+        <member name="T:Gwen.Renderer.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Gwen.Renderer.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Gwen.Renderer.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+    </members>
+</doc>

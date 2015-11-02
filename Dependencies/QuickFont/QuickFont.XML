@@ -61,6 +61,165 @@
             <param name="str"></param>
             <returns></returns>
         </member>
+        <member name="T:QuickFont.QFont">
+            <summary>
+            Meant to be the actual Font... a resource like <see cref="T:System.Drawing.Font"/>. Because it holds the textures (the fonts).
+            </summary>
+        </member>
+        <member name="M:QuickFont.QFont.#ctor(System.Drawing.Font,QuickFont.QFontBuilderConfiguration)">
+            <summary>
+                Initialise QFont from a System.Drawing.Font object
+            </summary>
+            <param name="font"></param>
+            <param name="config"></param>
+        </member>
+        <member name="M:QuickFont.QFont.#ctor(System.String,System.Single,QuickFont.QFontBuilderConfiguration,System.Drawing.FontStyle,OpenTK.Matrix4)">
+            <summary>
+            Initialise QFont from a font file
+            </summary>
+            <param name="fontPath">The font file to load</param>
+            <param name="size">The size.</param>
+            <param name="config">The configuration.</param>
+            <param name="style">The style.</param>
+            <param name="currentProjectionMatrix">The current projection matrix to create a font pixel perfect, for.</param>
+        </member>
+        <member name="M:QuickFont.QFont.#ctor(System.String,QuickFont.QFontConfiguration,System.Single,OpenTK.Matrix4)">
+            <summary>
+                Initialise QFont from a .qfont file
+            </summary>
+            <param name="qfontPath">The .qfont file to load</param>
+            <param name="loaderConfig"></param>
+            <param name="downSampleFactor"></param>
+            <param name="currentProjectionMatrix">The current projection matrix to create a font pixel perfect, for.</param>
+        </member>
+        <member name="M:QuickFont.QFont.GetFont(System.String,System.Single,System.Drawing.FontStyle,System.Int32,System.Single)">
+            <summary>
+                Returns a System.Drawing.Font object created from the specified font file
+            </summary>
+            <param name="fontPath">The path to the font file</param>
+            <param name="size"></param>
+            <param name="style"></param>
+            <param name="superSampleLevels"></param>
+            <param name="scale"></param>
+            <returns></returns>
+        </member>
+        <member name="M:QuickFont.QFont.OrthogonalTransform(System.Single@,OpenTK.Matrix4)">
+            <summary>
+                When TransformToOrthogProjection is enabled, we need to get the current orthogonal transformation,
+                the font scale, and ensure that the projection is actually orthogonal
+            </summary>
+            <param name="fontScale"></param>
+            <param name="viewportTransform"></param>
+        </member>
+        <member name="M:QuickFont.QFont.Measure(System.String,System.Drawing.SizeF,QuickFont.QFontAlignment)">
+            <summary>
+            Measures the specified text. Helper method delegating functionality.
+            </summary>
+            <param name="text">The text.</param>
+            <param name="maxSize">The maximum size.</param>
+            <param name="alignment">The alignment.</param>
+            <returns>Measured size</returns>
+        </member>
+        <member name="M:QuickFont.QFont.Measure(System.String,System.Single,QuickFont.QFontAlignment)">
+            <summary>
+            Measures the specified text. Helper method delegating functionality.
+            </summary>
+            <param name="text">The text.</param>
+            <param name="maxWidth">The maximum width.</param>
+            <param name="alignment">The alignment.</param>
+            <returns>
+            Measured size.
+            </returns>
+        </member>
+        <member name="M:QuickFont.QFont.Measure(QuickFont.ProcessedText)">
+            <summary>
+            Measures the specified text. Helper method delegating functionality.
+            </summary>
+            <param name="processedText">The processed text.</param>
+            <returns>
+            Measured size.
+            </returns>
+        </member>
+        <member name="M:QuickFont.QFont.Measure(System.String,QuickFont.QFontAlignment)">
+            <summary>
+            Measures the specified text. Helper method delegating functionality.
+            </summary>
+            <param name="text">The text.</param>
+            <param name="alignment">The alignment.</param>
+            <returns>
+            Measured size.
+            </returns>
+        </member>
+        <member name="P:QuickFont.QFont.MaxLineHeight">
+            <summary>
+            The maximum line height for the glyph set, unscaled
+            </summary>
+        </member>
+        <member name="P:QuickFont.QFont.MaxGlyphHeight">
+            <summary>
+            The maximum glyph height for the glyph set, unscaled
+            </summary>
+        </member>
+        <member name="M:QuickFont.QFontDrawingPrimitive.RenderGlyph(System.Single,System.Single,System.Char,QuickFont.QFont,System.Collections.Generic.IList{QuickFont.QVertex},System.Drawing.Rectangle)">
+            <summary>
+            Renders the glyph at the position given.
+            </summary>
+            <param name="x">The x.</param>
+            <param name="y">The y.</param>
+            <param name="c">The character to print.</param>
+        </member>
+        <member name="M:QuickFont.QFontDrawingPrimitive.Measure(System.String,System.Drawing.SizeF,QuickFont.QFontAlignment)">
+            <summary>
+                Measures the actual width and height of the block of text.
+            </summary>
+            <param name="text"></param>
+            <param name="bounds"></param>
+            <param name="alignment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:QuickFont.QFontDrawingPrimitive.Measure(QuickFont.ProcessedText)">
+            <summary>
+                Measures the actual width and height of the block of text
+            </summary>
+            <param name="processedText"></param>
+            <returns></returns>
+        </member>
+        <member name="M:QuickFont.QFontDrawingPrimitive.TextNodeLineLength(QuickFont.TextNode,System.Single)">
+            <summary>
+                Computes the length of the next line, and whether the line is valid for
+                justification.
+            </summary>
+            <param name="node"></param>
+            <param name="maxLength"></param>
+            <param name="justifable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:QuickFont.QFontDrawingPrimitive.JustifyLine(QuickFont.TextNode,System.Single)">
+            <summary>
+                Computes the length of the next line, and whether the line is valid for
+                justification.
+            </summary>
+        </member>
+        <member name="M:QuickFont.QFontDrawingPrimitive.SkipTrailingSpace(QuickFont.TextNode,System.Single,System.Single)">
+            <summary>
+                Checks whether to skip trailing space on line because the next word does not
+                fit.
+                We only check one space - the assumption is that if there is more than one,
+                it is a deliberate attempt to insert spaces.
+            </summary>
+            <param name="node"></param>
+            <param name="lengthSoFar"></param>
+            <param name="boundWidth"></param>
+            <returns></returns>
+        </member>
+        <member name="M:QuickFont.QFontDrawingPrimitive.ProcessText(QuickFont.QFont,QuickFont.QFontRenderOptions,System.String,System.Drawing.SizeF,QuickFont.QFontAlignment)">
+            <summary>
+                Creates node list object associated with the text.
+            </summary>
+            <param name="text"></param>
+            <param name="bounds"></param>
+            <returns></returns>
+        </member>
         <member name="M:QuickFont.Helper.SafeGLEnable(OpenTK.Graphics.OpenGL4.EnableCap,System.Action)">
             <summary>
             Ensures that state is disabled
@@ -74,6 +233,59 @@
             </summary>
             <param name="cap"></param>
             <param name="code"></param>
+        </member>
+        <member name="T:QuickFont.QFontDrawing">
+            <summary>
+            This class represents a 'Drawing' on screen made off of Font renderings. eg. GlFontDrawingPrimitive
+            </summary>
+        </member>
+        <member name="M:QuickFont.QFontDrawing.InitialiseStaticState">
+            <summary>
+                Initialises the static shared render state
+            </summary>
+        </member>
+        <member name="M:QuickFont.QFontDrawing.InitialiseState">
+            <summary>
+                Initialises the instance render state
+            </summary>
+            <param name="state">
+                If state is null, this method will instead initialise the static state, which is returned when no
+                instance state is set
+            </param>
+        </member>
+        <member name="M:QuickFont.QFontDrawing.OrthogonalTransform(System.Single@)">
+            <summary>
+                When TransformToOrthogProjection is enabled, we need to get the current orthogonal transformation,
+                the font scale, and ensure that the projection is actually orthogonal
+            </summary>
+            <param name="fontScale"></param>
+            <param name="viewportTransform"></param>
+        </member>
+        <member name="M:QuickFont.QFontDrawing.Draw">
+            <summary>
+            Helper method to reduce lines of code related to simple font drawing.
+            Calls Begin(), then LoadVBOs(), then DrawVBOs(), then End()
+            </summary>
+        </member>
+        <member name="M:QuickFont.QFontDrawing.RefreshViewport">
+            <summary>
+                Invalidates the internally cached viewport, causing it to be
+                reread the next time it is required. This should be called
+                if the viewport (is resized?) and text is to be rendered to the new
+                viewport.
+            </summary>
+        </member>
+        <member name="M:QuickFont.QFontDrawing.RefreshBuffers">
+            <summary>
+            Refreshes the buffers with the current state of the 'font'drawing 
+            as defined in DrawingPrimitives
+            </summary>
+        </member>
+        <member name="M:QuickFont.QFontDrawing.Dispose">
+            <summary>
+            Releases unmanaged and - optionally - managed resources.
+            Do not make this method virtual. A derived class should not be able to override this method
+            </summary>
         </member>
         <member name="M:QuickFont.QBitmap.EmptyPixel(System.Drawing.Imaging.BitmapData,System.Int32,System.Int32)">
             <summary>
@@ -108,148 +320,6 @@
             <param name="r"></param>
             <param name="g"></param>
             <param name="b"></param>
-        </member>
-        <member name="M:QuickFont.QFont.#ctor(QuickFont.QFontData)">
-            <summary>
-                Used for creating a dropshadow QFont object
-            </summary>
-            <param name="fontData"></param>
-        </member>
-        <member name="M:QuickFont.QFont.#ctor(System.Drawing.Font,QuickFont.QFontBuilderConfiguration)">
-            <summary>
-                Initialise QFont from a System.Drawing.Font object
-            </summary>
-            <param name="font"></param>
-            <param name="config"></param>
-        </member>
-        <member name="M:QuickFont.QFont.#ctor(System.String,System.Single,QuickFont.QFontBuilderConfiguration,System.Drawing.FontStyle,OpenTK.Matrix4)">
-            <summary>
-                Initialise QFont from a font file
-            </summary>
-            <param name="fontPath">The font file to load</param>
-            <param name="size"></param>
-            <param name="config"></param>
-            <param name="style"></param>
-        </member>
-        <member name="M:QuickFont.QFont.#ctor(System.String,QuickFont.QFontConfiguration,System.Single,OpenTK.Matrix4)">
-            <summary>
-                Initialise QFont from a .qfont file
-            </summary>
-            <param name="qfontPath">The .qfont file to load</param>
-            <param name="loaderConfig"></param>
-            <param name="downSampleFactor"></param>
-            <param name="proj"></param>
-        </member>
-        <member name="M:QuickFont.QFont.GetFont(System.String,System.Single,System.Drawing.FontStyle,System.Int32,System.Single)">
-            <summary>
-                Returns a System.Drawing.Font object created from the specified font file
-            </summary>
-            <param name="fontPath">The path to the font file</param>
-            <param name="size"></param>
-            <param name="style"></param>
-            <param name="superSampleLevels"></param>
-            <param name="scale"></param>
-            <returns></returns>
-        </member>
-        <member name="M:QuickFont.QFont.InitialiseStaticState">
-            <summary>
-                Initialises the static shared render state
-            </summary>
-        </member>
-        <member name="M:QuickFont.QFont.InitialiseState(QuickFont.SharedState)">
-            <summary>
-                Initialises the instance render state
-            </summary>
-            <param name="state">
-                If state is null, this method will instead initialise the static state, which is returned when no
-                instance state is set
-            </param>
-        </member>
-        <member name="M:QuickFont.QFont.OrthogonalTransform(System.Single@)">
-            <summary>
-                When TransformToOrthogProjection is enabled, we need to get the current orthogonal transformation,
-                the font scale, and ensure that the projection is actually orthogonal
-            </summary>
-            <param name="fontScale"></param>
-            <param name="viewportTransform"></param>
-        </member>
-        <member name="M:QuickFont.QFont.PushOptions(QuickFont.QFontRenderOptions)">
-            <summary>
-                Pushes the specified QFont options onto the options stack
-            </summary>
-            <param name="newOptions"></param>
-        </member>
-        <member name="M:QuickFont.QFont.PushOptions">
-            <summary>
-                Creates a clone of the current font options and pushes
-                it onto the stack
-            </summary>
-        </member>
-        <member name="M:QuickFont.QFont.Measure(System.String,System.Drawing.SizeF,QuickFont.QFontAlignment)">
-            <summary>
-                Measures the actual width and height of the block of text.
-            </summary>
-            <param name="text"></param>
-            <param name="bounds"></param>
-            <param name="alignment"></param>
-            <returns></returns>
-        </member>
-        <member name="M:QuickFont.QFont.Measure(QuickFont.ProcessedText)">
-            <summary>
-                Measures the actual width and height of the block of text
-            </summary>
-            <param name="processedText"></param>
-            <returns></returns>
-        </member>
-        <member name="M:QuickFont.QFont.TextNodeLineLength(QuickFont.TextNode,System.Single)">
-            <summary>
-                Computes the length of the next line, and whether the line is valid for
-                justification.
-            </summary>
-            <param name="node"></param>
-            <param name="maxLength"></param>
-            <param name="justifable"></param>
-            <returns></returns>
-        </member>
-        <member name="M:QuickFont.QFont.JustifyLine(QuickFont.TextNode,System.Single)">
-            <summary>
-                Computes the length of the next line, and whether the line is valid for
-                justification.
-            </summary>
-        </member>
-        <member name="M:QuickFont.QFont.SkipTrailingSpace(QuickFont.TextNode,System.Single,System.Single)">
-            <summary>
-                Checks whether to skip trailing space on line because the next word does not
-                fit.
-                We only check one space - the assumption is that if there is more than one,
-                it is a deliberate attempt to insert spaces.
-            </summary>
-            <param name="node"></param>
-            <param name="lengthSoFar"></param>
-            <param name="boundWidth"></param>
-            <returns></returns>
-        </member>
-        <member name="M:QuickFont.QFont.ProcessText(System.String,System.Drawing.SizeF,QuickFont.QFontAlignment)">
-            <summary>
-                Creates node list object associated with the text.
-            </summary>
-            <param name="text"></param>
-            <param name="bounds"></param>
-            <returns></returns>
-        </member>
-        <member name="M:QuickFont.QFont.Draw">
-            <summary>
-            Helper method to reduce lines of code related to simple font drawing.
-            Calls Begin(), then LoadVBOs(), then DrawVBOs(), then End()
-            </summary>
-        </member>
-        <member name="M:QuickFont.QFont.RefreshViewport">
-            <summary>
-                Invalidates the internally cached viewport, causing it to be
-                reread the next time it is required. This should be called
-                if the viewport (is resized?) and text is to be rendered to the new
-                viewport.
-            </summary>
         </member>
         <member name="T:QuickFont.Builder">
             <summary>
@@ -294,6 +364,121 @@
             Use SystemDefault when rendering the ttf character set to create the QFont texture
             </summary>
         </member>
+        <member name="F:QuickFont.CharacterSet.BasicSet">
+            <summary>
+             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.:,;'\"(!?)+-*/=_{}[]@~#\\&gt;&lt;|^%$£&amp;€°µ"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.FrenchQuotes">
+            <summary>
+             "«»‹›"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.SpanishQuestEx">
+            <summary>
+             "¡¿"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.CyrillicSet">
+            <summary>
+             "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюяљњќћџЉЊЌЋЏ"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.ExtendedLatin">
+            <summary>
+             "ÀŠŽŸžÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.GreekAlphabet">
+            <summary>
+            "ΈΉΊΌΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.TurkishI">
+            <summary>
+            "ıİŞ"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.HebrewAlphabet">
+            <summary>
+            "אבגדהוזחטיכךלמםנןסעפףצץקרשת"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.ArabicAlphabet">
+            <summary>
+            "ںکگپچژڈ¯؛ہءآأؤإئابةتثجحخدذرزسشصض×طظعغـفقكàلâمنهوçèéêëىيîï؟"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.ThaiKhmerAlphabet">
+            <summary>
+            "กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮฯะัาำิีึืฺุู฿เแโใไๅๆ็่้๊๋์ํ๎๏๐๑๒๓๔๕๖๗๘๙๚๛"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.Hiragana">
+            <summary>
+            "ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんゔゕゖ゗゘゙゛゜ゝゞゟ"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.JapDigits">
+            <summary>
+            "㆐㆑㆒㆓㆔㆕㆖㆗㆘㆙㆚㆛㆜㆝㆞㆟"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.AsianQuotes">
+            <summary>
+            "「」"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.EssentialKanji">
+            <summary>
+            "⽇⽉" 
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.Katakana">
+            <summary>
+            "゠ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶヷヸヹヺ・ーヽヾヿ"
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.General">
+            <summary>
+            Includes the BasicSet, ExtendedLatin, FrenchQuotes and SpanishQuestEx
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.Cyrillic">
+            <summary>
+            Includes the BasicSet, CyrillicSet and FrenchQuotes
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.Greek">
+            <summary>
+            Includes the BasicSet, GreekAlphabet and FrenchQuotes
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.Turkish">
+            <summary>
+            Includes the BasicSet, ExtendedLatin and TurkishI
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.Hebrew">
+            <summary>
+            Includes the BasicSet and HebrewAlphabet
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.Arabic">
+            <summary>
+            Includes the BasicSet, ArabicAlphabet and FrenchQuotes
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.Japanese">
+            <summary>
+            Includes the BasicSet, Hiragana, Katakana, AsianQuotes, JapDigits and EssentialKanji
+            </summary>
+        </member>
+        <member name="F:QuickFont.CharacterSet.Thai">
+            <summary>
+            Includes the BasicSet, ThaiKhmerAlphabet and FrenchQuotes
+            </summary>
+        </member>
         <member name="T:QuickFont.QFontBuilderConfiguration">
             <summary>
             What settings to use when building the font
@@ -306,21 +491,11 @@
             
             </summary>
         </member>
-        <member name="F:QuickFont.QFontBuilderConfiguration.PageWidth">
+        <member name="F:QuickFont.QFontBuilderConfiguration.PageMaxTextureSize">
             <summary>
-            The standard width of texture pages (the page will
-            automatically be cropped if there is extra space)
-            </summary>
-        </member>
-        <member name="F:QuickFont.QFontBuilderConfiguration.PageHeight">
-            <summary>
-            The standard height of texture pages (the page will
-            automatically be cropped if there is extra space)
-            </summary>
-        </member>
-        <member name="F:QuickFont.QFontBuilderConfiguration.ForcePowerOfTwo">
-            <summary>
-            Whether to force texture pages to use a power of two.
+            The standard max width/height of 2D texture pages this OpenGl context wants to support
+            8129 sholud be a minimum. Exact value can be obtained with GL.GetInteger(GetPName.MaxTextureSize);
+            page will automatically be cropped if there is extra space.
             </summary>
         </member>
         <member name="F:QuickFont.QFontBuilderConfiguration.GlyphMargin">
@@ -338,6 +513,17 @@
             <summary>
             Which render hint to use when rendering the ttf character set to create the QFont texture
             </summary>
+        </member>
+        <member name="M:QuickFont.QFontBuilderConfiguration.FigureOutBestCharacterSet">
+            <summary>
+            Figures the out best character set to be assigned to charSet.
+            Depends on current active culture. To be more general we'd use
+            the code page and distinct the most used and practically usable
+            cultures in terms of their characters in use. Obviuously traditional
+            chinese can not be supported well. Due to Texture size limits and even worse due to the
+            Kerning infos (which are n² size if n is number of characters).
+            </summary>
+            <returns></returns>
         </member>
         <member name="F:QuickFont.QFontData.KerningPairs">
             <summary>
@@ -364,14 +550,19 @@
             The maximum glyph height
             </summary>
         </member>
-        <member name="F:QuickFont.QFontData.dropShadow">
+        <member name="F:QuickFont.QFontData.maxLineHeight">
             <summary>
-            Null if no dropShadow is available
+            The maximum line height
+            </summary>
+        </member>
+        <member name="F:QuickFont.QFontData.dropShadowFont">
+            <summary>
+            Null if no dropShadowFont is available
             </summary>
         </member>
         <member name="F:QuickFont.QFontData.isDropShadow">
             <summary>
-            true if this font is dropShadow
+            true if this font is dropShadowFont
             </summary>
         </member>
         <member name="F:QuickFont.QFontData.naturallyMonospaced">
@@ -418,21 +609,11 @@
             time it takes to build a font shadow
             </summary>
         </member>
-        <member name="F:QuickFont.QFontShadowConfiguration.PageWidth">
+        <member name="F:QuickFont.QFontShadowConfiguration.PageMaxTextureSize">
             <summary>
-            The standard width of texture pages (the page will
-            automatically be cropped if there is extra space)
-            </summary>
-        </member>
-        <member name="F:QuickFont.QFontShadowConfiguration.PageHeight">
-            <summary>
-            The standard height of texture pages (the page will
-            automatically be cropped if there is extra space)
-            </summary>
-        </member>
-        <member name="F:QuickFont.QFontShadowConfiguration.ForcePowerOfTwo">
-            <summary>
-            Whether to force texture pages to use a power of two.
+            The standard max width/height of 2D texture pages this OpenGl context wants to support
+            8129 sholud be a minimum. Exact value can be obtained with GL.GetInteger(GetPName.MaxTextureSize);
+            page will automatically be cropped if there is extra space.
             </summary>
         </member>
         <member name="F:QuickFont.QFontShadowConfiguration.GlyphMargin">

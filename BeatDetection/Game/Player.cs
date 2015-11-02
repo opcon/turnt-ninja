@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using ClipperLib;
-using Microsoft.Win32;
-using NAudio.MediaFoundation;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Input;
@@ -56,6 +54,8 @@ namespace BeatDetection
         {
             get { return _velocity; }
         }
+
+        public float Score;
 
         private Input _currentFramesInput;
         private ShaderProgram _shaderProgram;
@@ -150,6 +150,8 @@ namespace BeatDetection
         private Input GetUserInput()
         {
             Input i = Input.Default;
+            if (OpenTK.Input.GamePad.GetState(0).Buttons.BigButton == ButtonState.Pressed)
+                i |= Input.Left;
             if (InputSystem.CurrentKeys.Contains(Key.Left))
                 i |= Input.Left;
             if (InputSystem.CurrentKeys.Contains(Key.Right))

@@ -1,106 +1,123 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Diagnostics;
+//using System.IO;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+//using System.Text.RegularExpressions;
 
-namespace BeatDetection.Audio
-{
-    class SonicAnnotatorWrapper
-    {
-        private SonicAnnotatorArguments _baseArguments;
-        private IProgress<string> _progressReporter;
+//namespace BeatDetection.Audio
+//{
+//    class SonicAnnotatorWrapper
+//    {
+//        private SonicAnnotatorArguments _baseArguments;
+//        private IProgress<string> _progressReporter;
 
-        public SonicAnnotatorWrapper(SonicAnnotatorArguments arguments)
-        {
-            _baseArguments = arguments;
-        }
+//        public SonicAnnotatorWrapper(SonicAnnotatorArguments arguments)
+//        {
+//            _baseArguments = arguments;
+//        }
 
-        public bool Run(SonicAnnotatorArguments arguments, out string resultPath, IProgress<string> progress = null)
-        {
-            _progressReporter = progress ?? new Progress<string>();
-            if (string.IsNullOrWhiteSpace(arguments.SonicAnnotatorPath))
-                arguments.SonicAnnotatorPath = _baseArguments.SonicAnnotatorPath;
-            if (string.IsNullOrWhiteSpace(arguments.PluginsPath))
-                arguments.PluginsPath = _baseArguments.PluginsPath;
-            if (string.IsNullOrWhiteSpace(arguments.CSVDirectory))
-                arguments.CSVDirectory = _baseArguments.CSVDirectory;
+//        public bool Run(SonicAnnotatorArguments arguments, out string resultPath, IProgress<string> progress = null)
+//        {
+//            _progressReporter = progress ?? new Progress<string>();
+//            arguments = SanitizeArguments(arguments);
 
-            return ExecuteSonicAnnotator(arguments, out resultPath);
-        }
+//            return ExecuteSonicAnnotator(arguments, out resultPath);
+//        }
 
-        private bool ExecuteSonicAnnotator(SonicAnnotatorArguments arguments, out string resultPath)
-        {
-            var psi = new ProcessStartInfo(arguments.SonicAnnotatorPath) {WorkingDirectory = GameController.AssemblyDirectory};
-            psi.EnvironmentVariables.Add("VAMP_PATH", arguments.PluginsPath);
-            //var csvDir = "../../Processed Songs/";
-            var args = String.Format("-t \"{0}\" \"{1}\" -w csv --csv-force --csv-basedir \"{2}\"", arguments.DescriptorPath, arguments.AudioFilePath, arguments.CSVDirectory.Replace(@"\", "/"));
-            psi.Arguments = args;
-            psi.CreateNoWindow = true;
-            psi.UseShellExecute = false;
-            psi.RedirectStandardError = true;
+//        private SonicAnnotatorArguments SanitizeArguments(SonicAnnotatorArguments arguments)
+//        {
+//            if (string.IsNullOrWhiteSpace(arguments.SonicAnnotatorPath))
+//                arguments.SonicAnnotatorPath = _baseArguments.SonicAnnotatorPath;
+//            if (string.IsNullOrWhiteSpace(arguments.PluginsPath))
+//                arguments.PluginsPath = _baseArguments.PluginsPath;
+//            if (string.IsNullOrWhiteSpace(arguments.CSVDirectory))
+//                arguments.CSVDirectory = _baseArguments.CSVDirectory;
+//            return arguments;
+//        }
 
-            var result = Path.Combine(arguments.CSVDirectory, String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(arguments.AudioFilePath), arguments.InitialOutputSuffix) + ".csv");
-            var newName = Path.Combine(Path.GetDirectoryName(result), String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(arguments.AudioFilePath), arguments.DesiredOutputSuffix + ".csv"));
+//        public bool GetAnalysisFile(SonicAnnotatorArguments args, out string file )
+//        {
+//            args = SanitizeArguments(args);
+//            var result = Path.Combine(args.CSVDirectory, String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(args.AudioFilePath), args.InitialOutputSuffix) + ".csv");
+//            file = Path.Combine(Path.GetDirectoryName(result), String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(args.AudioFilePath), args.DesiredOutputSuffix + ".csv"));
 
-            if (File.Exists(newName))
-            {
-                resultPath = newName;
-                return true;
-            }
+//            return File.Exists(file);
+//        }
 
-            string pattern = @"\s(\d{1,3})%";
-            var p = Process.Start(psi);
-            while (!p.HasExited)
-            {
-                string e = p.StandardError.ReadLine() ?? "";
-                if (!string.IsNullOrWhiteSpace(e))
-                {
-                    var match = Regex.Match(e, pattern).ToString();
-                    _progressReporter.Report(match);
-                }
-            }
+//        private bool ExecuteSonicAnnotator(SonicAnnotatorArguments arguments, out string resultPath)
+//        {
+//            var psi = new ProcessStartInfo(arguments.SonicAnnotatorPath) {WorkingDirectory = GameController.AssemblyDirectory};
+//            psi.EnvironmentVariables.Add("VAMP_PATH", arguments.PluginsPath);
+//            //var csvDir = "../../Processed Songs/";
+//            var args = String.Format("-t \"{0}\" \"{1}\" -w csv --csv-force --csv-basedir \"{2}\"", arguments.DescriptorPath, arguments.AudioFilePath, arguments.CSVDirectory.Replace(@"\", "/"));
+//            psi.Arguments = args;
+//            psi.CreateNoWindow = true;
+//            psi.UseShellExecute = false;
+//            psi.RedirectStandardError = true;
 
-            if (File.Exists(result))
-            {
-                if (File.Exists(newName))
-                    File.Delete(newName);
-                File.Move(result, newName);
-                resultPath = newName;
-                return true;
-            }
+//            var result = Path.Combine(arguments.CSVDirectory, String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(arguments.AudioFilePath), arguments.InitialOutputSuffix) + ".csv");
+//            var newName = Path.Combine(Path.GetDirectoryName(result), String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(arguments.AudioFilePath), arguments.DesiredOutputSuffix + ".csv"));
 
-            resultPath = null;
-            return false;
-        }
-    }
+//            if (File.Exists(newName))
+//            {
+//                resultPath = newName;
+//                return true;
+//            }
 
-    struct SonicAnnotatorArguments
-    {
-        public string SonicAnnotatorPath;
-        public string PluginsPath;
-        public string CSVDirectory;
+//            string pattern = @"\s(\d{1,3})%";
+//            var p = Process.Start(psi);
+//            string output = "";
+//            while (!p.HasExited)
+//            {
+//                string e = p.StandardError.ReadLine() ?? "";
+//                output += e + "\n";
+//                if (!string.IsNullOrWhiteSpace(e))
+//                {
+//                    var match = Regex.Match(e, pattern).ToString();
+//                    _progressReporter.Report(match);
+//                }
+//            }
 
-        public string AudioFilePath;
-        public string DescriptorPath;
-        public string InitialOutputSuffix;
-        public string DesiredOutputSuffix;
-        public float Correction;
+//            if (File.Exists(result))
+//            {
+//                if (File.Exists(newName))
+//                    File.Delete(newName);
+//                File.Move(result, newName);
+//                resultPath = newName;
+//                return true;
+//            }
 
-    }
+//            resultPath = null;
+//            return false;
+//        }
+//    }
 
-    struct SegmentInformation
-    {
-        public double StartTime;
-        public double EndTime;
-        public int ID;
+//    struct SonicAnnotatorArguments
+//    {
+//        public string SonicAnnotatorPath;
+//        public string PluginsPath;
+//        public string CSVDirectory;
 
-        public override string ToString()
-        {
-            return String.Format("{0} to {1}, ID = {2}", StartTime, EndTime, ID);
-        }
-    }
-}
+//        public string AudioFilePath;
+//        public string DescriptorPath;
+//        public string InitialOutputSuffix;
+//        public string DesiredOutputSuffix;
+//        public float Correction;
+
+//    }
+
+//    struct SegmentInformation
+//    {
+//        public double StartTime;
+//        public double EndTime;
+//        public int ID;
+
+//        public override string ToString()
+//        {
+//            return String.Format("{0} to {1}, ID = {2}", StartTime, EndTime, ID);
+//        }
+//    }
+//}

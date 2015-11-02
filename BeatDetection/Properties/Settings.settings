@@ -1,0 +1,45 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="BeatDetection.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="AudioCorrection" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="MaxAudioVolume" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="ResolutionX" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1280</Value>
+    </Setting>
+    <Setting Name="ResolutionY" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">720</Value>
+    </Setting>
+    <Setting Name="AntiAliasingSamples" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="VSync" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="WindowState" Type="OpenTK.WindowState" Scope="User">
+      <Value Profile="(Default)">Normal</Value>
+    </Setting>
+    <Setting Name="SonicAnnotatorPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">../../External Programs/sonic-annotator-1.0-win32/sonic-annotator.exe</Value>
+    </Setting>
+    <Setting Name="PluginPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">../../External Programs/Vamp Plugins</Value>
+    </Setting>
+    <Setting Name="FileFilter" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">.mp3,.flac,.wav,.m4a,.wma</Value>
+    </Setting>
+    <Setting Name="TempFolderName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">turnt-ninja</Value>
+    </Setting>
+    <Setting Name="OnsetActivationThreshold" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">9</Value>
+    </Setting>
+    <Setting Name="OnsetAdaptiveWhitening" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

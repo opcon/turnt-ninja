@@ -1,67 +1,58 @@
 ﻿
 using System;
+using System.Diagnostics;
 using System.Drawing;
-using BeatDetection.Core;
+using System.IO;
+using System.Reflection;
+using BeatDetection.Core.Settings;
 using BeatDetection.Game;
 using BeatDetection.GUI;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
-using NAudio.Wave;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 using QuickFont;
 using Substructio.Core;
+using Substructio.Core.Settings;
 using Substructio.GUI;
+using Substructio.IO;
 
 namespace BeatDetection
 {
     /// <summary>
     /// Demonstrates the GameWindow class.
     /// </summary>
-    public class GameController : GameWindow
+    public sealed class GameController : GameWindow
     {
 
         private SceneManager _gameSceneManager;
         private const float prefWidth = 1920;
         private const float prefHeight = 1080;
 
-        OnsetDetector detector;
         private string sonicAnnotator = "../../External Programs/sonic-annotator-1.0-win32/sonic-annotator.exe";
         private string pluginPath = "../../External Programs/Vamp Plugins";
-        private string fontPath = Directories.FontsDirectory + "./Chamgagne Limousines/Champagne & Limousines Italic.ttf";
-        WaveOut waveOut;
-        RawSourceWaveStream source;
-        Stopwatch stopWatch;
-        float tNext = 0;
-        bool beatShown = false;
-        float correction = 0.25f;
-        float time = 0;
+        private string fontPath = "";
+        float correction = 0.0f;
 
-        PolarPolygon _polarPolygon;
+        private Stopwatch _watch;
 
-        //List<PolarPolygonSide> hexagonSides;
-        //List<PolarPolygonSide> toRemove;
-
-        Random random;
-
-        double[] angles;
-
-        Player p;
-
-        IWaveProvider prov;
-
-        private int dir = 1;
-
+        private double _lag = 0.0;
+        private double _dt = 16.0/1000;
 
         private Stage _stage;
-        public GameController()
-            : base(1280, 720, new GraphicsMode(32, 24, 8, 4))
+
+        private IGameSettings _gameSettings;
+        private DirectoryHandler _directoryHandler;
+        private static CrashReporter _crashReporter;
+
+        public GameController(IGameSettings gameSettings, int rX, int rY, GraphicsMode graphicsMode, DirectoryHandler directoryHandler)
+            : base(rX, rY, graphicsMode)
         {
             KeyDown += Keyboard_KeyDown;
-            //this.VSync = VSyncMode.Off;
+            this.VSync = (bool) gameSettings["VSync"] ? VSyncMode.On : VSyncMode.Off;
+            this.WindowState = (WindowState) gameSettings["WindowState"];
+            _gameSettings = gameSettings;
+            _directoryHandler = directoryHandler;
         }
 
         #region Keyboard_KeyDown
@@ -73,19 +64,15 @@ namespace BeatDetection
         /// <param name="e">The key that was pressed.</param>
         void Keyboard_KeyDown(object sender, KeyboardKeyEventArgs e)
         {
-            if (e.Key == Key.Escape)
-                this.Exit();
-
             if (e.Key == Key.F11)
-                if (this.WindowState == WindowState.Fullscreen)
-                    this.WindowState = WindowState.Normal;
-                else
-                    this.WindowState = WindowState.Fullscreen;
+            {
+                _gameSettings["WindowState"] = WindowState = WindowState == WindowState.Fullscreen ? WindowState.Normal : WindowState.Fullscreen;
+            }
         }
 
         #endregion
 
-        protected override void OnKeyPress(OpenTK.KeyPressEventArgs e)
+        protected override void OnKeyPress(KeyPressEventArgs e)
         {
             if (Focused)
                 InputSystem.KeyPressed(e);
@@ -100,30 +87,13 @@ namespace BeatDetection
         /// <param name="e">Not used.</param>
         protected override void OnLoad(EventArgs e)
         {
+            fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Chamgagne Limousines/Champagne & Limousines Italic.ttf");
 
             var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
-            var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Italic){ProjectionMatrix = gameCamera.ScreenProjectionMatrix};
-            _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath);
-            _gameSceneManager.AddScene(new LoadingScene(sonicAnnotator, pluginPath, correction));
-
-
-
-            //string file = "";
-            //OpenFileDialog ofd = new OpenFileDialog();
-            //ofd.Multiselect = false;
-            //ofd.Filter = "Audio Files (*.mp3, *.flac, *.wav)|*.mp3;*.flac;*.wav|All Files (*.*)|*.*";
-            //if (ofd.ShowDialog() == DialogResult.OK)
-            //{
-            //    file = ofd.FileName;
-            //    file = file.Replace(@"\", "/");
-            //    //file.Replace("\\", "/");
-            //}
-            //else
-            //{
-            //    this.Exit();
-            //    return;
-            //}
+            var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Italic);
+            _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath, _directoryHandler, _gameSettings);
+            _gameSceneManager.AddScene(new MenuScene(sonicAnnotator, pluginPath), null);
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
             Keyboard.KeyUp += (o, args) => InputSystem.KeyUp(args);
@@ -134,8 +104,7 @@ namespace BeatDetection
 
             GL.ClearColor(Color.CornflowerBlue);
 
-            //_stage = new Stage();
-            //_stage.LoadAsync(file, sonicAnnotator, pluginPath, correction);
+            _watch = new Stopwatch();
         }
 
         #endregion
@@ -150,11 +119,6 @@ namespace BeatDetection
         protected override void OnResize(EventArgs e)
         {
             GL.Viewport(0, 0, Width, Height);
-
-
-            //GL.MatrixMode(MatrixMode.Projection);
-            //var mat = Matrix4.CreateOrthographic(Width, Height, 0.0f, 4.0f);
-            //GL.LoadMatrix(ref mat);
 
             _gameSceneManager.Resize(e);
         }
@@ -171,10 +135,16 @@ namespace BeatDetection
         /// <remarks>There is no need to call the base implementation.</remarks>
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            //_stage.Update(e.Time);
-            _gameSceneManager.Update(e.Time);
+            _lag += e.Time;
+            while (_lag >= _dt)
+            {
+                _gameSceneManager.Update(_dt);
 
-            InputSystem.Update(this.Focused);
+                //only update input system once per frame!
+                InputSystem.Update(this.Focused, _dt);
+
+                _lag -= _dt;
+            }
         }
 
         #endregion
@@ -188,32 +158,69 @@ namespace BeatDetection
         /// <remarks>There is no need to call the base implementation.</remarks>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            //_stage.Draw(e.Time);
-            //GL.MatrixMode(MatrixMode.Modelview);
-            //GL.LoadIdentity();
-            //GL.Translate(0.375, 0.375, 0.0);
             _gameSceneManager.Draw(e.Time);
 
             this.SwapBuffers();
         }
 
+        protected override void OnUnload(EventArgs e)
+        {
+            _gameSceneManager.Dispose();
+            _gameSettings.Save();
+            base.OnUnload(e);
+        }
+
         #endregion
 
-        #region public static void Main()
-
-        /// <summary>
-        /// Entry point of this example.
-        /// </summary>
         [STAThread]
-        public static void Main()
+        public static void Main(string[] args)
         {
-            using (GameController game = new GameController())
+            //initialise directory handler
+            var directoryHandler = new DirectoryHandler();
+            directoryHandler.AddPath("Resources", @"..\..\Resources");
+            directoryHandler.AddPath("Fonts", Path.Combine(directoryHandler["Resources"].FullName, @"Fonts"));
+            directoryHandler.AddPath("Shaders", Path.Combine(directoryHandler["Resources"].FullName, @"Shaders"));
+            directoryHandler.AddPath("Images", Path.Combine(directoryHandler["Resources"].FullName, @"Images"));
+            directoryHandler.AddPath("Crash", @"..\..\CrashLogs");
+
+            if (!Debugger.IsAttached)
             {
-                // Get the title and category  of this example using reflection.
-                game.Title = "turnt-ninja";
-                game.Run(60.0, 0.0);
+                //initialise crash reporter
+                _crashReporter = new CrashReporter(directoryHandler["Crash"].FullName);
+
+                //attach exception handlers
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            }
+
+
+            IGameSettings gameSettings = new PropertySettings();
+            gameSettings.Load();
+
+            int rX = (int)gameSettings["ResolutionX"];
+            int rY = (int)gameSettings["ResolutionY"];
+            int FSAASamples = (int)gameSettings["AntiAliasingSamples"];
+            GraphicsMode graphicsMode = new GraphicsMode(32, 24, 8, FSAASamples);
+
+            using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode, directoryHandler))
+            {
+                game.Title = "Codename: turnt-ninja";
+                game.Run();
+            }
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            try
+            {
+                Exception ex = (Exception)e.ExceptionObject;
+                _crashReporter.LogError(ex);
+            }
+            finally
+            {
+                System.Environment.Exit(-1);
             }
         }
 
@@ -227,7 +234,5 @@ namespace BeatDetection
                 return Path.GetDirectoryName(path);
             }
         }
-
-        #endregion
     }
 }

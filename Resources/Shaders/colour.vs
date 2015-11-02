@@ -1,9 +1,9 @@
 #version 130
 
 uniform mat4 mvp;
-uniform vec4 in_color;
 
 in vec2 in_position;
+in vec4 in_color;
 out vec4 vs_color;
 
 void main(void)
