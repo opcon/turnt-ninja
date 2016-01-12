@@ -172,8 +172,9 @@ namespace BeatDetection.Game
             }
             else
             {
-                _stageAudio.Load(audioPath);
-                source = _stageAudio.Source;
+                //TODO: Load audio from IFileSystem rather than this hack
+                source = CSCore.Codecs.CodecFactory.Instance.GetCodec(audioPath);
+                _stageAudio.Load(source);
             }
 
             var tempStream = new MemoryStream();

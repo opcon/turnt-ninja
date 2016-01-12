@@ -127,20 +127,37 @@ namespace BeatDetection.FileSystem
             TagLib.Tag tag;
 
             // Load the tag information
-            using (var fs = File.Open(entry.Path, FileMode.Open))
+            string artist = "";
+            string title = "";
+
+            if (TagLib.SupportedMimeType.AllExtensions.Any(s => entry.Path.EndsWith(s, StringComparison.OrdinalIgnoreCase)))
             {
-                var file = TagLib.File.Create(new TagLib.StreamFileAbstraction(entry.Name, fs, fs));
-                tag = file.Tag;
-                file.Dispose();
+                using (var fs = File.Open(entry.Path, FileMode.Open))
+                {
+                    try
+                    {
+                        var file = TagLib.File.Create(new TagLib.StreamFileAbstraction(entry.Name, fs, fs));
+                        tag = file.Tag;
+                        artist = tag.AlbumArtists.Count() > 0 ? tag.AlbumArtists[0] : "";
+                        title = tag.Title;
+                        file.Dispose();
+                    }
+                    catch (TagLib.UnsupportedFormatException ex)
+                    {
+                    }
+                }
             }
+
+            title = string.IsNullOrWhiteSpace(title) ? Path.GetFileNameWithoutExtension(entry.Path) : title;
+            artist = string.IsNullOrWhiteSpace(title) ? "Unkown Artist" : artist; 
 
             // Initialise the song variable
             var ret = new Song
             {
                 InternalName = entry.Path,
-                Artist = tag.AlbumArtists[0],
+                Artist = artist,
                 Identifier = entry.Name,
-                TrackName = tag.Title,
+                TrackName = title,
                 FileSystem = this
             };
 
