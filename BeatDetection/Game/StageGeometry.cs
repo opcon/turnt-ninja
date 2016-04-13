@@ -47,6 +47,12 @@ namespace BeatDetection.Game
             get { return _collidedBeatIndex == _beats.Index; }
         }
 
+        public float Amplitude
+        {
+            get { return BeatFrequencies[_beats.Index]; }
+            //get { return ((BeatFrequencies[_beats.Index] - MinBeatFrequency) / (MaxBeatFrequency - MinBeatFrequency)); }
+        }
+
         public int CurrentBeat
         {
             get { return _beats.Index; }
@@ -135,6 +141,7 @@ namespace BeatDetection.Game
 
         public void Draw(double time)
         {
+            float amp = (BeatFrequencies[_beats.Index] - MinBeatFrequency) / (MaxBeatFrequency - MinBeatFrequency);
             ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenBackgroundColour);
             BackgroundPolygon.Draw(time, 1);
             ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddBackgroundColour);
@@ -152,6 +159,7 @@ namespace BeatDetection.Game
             if (_beats.Index < _beats.Count && Collided)
             {
                 ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenCollisionColour);
+                //ParentStage.ShaderProgram.SetUniform("in_color", Color4.FromHsv(new Vector4(0, 0, amp, 1)));
                 _beats.DrawCurrentBeat(time, 1);
             }
             CenterPolygon.Draw(time, 1);
@@ -162,6 +170,7 @@ namespace BeatDetection.Game
             if (_beats.Index < _beats.Count && Collided)
             {
                 ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddCollisionColour);
+                //ParentStage.ShaderProgram.SetUniform("in_color", Color4.FromHsv(new Vector4(0, 0, amp, 1)));
                 _beats.DrawCurrentBeat(time, 2);
             }
 

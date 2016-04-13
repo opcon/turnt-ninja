@@ -137,7 +137,7 @@ namespace BeatDetection.GUI
             if (_loadTask.Exception != null)
             {
                 Trace.WriteLine(_loadTask.Exception.Message);
-                throw new Exception("Loading failed!");
+                throw _loadTask.Exception;
             }
             if (_loadTask.IsCompleted)
             {

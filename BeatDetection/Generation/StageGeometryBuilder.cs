@@ -44,7 +44,7 @@ namespace BeatDetection.Generation
 
         private void BuildBeatFrequencyList()
         {
-            var sorted = _audioFeatures.Onsets.OrderBy(f => f).ToArray();
+            var sorted = _audioFeatures.OnsetTimes.OrderBy(f => f).ToArray();
             _beatFrequencies = new float[sorted.Length];
             int lookAhead = 5;
             int halfFrequencySampleSize = 4;
@@ -92,11 +92,13 @@ namespace BeatDetection.Generation
             }
 
             _beatFrequencies[_beatFrequencies.Length - 1] = _beatFrequencies[_beatFrequencies.Length - 2];
+
+            //_beatFrequencies = _audioFeatures.Onsets.Select(o => o.OnsetAmplitude).ToArray();
         }
 
         private void BuildGeometry()
         {
-            _beats = new BeatCollection(_audioFeatures.Onsets.Count, _builderOptions.GeometryShaderProgram);
+            _beats = new BeatCollection(_audioFeatures.OnsetTimes.Count, _builderOptions.GeometryShaderProgram);
 
             //intialise state variables for algorithim
             int prevStart = 0;
@@ -107,7 +109,7 @@ namespace BeatDetection.Generation
             int index = 0;
 
             //sort onset list by time
-            var sorted = _audioFeatures.Onsets.OrderBy(f => f);
+            var sorted = _audioFeatures.OnsetTimes.OrderBy(f => f);
 
             var structureList = new List<List<int>>();
 

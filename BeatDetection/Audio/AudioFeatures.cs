@@ -15,7 +15,8 @@ namespace BeatDetection.Audio
         string _csvDirectory;
         string _outputSuffix = "onsets";
 
-        public List<float> Onsets = new List<float>();
+        public List<float> OnsetTimes = new List<float>();
+        public List<Onset> Onsets = new List<Onset>();
         public float _correction;
         private IProgress<string> _outerProgressReporter;
         private IProgress<string> _innerProgressReporter;
@@ -62,7 +63,7 @@ namespace BeatDetection.Audio
 
         private void ExtractOnsets(string audioFilePath)
         {
-            List<float> onsets;
+            List<Onset> onsets;
             if (SongAnalysed(audioFilePath))
                 onsets = LoadOnsets(GetOnsetFilePath(audioFilePath));
             else
@@ -70,40 +71,41 @@ namespace BeatDetection.Audio
                 onsets = _onsetDetector.Detect(audioFilePath);
                 SaveOnsets(GetOnsetFilePath(audioFilePath), onsets);
             }
-
-            ApplyCorrection(onsets, _correction);
+            OnsetTimes = onsets.Select(o => o.OnsetTime).ToList();
             Onsets = onsets;
+            ApplyCorrection(OnsetTimes, _correction);
         }
 
         private void ExtractOnsets(CSCore.IWaveSource audioSource)
         {
             var onsets = _onsetDetector.Detect(audioSource.ToSampleSource());
 
-            ApplyCorrection(onsets, _correction);
+            OnsetTimes = onsets.Select(o => o.OnsetTime).ToList();
             Onsets = onsets;
+            ApplyCorrection(OnsetTimes, _correction);
         }
 
-        private void SaveOnsets(string onsetFile, List<float> onsets)
+        private void SaveOnsets(string onsetFile, List<Onset> onsets)
         {
             using (StreamWriter sw = new StreamWriter(onsetFile))
             {
                 foreach (var onset in onsets)
                 {
-                    sw.WriteLine(onset);
+                    sw.WriteLine(onset.ToString());
                 }
                 sw.Close();
             }
         }
 
-        private List<float> LoadOnsets(string onsetFile)
+        private List<Onset> LoadOnsets(string onsetFile)
         {
-            List<float> onsets = new List<float>();
+            List<Onset> onsets = new List<Onset>();
             using (StreamReader sr = new StreamReader(onsetFile))
             {
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    onsets.Add(float.Parse(line.Split(',')[0]));
+                    onsets.Add(new Onset { OnsetTime = float.Parse(line.Split(',')[0]), OnsetAmplitude = float.Parse(line.Split(',')[1]) });
                 }
                 sr.Close();
             }
