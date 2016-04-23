@@ -58,6 +58,11 @@ namespace BeatDetection.Game
             get { return _beats.Index; }
         }
 
+        public float CurrentBeatFrequency
+        {
+            get { return OutOfBeats ? BeatFrequencies.Last() : BeatFrequencies[CurrentBeat]; }
+        }
+
         public bool OutOfBeats
         {
             get { return _beats.Index == _beats.Count; }
