@@ -65,7 +65,7 @@ namespace BeatDetection.GUI
             _singlePlayerPolygon.PulseMultiplier = 25;
             _singlePlayerPolygon.PulseWidthMax = 7;
 
-            _menuFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Italic);
+            _menuFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Regular);
             _menuFontDrawing = new QFontDrawing();
             _menuFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
             _menuRenderOptions = new QFontRenderOptions {DropShadowActive = true};

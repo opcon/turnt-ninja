@@ -101,7 +101,7 @@ namespace BeatDetection.GUI
 
             _loadingFontRenderOptions = new QFontRenderOptions();
             _loadingFontRenderOptions.DropShadowActive = true;
-            _loadingFont = new QFont(SceneManager.FontPath, 30, new QFontBuilderConfiguration(true), FontStyle.Italic);
+            _loadingFont = new QFont(SceneManager.FontPath, 30, new QFontBuilderConfiguration(true), FontStyle.Regular);
             _loadingFontDrawing = new QFontDrawing();
             _loadingFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
             _loadingText = QFontDrawingPrimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, "Loading", new SizeF(200, -1), QFontAlignment.Centre);

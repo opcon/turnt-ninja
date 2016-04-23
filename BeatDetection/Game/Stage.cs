@@ -86,7 +86,7 @@ namespace BeatDetection.Game
         {
             SceneManager = sceneManager;
 
-            MultiplierFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Italic);
+            MultiplierFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Regular);
             MultiplierFontDrawing = new QFontDrawing();
             MultiplierFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
 
