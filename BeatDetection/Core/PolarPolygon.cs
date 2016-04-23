@@ -33,7 +33,7 @@ namespace BeatDetection.Core
         public double ImpactDistance;
         public bool Destroy = false;
 
-        public double OutlineWidth = 4;
+        public double OutlineWidth = 6;
 
         public PolarVector Position;
         public PolarVector Velocity;
