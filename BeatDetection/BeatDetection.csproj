@@ -77,7 +77,7 @@
     </Reference>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\OpenTK\Release\OpenTK.dll</HintPath>
+      <HintPath>..\Dependencies\OpenTK\Debug\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="SoundCloud.API.Client, Version=1.0.0.4, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
