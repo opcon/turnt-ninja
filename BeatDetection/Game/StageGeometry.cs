@@ -85,8 +85,9 @@ namespace BeatDetection.Game
             if (frameCount > 10) frameCount = 0;
 
             _elapsedTime += time;
-            _rotationMultiplier = 0.5*_direction*Math.Min(((!OutOfBeats ? BeatFrequencies[_beats.Index] : MaxBeatFrequency)/MaxBeatFrequency)*2, 1);
-            var rotate = time * RotationSpeed * _rotationMultiplier + _extraRotation * _rotationMultiplier;
+            _rotationMultiplier = 0.5*Math.Min(((!OutOfBeats ? BeatFrequencies[_beats.Index] : MaxBeatFrequency)/MaxBeatFrequency)*2, 1);
+            var rotate = time * RotationSpeed * _rotationMultiplier + _extraRotation * (1+_rotationMultiplier/3.0f);
+            rotate = Math.Abs(rotate) * _direction;
             _extraRotation = 0;
             ParentStage.SceneManager.ScreenCamera.ExtraScale = 0;
 
@@ -99,8 +100,8 @@ namespace BeatDetection.Game
                 CenterPolygon.PulseMultiplier = Math.Pow(BeatFrequencies[CurrentBeat] * 60,1) + 70;
                 ParentStage.SceneManager.ScreenCamera.ExtraScale = CenterPolygon.Pulsing ?  (float)Math.Pow(BeatFrequencies[CurrentBeat],3) * 0.2f : 0;
 
-                //if (_beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] < 60 && _beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] > 40)
-                //    _extraRotation = 0.02f;
+                if (_beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] < 60 && _beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] > 40)
+                    _extraRotation = 0.005f;
 
                 if (ParentStage.AI)
                 {
