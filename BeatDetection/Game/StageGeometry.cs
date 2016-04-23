@@ -265,7 +265,7 @@ namespace BeatDetection.Game
 
         private HUSLColor GetOutlineColour(HUSLColor col)
         {
-            col.L += 10;
+            col.L += 20;
             col.S += 20;
             return col;
         }
