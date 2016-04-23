@@ -88,6 +88,7 @@ namespace BeatDetection.Generation
             int prevSkip = 0;
             //set initial previous time to -1 so that the first polygon generated is always unique and doesn't trigger 'beat too close to previous' case
             float prevTime = -1.0f;
+            float samePatternChance = 0.90f;
 
             int index = 0;
 
@@ -131,7 +132,8 @@ namespace BeatDetection.Generation
 
                     //this beat is reasonably close to the previous one, use the same skip pattern but a different (+/- 1) orientation
                     start = (prevStart + 6) + r;
-                    skip = prevSkip;
+                    if (_random.NextDouble() < samePatternChance)
+                        skip = prevSkip;
                 }
                 else
                 {
