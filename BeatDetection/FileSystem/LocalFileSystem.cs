@@ -149,16 +149,20 @@ namespace BeatDetection.FileSystem
             }
 
             title = string.IsNullOrWhiteSpace(title) ? Path.GetFileNameWithoutExtension(entry.Path) : title;
-            artist = string.IsNullOrWhiteSpace(title) ? "Unkown Artist" : artist; 
+            artist = string.IsNullOrWhiteSpace(title) ? "Unkown Artist" : artist;
 
             // Initialise the song variable
             var ret = new Song
             {
-                InternalName = entry.Path,
-                Artist = artist,
-                Identifier = entry.Name,
-                TrackName = title,
-                FileSystem = this
+                FileSystem = this,
+                SongBase = new SongBase
+                {
+                    InternalName = entry.Path,
+                    Artist = artist,
+                    Identifier = entry.Name,
+                    TrackName = title,
+                    FileSystemFriendlyName = FriendlyName
+                }
             };
 
             // Song information is loaded so we return it
@@ -168,9 +172,9 @@ namespace BeatDetection.FileSystem
         public void LoadSongAudio(Song song)
         {
             // Sanity checks
-            if (!File.Exists(song.InternalName)) throw new Exception("File not found: " + song.InternalName);
+            if (!File.Exists(song.SongBase.InternalName)) throw new Exception("File not found: " + song.SongBase.InternalName);
 
-            song.SongAudio = CSCore.Codecs.CodecFactory.Instance.GetCodec(song.InternalName);
+            song.SongAudio = CSCore.Codecs.CodecFactory.Instance.GetCodec(song.SongBase.InternalName);
             song.SongAudioLoaded = true;
         }
     }

@@ -13,12 +13,7 @@ namespace BeatDetection.Audio
         public IWaveSource SongAudio { get; set; }
         public bool SongAudioLoaded { get; set; } = false;
         public IFileSystem FileSystem { get; set; }
-
-        public string InternalName { get; set; }
-
-        public string Identifier { get; set; }
-        public string Artist { get; set; }
-        public string TrackName { get; set; }
+        public SongBase SongBase { get; set; }
 
         bool disposedValue = false; // To detect redundant calls
 

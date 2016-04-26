@@ -105,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio\AudioFeatures.cs" />
+    <Compile Include="Audio\SongBase.cs" />
     <Compile Include="FileSystem\FileBrowserEntry.cs" />
     <Compile Include="Audio\PlaylistHelper.cs" />
     <Compile Include="Audio\Song.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="FileSystem\DirectoryBrowser.cs" />
     <Compile Include="FileSystem\IFileSystem.cs" />
     <Compile Include="FileSystem\LocalFileSystem.cs" />
+    <Compile Include="FileSystem\RecentFileSystem.cs" />
     <Compile Include="FileSystem\SoundCloudFileSystem.cs" />
     <Compile Include="Game\BeatCollection.cs" />
     <Compile Include="Game\Difficulty.cs" />
@@ -137,6 +139,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -144,6 +147,7 @@
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -23,6 +23,7 @@ namespace BeatDetection.GUI
         private readonly PolarPolygon _centerPolygon;
         private readonly Player _player;
         private readonly ShaderProgram _shaderProgram;
+        private List<SongBase> _recentSongs;
 
         DirectoryBrowser _directoryBrowser;
 
@@ -49,6 +50,12 @@ namespace BeatDetection.GUI
             _directoryBrowser = new DirectoryBrowser(SceneManager, this);
             _directoryBrowser.AddFileSystem(new LocalFileSystem());
 
+            if (SceneManager.GameSettings["RecentSongs"] == null)
+                SceneManager.GameSettings["RecentSongs"] = _recentSongs = new List<SongBase>();
+            //else
+                _recentSongs = (List<SongBase>)SceneManager.GameSettings["RecentSongs"];
+
+            _directoryBrowser.AddFileSystem(new RecentFileSystem(_recentSongs));
             Loaded = true;
         }
 
@@ -64,11 +71,19 @@ namespace BeatDetection.GUI
 
         public void SongChosen(Song song)
         {
+            if (_recentSongs.Count >= (int)SceneManager.GameSettings["MaxRecentSongCount"])
+                _recentSongs.RemoveAt(_recentSongs.Count - 1);
+            _recentSongs.Remove(song.SongBase);
+
+            //if (!_recentSongs.Contains(song.SongBase))
+                _recentSongs.Insert(0, song.SongBase);
+
+            SceneManager.GameSettings["RecentSongs"] = _recentSongs;
             SceneManager.RemoveScene(this);
             SceneManager.AddScene(
                 new LoadingScene((string)SceneManager.GameSettings["SonicAnnotatorPath"], (string)SceneManager.GameSettings["PluginPath"],
                     (float)SceneManager.GameSettings["AudioCorrection"],
-                    (float)SceneManager.GameSettings["MaxAudioVolume"], _centerPolygon, _player, _shaderProgram, song.InternalName), this);
+                    (float)SceneManager.GameSettings["MaxAudioVolume"], _centerPolygon, _player, _shaderProgram, song.SongBase.InternalName), this);
         }
 
         //private void SetUpFileBrowser()
