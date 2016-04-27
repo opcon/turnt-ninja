@@ -169,13 +169,10 @@ namespace BeatDetection.Game
 
                 //Debug.WriteLine(titles.ToString());
             }
-            else
-            {
-                //TODO: Load audio from IFileSystem rather than this hack
-                if (!song.SongAudioLoaded)
-                    song.LoadSongAudio();
-                _stageAudio.Load(song.SongAudio);
-            }
+
+            if (!song.SongAudioLoaded)
+                song.LoadSongAudio();
+            _stageAudio.Load(song.SongAudio);
 
             var tempStream = new MemoryStream();
             song.SongAudio.WriteToStream(tempStream);
@@ -191,8 +188,6 @@ namespace BeatDetection.Game
 
             _stageAudio.FadeIn(1000, _stageAudio.MaxVolume * 0.5f, 0.01f, 0);
 
-            //if (!soundcloud) LoadAudioFeatures(audioPath, audioCorrection, progress);
-            //else LoadAudioFeatures(detectionSource, audioCorrection, progress);
             LoadAudioFeatures(detectionSource, audioCorrection, progress, song);
 
             progress.Report("Building stage geometry");
@@ -217,19 +212,6 @@ namespace BeatDetection.Game
 
             Loaded = true;
         }
-
-        //private void LoadAudioFeatures(string audioPath, float correction, IProgress<string> progress)
-        //{
-        //    var options = DetectorOptions.Default;
-        //    options.ActivationThreshold = (float)SceneManager.GameSettings["OnsetActivationThreshold"];
-        //    options.AdaptiveWhitening = (bool)SceneManager.GameSettings["OnsetAdaptiveWhitening"];
-        //    _audioFeatures = new AudioFeatures(options, "../../Processed Songs/", correction + (float)_easeInTime, progress);
-
-        //    var fileToAnalyse = audioPath;
-
-        //    progress.Report("Extracting audio features");
-        //    _audioFeatures.Extract(fileToAnalyse);
-        //}
 
         private void LoadAudioFeatures(CSCore.IWaveSource audioSource, float correction, IProgress<string> progress, Song s)
         {
