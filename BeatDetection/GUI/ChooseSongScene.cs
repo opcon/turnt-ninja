@@ -81,9 +81,9 @@ namespace BeatDetection.GUI
             SceneManager.GameSettings["RecentSongs"] = _recentSongs;
             SceneManager.RemoveScene(this);
             SceneManager.AddScene(
-                new LoadingScene((string)SceneManager.GameSettings["SonicAnnotatorPath"], (string)SceneManager.GameSettings["PluginPath"],
+                new LoadingScene(
                     (float)SceneManager.GameSettings["AudioCorrection"],
-                    (float)SceneManager.GameSettings["MaxAudioVolume"], _centerPolygon, _player, _shaderProgram, song.SongBase.InternalName), this);
+                    (float)SceneManager.GameSettings["MaxAudioVolume"], _centerPolygon, _player, _shaderProgram, song), this);
         }
 
         //private void SetUpFileBrowser()

@@ -55,16 +55,6 @@ namespace BeatDetection.Game
             get { return _audio.GetSource(); }
         }
 
-        public void Load(string audioPath)
-        {
-            ////assert that the audio path given is valid.
-            //Debug.Assert(!string.IsNullOrWhiteSpace(audioPath));
-
-            //_audio = new CSCoreAudio();
-            //_audio.Init(audioPath);
-            //AudioHashCode = CRC16.Instance().ComputeChecksum(_audio.GetHashBytes(HashCount));
-        }
-
         public void Load(IWaveSource source)
         {
             _audio = new CSCoreAudio();

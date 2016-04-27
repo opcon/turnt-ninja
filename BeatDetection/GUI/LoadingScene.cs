@@ -24,9 +24,6 @@ namespace BeatDetection.GUI
 {
     class LoadingScene : Scene
     {
-        private string _sonicAnnotatorPath;
-        private string _pluginPath;
-
         private float _audioCorrection;
         private float _maxAudioVolume;
 
@@ -44,22 +41,20 @@ namespace BeatDetection.GUI
         private bool usePlaylist = false;
         private List<string> _files = new List<string>();
 
-        private string _songPath;
+        private Song _song;
 
         private string _loadingStatus = "";
 
-        public LoadingScene(string sonicAnnotatorPath, string pluginPath, float audioCorrection, float maxAudioVolume, PolarPolygon centerPolygon, Player player, ShaderProgram shaderProgram, string songPath = "")
+        public LoadingScene(float audioCorrection, float maxAudioVolume, PolarPolygon centerPolygon, Player player, ShaderProgram shaderProgram, Song song)
         {
             Exclusive = true;
-            _sonicAnnotatorPath = sonicAnnotatorPath;
-            _pluginPath = pluginPath;
             _audioCorrection = audioCorrection;
             _maxAudioVolume = maxAudioVolume;
             _centerPolygon = centerPolygon;
             _player = player;
             _shaderProgram = shaderProgram;
 
-            _songPath = songPath;
+            _song = song;
         }
 
         public override void Load()
@@ -69,36 +64,6 @@ namespace BeatDetection.GUI
             _stage = new Stage(this.SceneManager);
             _stage.ShaderProgram = _shaderProgram;
 
-            string file = "";
-
-            if (string.IsNullOrEmpty(_songPath))
-            {
-
-                OpenFileDialog ofd = new OpenFileDialog();
-                ofd.Multiselect = false;
-                ofd.Filter = "Audio Files (*.mp3, *.flac, *.wav, *.m3u, *.m3u8)|*.mp3;*.flac;*.wav;*.m3u;*.m3u8|All Files (*.*)|*.*";
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    file = ofd.FileName;
-                    file = file.Replace(@"\", "/");
-                }
-                else
-                {
-                    SceneManager.RemoveScene(this);
-                    return;
-                }
-
-
-                if (Path.GetExtension(file) == ".m3u" || Path.GetExtension(file) == ".m3u8")
-                {
-                    usePlaylist = true;
-                    _files = PlaylistHelper.LoadPlaylist(file);
-                }
-            }
-            else file = _songPath;
-
-            file = file.Replace(@"\", "/");
-
             _loadingFontRenderOptions = new QFontRenderOptions();
             _loadingFontRenderOptions.DropShadowActive = true;
             _loadingFont = new QFont(SceneManager.FontPath, 30, new QFontBuilderConfiguration(true), FontStyle.Regular);
@@ -107,7 +72,7 @@ namespace BeatDetection.GUI
             _loadingText = QFontDrawingPrimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, "Loading", new SizeF(200, -1), QFontAlignment.Centre);
             _loadingTextPosition = CalculateTextPosition(new Vector3((float)SceneManager.GameWindow.Width/ 2, SceneManager.GameWindow.Height/ 2, 0f), _loadingText);
 
-            _songText = QFontDrawingPrimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, Path.GetFileNameWithoutExtension(file), new SizeF(SceneManager.GameWindow.Width - 40, -1), QFontAlignment.Centre);
+            _songText = QFontDrawingPrimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, _song.SongBase.Identifier, new SizeF(SceneManager.GameWindow.Width - 40, -1), QFontAlignment.Centre);
 
             var dOptions = new DifficultyOptions(600f, 0.15f, 0.35f, 1.5f);
 
@@ -115,7 +80,7 @@ namespace BeatDetection.GUI
             {
                 _loadingStatus = status;
             });
-            _loadTask = Task.Factory.StartNew(() => _stage.LoadAsync((usePlaylist && _files.Count > 0) ? _files[0] : file, _sonicAnnotatorPath, _pluginPath, _audioCorrection, _maxAudioVolume, progress, _centerPolygon, _player, dOptions));
+            _loadTask = Task.Factory.StartNew(() => _stage.LoadAsync(_song, _audioCorrection, _maxAudioVolume, progress, _centerPolygon, _player, dOptions));
 
             Loaded = true;
         }

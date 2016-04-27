@@ -43,47 +43,58 @@ namespace BeatDetection.Audio
             return File.Exists(GetOnsetFilePath(audioPath));
         }
 
-        public void Extract(string audioFilePath)
-        {
-            _currentTask = "Extracting Onsets"; 
-            ExtractOnsets(audioFilePath);
+        //public void Extract(string audioFilePath)
+        //{
+        //    _currentTask = "Extracting Onsets"; 
+        //    ExtractOnsets(audioFilePath);
 
-            //force garbage collection
-            GC.Collect(2, GCCollectionMode.Forced, true);
-        }
+        //    //force garbage collection
+        //    GC.Collect(2, GCCollectionMode.Forced, true);
+        //}
 
-        public void Extract(CSCore.IWaveSource audioSource)
+        public void Extract(CSCore.IWaveSource audioSource, Song s)
         {
             _currentTask = "Extracting Onsets";
-            ExtractOnsets(audioSource);
 
-            //force garbage collection
-            GC.Collect(2, GCCollectionMode.Forced, true);
-        }
-
-        private void ExtractOnsets(string audioFilePath)
-        {
             List<Onset> onsets;
-            if (SongAnalysed(audioFilePath))
-                onsets = LoadOnsets(GetOnsetFilePath(audioFilePath));
+            if (SongAnalysed(s.SongBase.InternalName))
+                onsets = LoadOnsets(GetOnsetFilePath(s.SongBase.InternalName));
             else
             {
-                onsets = _onsetDetector.Detect(audioFilePath);
-                SaveOnsets(GetOnsetFilePath(audioFilePath), onsets);
+                onsets = _onsetDetector.Detect(audioSource.ToSampleSource());
+                SaveOnsets(GetOnsetFilePath(s.SongBase.InternalName), onsets);
             }
             OnsetTimes = onsets.Select(o => o.OnsetTime).ToList();
             Onsets = onsets;
             ApplyCorrection(OnsetTimes, _correction);
+
+            //force garbage collection
+            GC.Collect(2, GCCollectionMode.Forced, true);
         }
 
-        private void ExtractOnsets(CSCore.IWaveSource audioSource)
-        {
-            var onsets = _onsetDetector.Detect(audioSource.ToSampleSource());
+        //private void ExtractOnsets(string audioFilePath)
+        //{
+        //    List<Onset> onsets;
+        //    if (SongAnalysed(audioFilePath))
+        //        onsets = LoadOnsets(GetOnsetFilePath(audioFilePath));
+        //    else
+        //    {
+        //        onsets = _onsetDetector.Detect(audioFilePath);
+        //        SaveOnsets(GetOnsetFilePath(audioFilePath), onsets);
+        //    }
+        //    OnsetTimes = onsets.Select(o => o.OnsetTime).ToList();
+        //    Onsets = onsets;
+        //    ApplyCorrection(OnsetTimes, _correction);
+        //}
 
-            OnsetTimes = onsets.Select(o => o.OnsetTime).ToList();
-            Onsets = onsets;
-            ApplyCorrection(OnsetTimes, _correction);
-        }
+        //private void ExtractOnsets(CSCore.IWaveSource audioSource)
+        //{
+        //    var onsets = _onsetDetector.Detect(audioSource.ToSampleSource());
+
+        //    OnsetTimes = onsets.Select(o => o.OnsetTime).ToList();
+        //    Onsets = onsets;
+        //    ApplyCorrection(OnsetTimes, _correction);
+        //}
 
         private void SaveOnsets(string onsetFile, List<Onset> onsets)
         {

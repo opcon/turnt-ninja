@@ -17,6 +17,11 @@ namespace BeatDetection.Audio
 
         bool disposedValue = false; // To detect redundant calls
 
+        public void LoadSongAudio()
+        {
+            FileSystem.LoadSongAudio(this);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
