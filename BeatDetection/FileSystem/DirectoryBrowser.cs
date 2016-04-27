@@ -51,6 +51,7 @@ namespace BeatDetection.FileSystem
         public void AddFileSystem(IFileSystem fileSystem)
         {
             _fileSystemCollection.Add(fileSystem);
+            fileSystem.FileSystemCollection = _fileSystemCollection;
             LoadFileSystem(fileSystem);
         }
 

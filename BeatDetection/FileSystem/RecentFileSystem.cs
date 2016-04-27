@@ -12,15 +12,19 @@ namespace BeatDetection.FileSystem
     class RecentFileSystem : IFileSystem
     {
         List<FileBrowserEntry> _recentSongs;
-        List<SongBase> _recentSongList;
+        List<Song> _recentSongList;
+        List<SongBase> _recentSongBaseList;
 
         public ReadOnlyCollection<FileBrowserEntry> FileSystemEntryCollection { get { return _recentSongs.AsReadOnly(); } }
 
         public string FriendlyName { get { return "Recent Songs"; } }
 
+        public List<IFileSystem> FileSystemCollection { get; set; }
+
         public RecentFileSystem(List<SongBase> RecentSongList)
         {
-            _recentSongList = RecentSongList;
+            _recentSongBaseList = RecentSongList;
+            _recentSongList = new List<Song>();
             _recentSongs = new List<FileBrowserEntry>();
         }
 
@@ -36,9 +40,20 @@ namespace BeatDetection.FileSystem
         public int Initialise(FileBrowserEntry separator)
         {
             //Build song list
+            var _toRemove = new List<SongBase>();
+            foreach (var s in _recentSongBaseList)
+            {
+                var fs = FileSystemCollection.First(f => f.FriendlyName.Equals(s.FileSystemFriendlyName, StringComparison.OrdinalIgnoreCase));
+                if (fs != null && fs.SongExists(s))
+                    _recentSongList.Add(new Song { SongBase = s, FileSystem = fs });
+                else
+                    _toRemove.Add(s);
+
+            }
+            _toRemove.ForEach(s => _recentSongBaseList.Remove(s));
             _recentSongs.Clear();
 
-            _recentSongs = _recentSongList.ConvertAll(s => new FileBrowserEntry { EntryType = FileBrowserEntryType.Song, Name = s.Identifier, Path = s.InternalName });
+            _recentSongs = _recentSongList.ConvertAll(s => new FileBrowserEntry { EntryType = FileBrowserEntryType.Song, Name = s.SongBase.Identifier, Path = s.SongBase.InternalName });
 
             return 0;
         }
@@ -54,7 +69,12 @@ namespace BeatDetection.FileSystem
 
         public Song LoadSongInformation(int entryIndex)
         {
-            return new Song { SongBase = _recentSongList[entryIndex] };
+            return _recentSongList[entryIndex];
+        }
+
+        public bool SongExists(SongBase song)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -12,12 +12,14 @@ namespace BeatDetection.FileSystem
 {
     public interface IFileSystem
     {
+        List<IFileSystem> FileSystemCollection { get; set; }
         ReadOnlyCollection<FileBrowserEntry> FileSystemEntryCollection { get; }
         string FriendlyName { get; }
 
         int Initialise(FileBrowserEntry separator);
 
         bool EntrySelected(ref int entryIndex);
+        bool SongExists(SongBase song);
 
         Song LoadSongInformation(int entryIndex);
         void LoadSongAudio(Song song);

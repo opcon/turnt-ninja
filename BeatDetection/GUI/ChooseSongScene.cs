@@ -46,11 +46,13 @@ namespace BeatDetection.GUI
 
             _directoryBrowser = new DirectoryBrowser(SceneManager, this);
             _directoryBrowser.AddFileSystem(new LocalFileSystem());
+            _directoryBrowser.AddFileSystem(new SoundCloudFileSystem());
 
             if (SceneManager.GameSettings["RecentSongs"] == null)
                 SceneManager.GameSettings["RecentSongs"] = _recentSongs = new List<SongBase>();
             _recentSongs = (List<SongBase>)SceneManager.GameSettings["RecentSongs"];
 
+            // Make sure to add recent file system last!
             _directoryBrowser.AddFileSystem(new RecentFileSystem(_recentSongs));
             Loaded = true;
         }
