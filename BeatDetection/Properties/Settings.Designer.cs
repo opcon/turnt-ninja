@@ -162,13 +162,25 @@ namespace BeatDetection.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
         public int MaxRecentSongCount {
             get {
                 return ((int)(this["MaxRecentSongCount"]));
             }
             set {
                 this["MaxRecentSongCount"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int DifficultyLevel {
+            get {
+                return ((int)(this["DifficultyLevel"]));
+            }
+            set {
+                this["DifficultyLevel"] = value;
             }
         }
     }
