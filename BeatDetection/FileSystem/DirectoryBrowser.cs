@@ -58,6 +58,12 @@ namespace BeatDetection.FileSystem
         private void LoadFileSystem(IFileSystem fileSystem)
         {
             _directoryBrowserEntryIndex =  fileSystem.Initialise(EntrySeparator) + _fileSystemEntryIndexOffset;
+            SwitchFileSystem(fileSystem);
+        }
+
+        private void SwitchFileSystem(IFileSystem fileSystem)
+        {
+            fileSystem.Focused();
             _currentFileSystem = fileSystem;
         }
 
@@ -76,7 +82,7 @@ namespace BeatDetection.FileSystem
                 else
                 {
                     var entry = _fileSystemEntries[_directoryBrowserEntryIndex];
-                    if (entry.EntryType.HasFlag(FileBrowserEntryType.Plugin)) LoadFileSystem(_fileSystemCollection[_directoryBrowserEntryIndex]);
+                    if (entry.EntryType.HasFlag(FileBrowserEntryType.Plugin)) SwitchFileSystem(_fileSystemCollection[_directoryBrowserEntryIndex]);
 
                 }
             }
