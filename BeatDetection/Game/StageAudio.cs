@@ -55,20 +55,11 @@ namespace BeatDetection.Game
             get { return _audio.GetSource(); }
         }
 
-        public void Load(string audioPath)
-        {
-            //assert that the audio path given is valid.
-            Debug.Assert(!string.IsNullOrWhiteSpace(audioPath));
-
-            _audio = new CSCoreAudio();
-            _audio.Init(audioPath);
-            AudioHashCode = CRC16.Instance().ComputeChecksum(_audio.GetHashBytes(HashCount));
-        }
-
         public void Load(IWaveSource source)
         {
             _audio = new CSCoreAudio();
             _audio.Init(source);
+            AudioHashCode = CRC16.Instance().ComputeChecksum(_audio.GetHashBytes(HashCount));
         }
 
         public void Play()
@@ -187,7 +178,7 @@ namespace BeatDetection.Game
     {
         PlaybackState PlaybackState { get; }
         float Volume { get; set; }
-        void Init(string audioFilePath);
+        //void Init(string audioFilePath);
         void Init(IWaveSource source);
         byte[] GetHashBytes(int hashByteCount);
         void Play();
@@ -250,10 +241,10 @@ namespace BeatDetection.Game
             return _soundSource;
         }
 
-        public void Init(string audioFilePath)
-        {
-            Init(CodecFactory.Instance.GetCodec(audioFilePath));
-        }
+        //public void Init(string audioFilePath)
+        //{
+        //    Init(CodecFactory.Instance.GetCodec(audioFilePath));
+        //}
 
         public void Init(IWaveSource source)
         {

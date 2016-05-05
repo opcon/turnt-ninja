@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BeatDetection.FileSystem
 {
-    struct FileBrowserEntry
+    public struct FileBrowserEntry
     {
         public string Path;
         public string Name;
@@ -14,12 +14,13 @@ namespace BeatDetection.FileSystem
     }
 
     [Flags]
-    enum FileBrowserEntryType
+    public enum FileBrowserEntryType
     {
-        File = 0,
-        Directory = 1 << 0,
-        Drive = 1 << 1,
-        Special = 1 << 2,
-        Separator = 1 << 3
+        Song = 1 << 0,
+        Directory = 1 << 1,
+        Drive = 1 << 2,
+        Special = 1 << 3,
+        Separator = 1 << 4,
+        Plugin = 1 << 5
     }
 }

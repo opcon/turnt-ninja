@@ -25,12 +25,16 @@ namespace BeatDetection.Generation
         private Color4 _segmentStartColour;
         private Random _random;
 
+        private List<float> _goodBeats;
+
         public StageGeometry Build(AudioFeatures audioFeatures, Random random, GeometryBuilderOptions builderOptions)
         {
             _audioFeatures = audioFeatures;
             _builderOptions = builderOptions;
             _random = random;
             _builderOptions.RandomFunction = _random;
+
+            BuildGoodBeatsList();
 
             BuildGeometry();
             BuildBeatFrequencyList();
@@ -42,72 +46,69 @@ namespace BeatDetection.Generation
             return new StageGeometry(_beats, _segmentStartColour, _random, _beatFrequencies) {BackgroundPolygon = backgroundPolygon};
         }
 
+        private void BuildGoodBeatsList()
+        {
+            //sort onset list by time
+            var sorted = _audioFeatures.OnsetTimes.OrderBy(f => f);
+            _goodBeats = new List<float>();
+            float prevTime = -1.0f;
+
+            //filter out beats that are too close
+            foreach (var b in sorted)
+            {
+                if (b - prevTime < _builderOptions.BeatSkipDistance)
+                    continue;
+                _goodBeats.Add(b);
+                prevTime = b;
+            }
+        }
+
         private void BuildBeatFrequencyList()
         {
-            var sorted = _audioFeatures.Onsets.OrderBy(f => f).ToArray();
-            _beatFrequencies = new float[sorted.Length];
+            _beatFrequencies = new float[_goodBeats.Count];
             int lookAhead = 5;
             int halfFrequencySampleSize = 4;
             int forwardWeighting = 1;
 
             for (int i = 0; i < _beatFrequencies.Length; i++)
             {
-                //int count;
-                //if (_beatFrequencies.Length - i < lookAhead) count = _beatFrequencies.Length - i;
-                //else count = lookAhead;
-                
                 int weight = 0;
                 float differenceSum = 0;
                 int total = 0;
-                for (int j = i - halfFrequencySampleSize < 1 ? 1 : i-halfFrequencySampleSize; j <= i; j++)
-                {
-                    weight++;
-                    differenceSum += weight*(sorted[j] - sorted[j-1]);
-                    total += weight;
-                }
+                //for (int j = i - halfFrequencySampleSize < 1 ? 1 : i-halfFrequencySampleSize; j <= i; j++)
+                //{
+                //    weight++;
+                //    differenceSum += (sorted[j] - sorted[j-1]);
+                //    total += 1;
+                //}
 
-                //weight = halfFrequencySampleSize;
-                //differenceSum += (weight+1)*(sorted[i+1] - sorted[i]);
-                //total += weight;
-
-                weight = halfFrequencySampleSize + forwardWeighting;
+                //weight = halfFrequencySampleSize + forwardWeighting;
                 int count = i + halfFrequencySampleSize + 1> _beatFrequencies.Length - 1 ? _beatFrequencies.Length - 1 : i + halfFrequencySampleSize + 1;
                 for (int j = i+1; j <= count; j++)
                 {
-                    differenceSum += weight*(sorted[j] - sorted[j-1]);
-                    total += weight;
-                    weight--;
+                    differenceSum += (_goodBeats[j] - _goodBeats[j-1]);
+                    total += 1;
+                    //weight--;
                 }
-
-                //float differenceSum = 0;
-                //int weight = count;
-                //int total = 0;
-                //for (int j = 1; j < count; j++,weight--)
-                //{
-                //    differenceSum += weight*(sorted[i + j] - sorted[i + j - 1]);
-                //    total += weight;
-                //}
 
                 _beatFrequencies[i] = 1/(differenceSum/total);
             }
 
             _beatFrequencies[_beatFrequencies.Length - 1] = _beatFrequencies[_beatFrequencies.Length - 2];
+
+            //_beatFrequencies = _audioFeatures.Onsets.Select(o => o.OnsetAmplitude).ToArray();
         }
 
         private void BuildGeometry()
         {
-            _beats = new BeatCollection(_audioFeatures.Onsets.Count, _builderOptions.GeometryShaderProgram);
+            _beats = new BeatCollection(_goodBeats.Count, _builderOptions.GeometryShaderProgram);
 
             //intialise state variables for algorithim
             int prevStart = 0;
             int prevSkip = 0;
             //set initial previous time to -1 so that the first polygon generated is always unique and doesn't trigger 'beat too close to previous' case
             float prevTime = -1.0f;
-
-            int index = 0;
-
-            //sort onset list by time
-            var sorted = _audioFeatures.Onsets.OrderBy(f => f);
+            float samePatternChance = 0.90f;
 
             var structureList = new List<List<int>>();
 
@@ -126,7 +127,7 @@ namespace BeatDetection.Generation
             //}
 
             //traverse sorted onset list and generate geometry for each onset
-            foreach (var b in sorted)
+            foreach (var b in _goodBeats)
             {
                 int start;
 
@@ -146,7 +147,8 @@ namespace BeatDetection.Generation
 
                     //this beat is reasonably close to the previous one, use the same skip pattern but a different (+/- 1) orientation
                     start = (prevStart + 6) + r;
-                    skip = prevSkip;
+                    if (_random.NextDouble() < samePatternChance)
+                        skip = prevSkip;
                 }
                 else
                 {
@@ -173,8 +175,6 @@ namespace BeatDetection.Generation
                 prevTime = b;
                 prevStart = start;
                 prevSkip = skip;
-
-                index++;
             }
             _beats.Initialise();
         }
@@ -208,6 +208,7 @@ namespace BeatDetection.Generation
 
         public float VeryCloseDistance = 0.2f;
         public float CloseDistance = 0.4f;
+        public float BeatSkipDistance = 0.0f;
 
         public Random RandomFunction;
 
@@ -236,6 +237,7 @@ namespace BeatDetection.Generation
             PolygonVelocity.Radius = options.Speed;
             VeryCloseDistance = options.VeryCloseDistance;
             CloseDistance = options.CloseDistance;
+            BeatSkipDistance = options.BeatSkipDistance;
         }
     }
 }

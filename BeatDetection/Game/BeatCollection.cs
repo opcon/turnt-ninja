@@ -55,7 +55,7 @@ namespace BeatDetection.Game
         private Vector2[] sideBoundsTemp;
         private Vector2[] _outlineBoundsTemp;
 
-        public double OutlineWidth = 4;
+        public double OutlineWidth = 6;
         public double CapOutlineAngle = 2;
         private int _outlineOffset = 0;
         private int _evenCapOutlineCount = 0;

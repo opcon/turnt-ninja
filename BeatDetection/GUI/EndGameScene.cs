@@ -26,7 +26,7 @@ namespace BeatDetection.GUI
 
         public override void Load()
         {
-            _font = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Italic);
+            _font = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Regular);
             _fontDrawing = new QFontDrawing();
             UpdateText();
             SceneManager.RemoveScene(ParentScene);

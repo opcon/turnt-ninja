@@ -29,8 +29,6 @@ namespace BeatDetection
         private const float prefWidth = 1920;
         private const float prefHeight = 1080;
 
-        private string sonicAnnotator = "../../External Programs/sonic-annotator-1.0-win32/sonic-annotator.exe";
-        private string pluginPath = "../../External Programs/Vamp Plugins";
         private string fontPath = "";
         float correction = 0.0f;
 
@@ -87,13 +85,14 @@ namespace BeatDetection
         /// <param name="e">Not used.</param>
         protected override void OnLoad(EventArgs e)
         {
-            fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Chamgagne Limousines/Champagne & Limousines Italic.ttf");
+            //fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Chamgagne Limousines/Champagne & Limousines Italic.ttf");
+            fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Ostrich Sans/OstrichSans-Black.otf");
 
             var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
-            var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Italic);
+            var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Regular);
             _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath, _directoryHandler, _gameSettings);
-            _gameSceneManager.AddScene(new MenuScene(sonicAnnotator, pluginPath), null);
+            _gameSceneManager.AddScene(new MenuScene(), null);
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
             Keyboard.KeyUp += (o, args) => InputSystem.KeyUp(args);

@@ -15,7 +15,8 @@ namespace BeatDetection.Audio
         string _csvDirectory;
         string _outputSuffix = "onsets";
 
-        public List<float> Onsets = new List<float>();
+        public List<float> OnsetTimes = new List<float>();
+        public List<Onset> Onsets = new List<Onset>();
         public float _correction;
         private IProgress<string> _outerProgressReporter;
         private IProgress<string> _innerProgressReporter;
@@ -42,68 +43,48 @@ namespace BeatDetection.Audio
             return File.Exists(GetOnsetFilePath(audioPath));
         }
 
-        public void Extract(string audioFilePath)
-        {
-            _currentTask = "Extracting Onsets"; 
-            ExtractOnsets(audioFilePath);
-
-            //force garbage collection
-            GC.Collect(2, GCCollectionMode.Forced, true);
-        }
-
-        public void Extract(CSCore.IWaveSource audioSource)
+        public void Extract(CSCore.IWaveSource audioSource, Song s)
         {
             _currentTask = "Extracting Onsets";
-            ExtractOnsets(audioSource);
+
+            List<Onset> onsets;
+            if (SongAnalysed(s.SongBase.InternalName))
+                onsets = LoadOnsets(GetOnsetFilePath(s.SongBase.InternalName));
+            else
+            {
+                onsets = _onsetDetector.Detect(audioSource.ToSampleSource());
+                SaveOnsets(GetOnsetFilePath(s.SongBase.InternalName), onsets);
+            }
+            OnsetTimes = onsets.Select(o => o.OnsetTime).ToList();
+            Onsets = onsets;
+            ApplyCorrection(OnsetTimes, _correction);
 
             //force garbage collection
             GC.Collect(2, GCCollectionMode.Forced, true);
         }
 
-        private void ExtractOnsets(string audioFilePath)
-        {
-            List<float> onsets;
-            if (SongAnalysed(audioFilePath))
-                onsets = LoadOnsets(GetOnsetFilePath(audioFilePath));
-            else
-            {
-                onsets = _onsetDetector.Detect(audioFilePath);
-                SaveOnsets(GetOnsetFilePath(audioFilePath), onsets);
-            }
 
-            ApplyCorrection(onsets, _correction);
-            Onsets = onsets;
-        }
-
-        private void ExtractOnsets(CSCore.IWaveSource audioSource)
-        {
-            var onsets = _onsetDetector.Detect(audioSource.ToSampleSource());
-
-            ApplyCorrection(onsets, _correction);
-            Onsets = onsets;
-        }
-
-        private void SaveOnsets(string onsetFile, List<float> onsets)
+        private void SaveOnsets(string onsetFile, List<Onset> onsets)
         {
             using (StreamWriter sw = new StreamWriter(onsetFile))
             {
                 foreach (var onset in onsets)
                 {
-                    sw.WriteLine(onset);
+                    sw.WriteLine(onset.ToString());
                 }
                 sw.Close();
             }
         }
 
-        private List<float> LoadOnsets(string onsetFile)
+        private List<Onset> LoadOnsets(string onsetFile)
         {
-            List<float> onsets = new List<float>();
+            List<Onset> onsets = new List<Onset>();
             using (StreamReader sr = new StreamReader(onsetFile))
             {
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    onsets.Add(float.Parse(line.Split(',')[0]));
+                    onsets.Add(new Onset { OnsetTime = float.Parse(line.Split(',')[0]), OnsetAmplitude = float.Parse(line.Split(',')[1]) });
                 }
                 sr.Close();
             }

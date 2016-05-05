@@ -20,8 +20,6 @@ namespace BeatDetection.GUI
 {
     class MenuScene : Scene
     {
-        private string _sonicAnnotator;
-        private string _pluginPath;
         private ShaderProgram _shaderProgram;
         private Player _player;
 
@@ -38,15 +36,17 @@ namespace BeatDetection.GUI
 
         private GUIComponentContainer _GUIComponents;
 
-        public MenuScene(string sonicAnnotator, string pluginPath)
+        private string _gameVersion;
+
+        public MenuScene()
         {
-            _sonicAnnotator = sonicAnnotator;
-            _pluginPath = pluginPath;
         }
 
         public override void Load()
         {
             SceneManager.GameWindow.Cursor = MouseCursor.Default;
+
+            _gameVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             //load shaders
             var vert = new Shader(Path.Combine(SceneManager.Directories["Shaders"].FullName, "simple.vs"));
@@ -65,7 +65,7 @@ namespace BeatDetection.GUI
             _singlePlayerPolygon.PulseMultiplier = 25;
             _singlePlayerPolygon.PulseWidthMax = 7;
 
-            _menuFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Italic);
+            _menuFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Regular);
             _menuFontDrawing = new QFontDrawing();
             _menuFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
             _menuRenderOptions = new QFontRenderOptions {DropShadowActive = true};
@@ -156,9 +156,13 @@ namespace BeatDetection.GUI
                 switch (_selectedMenuItem)
                 {
                     case MainMenuOptions.SinglePlayer:
-                        //SceneManager.GameWindow.WindowState = WindowState.Normal;
-                        //SceneManager.AddScene(new LoadingScene(_sonicAnnotator, _pluginPath, (float) SceneManager.GameSettings["AudioCorrection"], (float) SceneManager.GameSettings["MaxAudioVolume"], _centerPolygon, _player, _shaderProgram), this);
-                        SceneManager.AddScene(new ChooseSongScene(_GUIComponents, _centerPolygon, _player, _shaderProgram), this);
+                        var cs = SceneManager.SceneList.Find(s => s.GetType() == typeof(ChooseSongScene));
+                        if (cs == null)
+                        {
+                            cs = new ChooseSongScene(_GUIComponents, _centerPolygon, _player, _shaderProgram);
+                            SceneManager.AddScene(cs, this);
+                        }
+                        cs.Visible = true;
                         break;
                     case MainMenuOptions.Options:
                         SceneManager.AddScene(new OptionsScene(_GUIComponents), this);
@@ -195,6 +199,8 @@ namespace BeatDetection.GUI
 
             _menuFontDrawing.RefreshBuffers();
             _menuFontDrawing.Draw();
+
+            SceneManager.DrawTextLine(_gameVersion, new Vector3(-WindowWidth / 2+10, -WindowHeight / 2 + 30, 0), Color.White, QFontAlignment.Left);
         }
 
         public override void Dispose()

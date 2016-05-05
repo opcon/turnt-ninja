@@ -11,6 +11,7 @@ using OpenTK.Graphics.OpenGL4;
 using Substructio.Core;
 using Substructio.Core.Math;
 using HUSL;
+using OpenTK.Input;
 
 namespace BeatDetection.Game
 {
@@ -19,6 +20,9 @@ namespace BeatDetection.Game
         private StageColours _colours;
         private BeatCollection _beats;
         private Color4 _segmentStartColour;
+        private double _initialHue;
+        private double _extraHue = 0.0;
+        private double _hueWobbleAmount = 30;
         private HUSLColor _baseColour;
         public Stage ParentStage;
 
@@ -40,16 +44,31 @@ namespace BeatDetection.Game
         private double _elapsedTime = 0;
         private int frameCount = 0;
 
+        private int _previousBeat = -1000;
+
         public int BeatCount {get { return _beats.Count; }}
+
+        public StageColourModifiers ColourModifiers = StageColourModifiers.Default;
 
         private bool Collided
         {
             get { return _collidedBeatIndex == _beats.Index; }
         }
 
+        public float Amplitude
+        {
+            get { return BeatFrequencies[_beats.Index]; }
+            //get { return ((BeatFrequencies[_beats.Index] - MinBeatFrequency) / (MaxBeatFrequency - MinBeatFrequency)); }
+        }
+
         public int CurrentBeat
         {
             get { return _beats.Index; }
+        }
+
+        public float CurrentBeatFrequency
+        {
+            get { return OutOfBeats ? BeatFrequencies.Last() : BeatFrequencies[CurrentBeat]; }
         }
 
         public bool OutOfBeats
@@ -66,6 +85,7 @@ namespace BeatDetection.Game
             MaxBeatFrequency = BeatFrequencies.Max();
             MinBeatFrequency = BeatFrequencies.Min();
             _baseColour = HUSLColor.FromColor4(_segmentStartColour);
+            _initialHue = _baseColour.H;
         }
 
         public void Update(double time)
@@ -74,8 +94,9 @@ namespace BeatDetection.Game
             if (frameCount > 10) frameCount = 0;
 
             _elapsedTime += time;
-            _rotationMultiplier = 0.5*_direction*Math.Min(((!OutOfBeats ? BeatFrequencies[_beats.Index] : MaxBeatFrequency)/MaxBeatFrequency)*2, 1);
-            var rotate = time * RotationSpeed * _rotationMultiplier + _extraRotation * _rotationMultiplier;
+            _rotationMultiplier = 0.5*Math.Min(((!OutOfBeats ? BeatFrequencies[_beats.Index] : MaxBeatFrequency)/MaxBeatFrequency)*2, 1);
+            var rotate = time * RotationSpeed * _rotationMultiplier + _extraRotation * (1+_rotationMultiplier/3.0f);
+            rotate = Math.Abs(rotate) * _direction;
             _extraRotation = 0;
             ParentStage.SceneManager.ScreenCamera.ExtraScale = 0;
 
@@ -88,8 +109,8 @@ namespace BeatDetection.Game
                 CenterPolygon.PulseMultiplier = Math.Pow(BeatFrequencies[CurrentBeat] * 60,1) + 70;
                 ParentStage.SceneManager.ScreenCamera.ExtraScale = CenterPolygon.Pulsing ?  (float)Math.Pow(BeatFrequencies[CurrentBeat],3) * 0.2f : 0;
 
-                //if (_beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] < 60 && _beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] > 40)
-                //    _extraRotation = 0.02f;
+                if (_beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] < 60 && _beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] > 40)
+                    _extraRotation = 0.005f;
 
                 if (ParentStage.AI)
                 {
@@ -185,6 +206,8 @@ namespace BeatDetection.Game
             }
             var c = new Clipper();
             c.AddPaths(_beats.GetPolygonBounds(_beats.Index), PolyType.ptSubject, true);
+            if (_beats.Index < _beats.Count - 1)
+                c.AddPaths(_beats.GetPolygonBounds(_beats.Index + 1), PolyType.ptSubject, true);
             c.AddPath(Player.GetBounds(), PolyType.ptClip, true);
 
             var soln = new List<List<IntPoint>>();
@@ -208,7 +231,60 @@ namespace BeatDetection.Game
 
         public void UpdateColours(double time)
         {
-            _baseColour.H += time*50f*(!OutOfBeats ? BeatFrequencies[_beats.Index] : 1);
+            if (InputSystem.CurrentKeys.Contains(Key.Number1))
+            {
+                if (InputSystem.CurrentKeys.Contains(Key.ShiftLeft))
+                    ColourModifiers.baseLightness -= 3;
+                else
+                    ColourModifiers.baseLightness += 3;
+            }
+            if (InputSystem.CurrentKeys.Contains(Key.Number2))
+            {
+                if (InputSystem.CurrentKeys.Contains(Key.ShiftLeft))
+                    ColourModifiers.baseSaturation -= 3;
+                else
+                    ColourModifiers.baseSaturation += 3;
+            }
+            if (InputSystem.CurrentKeys.Contains(Key.Number3))
+            {
+                if (InputSystem.CurrentKeys.Contains(Key.ShiftLeft))
+                    ColourModifiers.foregroundLightnessDelta -= 3;
+                else
+                    ColourModifiers.foregroundLightnessDelta += 3;
+            }
+            if (InputSystem.CurrentKeys.Contains(Key.Number4))
+            {
+                if (InputSystem.CurrentKeys.Contains(Key.ShiftLeft))
+                    ColourModifiers.foregroundSaturationDelta -= 3;
+                else
+                    ColourModifiers.foregroundSaturationDelta += 3;
+            }
+            if (InputSystem.CurrentKeys.Contains(Key.Number5))
+            {
+                if (InputSystem.CurrentKeys.Contains(Key.ShiftLeft))
+                    ColourModifiers.outlineLightness -= 3;
+                else
+                    ColourModifiers.outlineLightness += 3;
+            }
+            if (InputSystem.CurrentKeys.Contains(Key.Number6))
+            {
+                if (InputSystem.CurrentKeys.Contains(Key.ShiftLeft))
+                    ColourModifiers.outlineSaturation -= 3;
+                else
+                    ColourModifiers.outlineSaturation += 3;
+            }
+
+            //_baseColour.H += time*50f*(!OutOfBeats ? BeatFrequencies[_beats.Index] : 1);
+            if (CurrentBeat - _previousBeat > 3)
+            {
+                _previousBeat = CurrentBeat;
+                _extraHue = ((_random.NextDouble() > 0.5) ? -1 : 1) * (90 + (_hueWobbleAmount * _random.NextDouble() - _hueWobbleAmount / 2));
+
+            }
+            _baseColour.H = _initialHue + (CurrentBeat) * 5;
+            _baseColour.L = ColourModifiers.baseLightness;
+            _baseColour.S = ColourModifiers.baseSaturation;
+
             var evenBackground = _baseColour;
 
             //find odd background
@@ -238,10 +314,12 @@ namespace BeatDetection.Game
             //find the foreground colours
             var fEven = evenBackground;
             var fOdd = oddBackground;
-            fEven.H = MathUtilities.Normalise(fEven.H + 180, 0, 360);
-            fEven.S += 10;
-            fOdd.H = MathUtilities.Normalise(fOdd.H + 180, 0, 360);
-            fOdd.S += 20;
+            fEven.H = MathUtilities.Normalise(fEven.H + _extraHue, 0, 360);
+            fEven.S += ColourModifiers.foregroundSaturationDelta;
+            fEven.L += ColourModifiers.foregroundLightnessDelta;
+            fOdd.H = MathUtilities.Normalise(fOdd.H + _extraHue, 0, 360);
+            fOdd.S += ColourModifiers.foregroundSaturationDelta;
+            fOdd.L += ColourModifiers.foregroundLightnessDelta;
 
             //set the foreground colours
             _colours.EvenOpposingColour = HUSLColor.ToColor4(fEven);
@@ -253,8 +331,8 @@ namespace BeatDetection.Game
 
         private HUSLColor GetOutlineColour(HUSLColor col)
         {
-            col.L += 10;
-            col.S += 20;
+            col.L = ColourModifiers.outlineLightness;
+            col.S = ColourModifiers.outlineSaturation;
             return col;
         }
 
@@ -277,5 +355,30 @@ namespace BeatDetection.Game
         public Color4 OddCollisionColour;
         public Color4 OddOutlineColour;
         public Color4 OddCollisionOutlienColour;
+    }
+
+    struct StageColourModifiers
+    {
+        public double outlineLightness;
+        public double outlineSaturation;
+        public double foregroundLightnessDelta;
+        public double foregroundSaturationDelta;
+        public double baseLightness;
+        public double baseSaturation;
+
+        public static StageColourModifiers Default
+        {
+            get
+            {
+                return new StageColourModifiers { outlineLightness = 80, outlineSaturation = 50, foregroundLightnessDelta = 5, foregroundSaturationDelta = 0, baseLightness = 30, baseSaturation = 50};
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Base Lightness: {0}\nBase Saturation: {1}\nForeground Lightness Delta: {2}\nForeground Saturation Delta: {3}\nOutline Lightness: {4}\nOutline Saturation: {5}",
+                baseLightness, baseSaturation, foregroundLightnessDelta, foregroundSaturationDelta, outlineLightness, outlineSaturation);
+        }
+
     }
 }

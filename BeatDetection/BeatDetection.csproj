@@ -58,25 +58,30 @@
     <Reference Include="ColorMine">
       <HintPath>..\packages\ColorMine.1.1.3.0\lib\ColorMine.dll</HintPath>
     </Reference>
+    <Reference Include="CSCore, Version=1.1.5860.21642, Culture=neutral, PublicKeyToken=5a08f2b6f4415dea, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSCore.1.1-beta2\lib\net35-client\CSCore.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Gwen">
       <HintPath>..\Dependencies\Gwen.NET\Gwen.dll</HintPath>
     </Reference>
     <Reference Include="Gwen.Renderer.OpenTK">
       <HintPath>..\Dependencies\Gwen.NET\Gwen.Renderer.OpenTK.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="OnsetDetection">
       <HintPath>..\..\onset-detection\bin\Release\OnsetDetection.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK">
-      <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\OpenTK\Debug\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="SoundCloud.API.Client, Version=1.0.0.4, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Programs\SoundCloud.API.Client\SoundCloud.API.Client\bin\Debug\SoundCloud.API.Client.dll</HintPath>
+      <HintPath>..\..\..\Libraries\SoundCloud.API.Client\SoundCloud.API.Client\bin\Debug\SoundCloud.API.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -93,21 +98,23 @@
     <Reference Include="HUSL">
       <HintPath>..\packages\HUSL.1.0.1\lib\net40\HUSL.dll</HintPath>
     </Reference>
-    <Reference Include="CSCore, Version=1.1.5697.25221, Culture=neutral, PublicKeyToken=5a08f2b6f4415dea">
-      <HintPath>..\packages\CSCore.1.1-alpha1\lib\net35-client\CSCore.dll</HintPath>
+    <Reference Include="TagLib.Portable, Version=2.2.0.0, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=MSIL">
+      <HintPath>..\packages\TagLib.Portable.1.0.4\lib\portable-net45+win+wpa81+wp8+MonoAndroid10+xamarinios10+MonoTouch10\TagLib.Portable.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio\AudioFeatures.cs" />
+    <Compile Include="Audio\SongBase.cs" />
     <Compile Include="FileSystem\FileBrowserEntry.cs" />
     <Compile Include="Audio\PlaylistHelper.cs" />
     <Compile Include="Audio\Song.cs" />
     <Compile Include="Audio\SongCache.cs" />
-    <Compile Include="Audio\SonicAnnotatorWrapper.cs" />
     <Compile Include="Core\Settings\PropertySettings.cs" />
     <Compile Include="FileSystem\DirectoryBrowser.cs" />
     <Compile Include="FileSystem\IFileSystem.cs" />
     <Compile Include="FileSystem\LocalFileSystem.cs" />
+    <Compile Include="FileSystem\RecentFileSystem.cs" />
     <Compile Include="FileSystem\SoundCloudFileSystem.cs" />
     <Compile Include="Game\BeatCollection.cs" />
     <Compile Include="Game\Difficulty.cs" />
@@ -131,6 +138,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -138,6 +146,7 @@
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>

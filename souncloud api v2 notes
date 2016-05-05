@@ -16,3 +16,60 @@ https://api-v2.soundcloud.com/search?q=antidote&facet=model&user_id=698189-13257
 
 only tracks
 https://api-v2.soundcloud.com/search/tracks?q=antidote&facet=genre&user_id=698189-13257-213778-325874&limit=10&offset=0&linked_partitioning=1&client_id=02gUJC0hH2ct1EGOcYXQIzRFU91c72Ea&app_version=d8c55ad
+
+Get charts
+https://api-v2.soundcloud.com/charts?kind=top&genre=soundcloud%3Agenres%3Aall-music&client_id=02gUJC0hH2ct1EGOcYQXIzRFU91c72Ea&limit=20&offset=0&linked_partitioning=1&app_version=1461312517
+
+https://api-v2.soundcloud.com/charts?kind=top&genre=soundcloud%3Agenres%3Aall-music&client_id=02gUJC0hH2ct1EGOcYXQIzRFU91c72Ea&limit=20&offset=0&linked_partitioning=1&app_version=1461948032
+
+curl "https://api-v2.soundcloud.com/charts?kind=top&genre=soundcloud"%"3Agenres"%"3Aall-music&client_id=02gUJC0hH2ct1EGOcYXQIzRFU91c72Ea&limit=20&offset=0&linked_partitioning=1&app_version=1461948032" -H "Authorization: OAuth 1-138878-1650059-44b46ebc14b67cf" -H "Origin: https://soundcloud.com" -H "Accept-Encoding: gzip, deflate, sdch" -H "Accept-Language: en-GB,en;q=0.8,en-US;q=0.6,fr-FR;q=0.4,fr;q=0.2,en-AU;q=0.2" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2716.0 Safari/537.36" -H "Accept: application/json, text/javascript, */*; q=0.01" -H "Referer: https://soundcloud.com/" -H "DNT: 1" -H "Connection: keep-alive" -H "Cache-Control: max-age=0" --compressed
+
+curl 'https://api-v2.soundcloud.com/charts?kind=top&genre=soundcloud%3Agenres%3Aall-music&client_id=02gUJC0hH2ct1EGOcYXQIzRFU91c72Ea&limit=20&offset=0&linked_partitioning=1&app_version=1461948032' -H 'Authorization: OAuth 1-138878-1650059-44b46ebc14b67cf' -H 'Origin: https://soundcloud.com' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: en-GB,en;q=0.8,en-US;q=0.6,fr-FR;q=0.4,fr;q=0.2,en-AU;q=0.2' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2716.0 Safari/537.36' -H 'Accept: application/json, text/javascript, */*; q=0.01' -H 'Referer: https://soundcloud.com/' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Cache-Control: max-age=0' --compressed
+
+Request Headers:
+GET /charts?kind=top&genre=soundcloud%3Agenres%3Aall-music&client_id=02gUJC0hH2ct1EGOcYXQIzRFU91c72Ea&limit=20&offset=0&linked_partitioning=1&app_version=1461948032 HTTP/1.1
+Host: api-v2.soundcloud.com
+Connection: keep-alive
+Cache-Control: max-age=0
+Accept: application/json, text/javascript, */*; q=0.01
+Origin: https://soundcloud.com
+Authorization: OAuth 1-138878-1650059-44b46ebc14b67cf
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2716.0 Safari/537.36
+Referer: https://soundcloud.com/
+Accept-Encoding: gzip, deflate, sdch
+Accept-Language: en-GB,en;q=0.8,en-US;q=0.6,fr-FR;q=0.4,fr;q=0.2,en-AU;q=0.2
+DNT: 1
+
+Response Headers:
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Access-Control-Allow-Headers: Authorization, Content-Type
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Origin: https://soundcloud.com
+Access-Control-Expose-Headers: Date
+Access-Control-Max-Age: 1728000
+Cache-Control: private, max-age=0
+Content-Type: application/json
+Date: Mon, 02 May 2016 09:00:23 GMT
+Server: am/2
+Vary: Origin
+Content-Length: 9290
+
+Curl POC
+curl 'https://api-v2.soundcloud.com/charts?kind=top&genre=soundcloud%3Agenres%3Aall-music&client_id=02gUJC0hH2ct1EGOcYXQIzRFU91c72Ea&limit=20&offset=0&linked_partitioning=1' --compressed
+
+
+client id: 74e6e3acb28021e21eb32ef4bc10e995
+
+curl 'https://api-v2.soundcloud.com/charts?kind=top&genre=soundcloud%3Agenres%3Aall-music&client_id=74e6e3acb28021e21eb32ef4bc10e995&limit=20&offset=0&linked_partitioning=1' -H 'Authorization: OAuth 1-138878-1650059-44b46ebc14b67cf' --compressed
+
+curl 'https://api-v2.soundcloud.com/charts?kind=top&genre=soundcloud%3Agenres%3Aall-music&client_id=74e6e3acb28021e21eb32ef4bc10e995&limit=20&offset=0&linked_partitioning=1&app_version=1461948032' -H 'Authorization: OAuth 1-138878-1650059-44b46ebc14b67cf' -H 'Origin: https://soundcloud.com' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: en-GB,en;q=0.8,en-US;q=0.6,fr-FR;q=0.4,fr;q=0.2,en-AU;q=0.2' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2716.0 Safari/537.36' -H 'Accept: application/json, text/javascript, */*; q=0.01' -H 'Referer: https://soundcloud.com/' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Cache-Control: max-age=0' --compressed
+
+curl 'https://api-v2.soundcloud.com/charts?kind=top&genre=soundcloud%3Agenres%3Aall-music&client_id=74e6e3acb28021e21eb32ef4bc10e995&limit=20&offset=0&linked_partitioning=1' -H 'Authorization: OAuth 1-159859-1650059-4663f0ed4020ca3' --compressed
+
+Authorization: OAuth 1-159859-1650059-4663f0ed4020ca3
+Authorization: OAuth 1-138878-1650059-44b46ebc14b67cf
+
+_soundcloud_session=BAh7CTodZ29vZ2xlX3BsdXNfYXV0aGVudGljaXR5IiU5NGU4MTY4MmFjNGYyMDhlOTZiMzUxZGE2N2UxZTg3YzoPc2Vzc2lvbl9pZCIlN2M5YWVkN2VkY2Q3Y2UwMWE4MzY0YTk4OTkzOGI5OGE6GmZhY2Vib29rX2F1dGhlbnRpY2l0eSIlZGIwODkxMWY1MDc3M2ZiYWU0YTIxOWZmYjk3OWZlZTY6G3JlY2FwdGNoYV9pbml0aWF0ZWRfYXRJdToJVGltZQ1NEB2AsdQLDAk6DW5hbm9fbnVtaSc6DW5hbm9fZGVuaQY6DXN1Ym1pY3JvIgcDQDoLb2Zmc2V0aQA%3D--ceee6c2aef6dd0575cbdc384760d12bd9c77c76d; domain=soundcloud.com; path=/; HttpOnly
+
+7fb6a06fbfe76e609e3a0517aa54bbc7ccb26538

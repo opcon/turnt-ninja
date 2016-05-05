@@ -84,7 +84,7 @@ namespace BeatDetection.GUI
         public override void Draw(double time)
         {
             _elapsedTime += time;
-            var rot = Matrix4.CreateRotationX((float)((MathHelper.PiOver4 / 2.0)*Math.Sin(_elapsedTime*0.13)));
+            var rot = Matrix4.CreateRotationX((float)((MathHelper.PiOver4 / 1.5)*Math.Sin((_elapsedTime*0.18))));
             ShaderProgram.Bind();
             ShaderProgram.SetUniform("mvp", Matrix4.Mult(rot, SceneManager.ScreenCamera.ModelViewProjection));
             _stage.Draw(time);
@@ -103,7 +103,12 @@ namespace BeatDetection.GUI
             //xOffset += SceneManager.Font.Print(string.Format("Scale is {0}", SceneManager.ScreenCamera.Scale), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
             //xOffset += SceneManager.Font.Print(string.Format("Pulse Multiplier is {0}", _stage.StageGeometry.CenterPolygon.PulseMultiplier), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
             xOffset += SceneManager.DrawTextLine(string.Format("Mouse coordinates are {0}", InputSystem.MouseXY), new Vector3(xOffset, yOffset, 0), Color.White,  QFontAlignment.Left).Width + 20;
-            xOffset += SceneManager.DrawTextLine(string.Format("Song Playing {0}", !_stage._stageAudio.IsStopped), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20; 
+            xOffset += SceneManager.DrawTextLine(string.Format("Song Playing {0}", !_stage._stageAudio.IsStopped), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
+            xOffset += SceneManager.DrawTextLine(string.Format("Beat Frequency {0}", _stage.StageGeometry.CurrentBeatFrequency), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
+
+            yOffset = SceneManager.Height * 0.5f;
+            xOffset = -SceneManager.Width * 0.5f + 20;
+            yOffset -= SceneManager.DrawTextLine(_stage.StageGeometry.ColourModifiers.ToString(), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Height + 20;
 
             //if (_stage.Ended) SceneManager.Font.Print("Song Finished", Vector3.Zero, QFontAlignment.Centre, Color.White);
         }

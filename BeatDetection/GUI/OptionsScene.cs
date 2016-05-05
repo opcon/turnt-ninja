@@ -12,6 +12,7 @@ using Gwen.Control.Layout;
 using Gwen.Input;
 using Substructio.Core;
 using Key = OpenTK.Input.Key;
+using BeatDetection.Game;
 
 namespace BeatDetection.GUI
 {
@@ -22,15 +23,20 @@ namespace BeatDetection.GUI
         private OpenTKAlternative _input;
         private HorizontalSlider _correctionSlider;
         private HorizontalSlider _volumeSlider;
+        private HorizontalSlider _difficultySlider;
         private NumericUpDown _numericCorrection;
         private NumericUpDown _numericVolume;
         private Label _correctionLabel;
         private Label _volumeLabel;
+        private Label _difficultyLabel;
+        private Label _currentDifficultyLabel;
         private Base _correctionOptionsContainer;
         private Base _volumeOptionsContainer;
+        private Base _difficultyOptionsContainer;
 
         private float _audioCorrection;
         private float _maxAudioVolume;
+        private DifficultyLevels _currentDifficulty;
 
         public OptionsScene(GUIComponentContainer guiComponents)
         {
@@ -40,15 +46,44 @@ namespace BeatDetection.GUI
 
         public override void Load()
         {
-            _audioCorrection = (float) SceneManager.GameSettings["AudioCorrection"]*1000f;
-            var vol = (float) SceneManager.GameSettings["MaxAudioVolume"];
-            _maxAudioVolume = vol*100f;
+            _audioCorrection = (float)SceneManager.GameSettings["AudioCorrection"] * 1000f;
+            var vol = (float)SceneManager.GameSettings["MaxAudioVolume"];
+            _maxAudioVolume = vol * 100f;
+            _currentDifficulty = (DifficultyLevels)SceneManager.GameSettings["DifficultyLevel"];
 
             _GUIComponents.Resize(SceneManager.ScreenCamera.ScreenProjectionMatrix, WindowWidth, WindowHeight);
             _canvas = new Canvas(_GUIComponents.Skin);
             _canvas.SetSize(WindowWidth, WindowHeight);
             _input = new OpenTKAlternative(_canvas);
             InputSystem.AddGUIInput(_input);
+
+            _difficultyOptionsContainer = new Base(_canvas);
+
+            _difficultyLabel = new Label(_difficultyOptionsContainer)
+            {
+                Text = "Difficulty Level",
+                AutoSizeToContents = true,
+                TextColor = Color.White
+            };
+
+            _currentDifficultyLabel = new Label(_difficultyOptionsContainer)
+            {
+                Text = _currentDifficulty.ToString(),
+                AutoSizeToContents = true,
+                TextColor = Color.White
+            };
+
+            _difficultySlider = new HorizontalSlider(_difficultyOptionsContainer);
+            _difficultySlider.SetRange(0, Enum.GetValues(typeof(DifficultyLevels)).Length - 1);
+            _difficultySlider.SetNotchSpacing(1);
+            _difficultySlider.SetSize(200, 20);
+            _difficultySlider.SnapToNotches = true;
+
+            _difficultySlider.ValueChanged += (sender, arguments) =>
+            {
+                _currentDifficultyLabel.Text = ((DifficultyLevels)((int)_difficultySlider.Value)).ToString();
+                _currentDifficulty = ((DifficultyLevels)((int)_difficultySlider.Value));
+            };
 
             _correctionOptionsContainer = new Base(_canvas);
 
@@ -137,6 +172,7 @@ namespace BeatDetection.GUI
                 Debug.Print("Numeric volume changed, value is " + _numericVolume.Value);
             };
 
+            _difficultySlider.Value = (int)_currentDifficulty;
             _correctionSlider.Value = _numericCorrection.Value = _audioCorrection;
             _volumeSlider.Value = _numericVolume.Value = _maxAudioVolume;
 
@@ -147,6 +183,15 @@ namespace BeatDetection.GUI
 
         private void LayoutGUI()
         {
+            //layout difficulty slider so that it's centered in the container
+            _difficultySlider.SetPosition((_difficultyLabel.Width - _difficultySlider.Width)/2, _difficultyLabel.Height);
+
+            //layout difficulty label
+            _difficultyLabel.SetPosition(0, 0);
+
+            //layout current difficulty label
+            _currentDifficultyLabel.SetPosition((_difficultyLabel.Width - _currentDifficultyLabel.Width)/2, _difficultyLabel.Height * 2);
+
             //layout correction slider
             _correctionSlider.SetPosition(-(_correctionSlider.Width + _numericCorrection.Width + 10) / 2 + _correctionLabel.TextWidth / 2, _correctionLabel.Height * 2);
 
@@ -165,15 +210,19 @@ namespace BeatDetection.GUI
             //size containers to their children
             _correctionOptionsContainer.SizeToChildren();
             _volumeOptionsContainer.SizeToChildren();
+            _difficultyOptionsContainer.SizeToChildren();
 
             //find max width
             var maxWidth = Math.Max(_correctionOptionsContainer.Width, _volumeOptionsContainer.Width);
 
+            var h = _difficultyOptionsContainer.Height;
+            _difficultyOptionsContainer.SetPosition((WindowWidth / 2 - _difficultyOptionsContainer.Width / 2), WindowHeight / 2 - h);
+
             //layout correction options container
-            _correctionOptionsContainer.SetPosition((int)(WindowWidth / 2 - maxWidth + (maxWidth - _correctionOptionsContainer.Width)/2), WindowHeight / 2 - _correctionOptionsContainer.Height / 2);
+            _correctionOptionsContainer.SetPosition((int)(WindowWidth / 2 - maxWidth + (maxWidth - _correctionOptionsContainer.Width)/2), WindowHeight / 2 - _correctionOptionsContainer.Height / 2 + h);
 
             //layout volume options container
-            _volumeOptionsContainer.SetPosition((int) (WindowWidth / 2 + (maxWidth - _volumeOptionsContainer.Width)/2), WindowHeight / 2 - _volumeOptionsContainer.Height / 2);
+            _volumeOptionsContainer.SetPosition((int) (WindowWidth / 2 + (maxWidth - _volumeOptionsContainer.Width)/2), WindowHeight / 2 - _volumeOptionsContainer.Height / 2 + h);
 
         }
 
@@ -197,6 +246,7 @@ namespace BeatDetection.GUI
                 _maxAudioVolume = _volumeSlider.Value*0.01f;
                 SceneManager.GameSettings["AudioCorrection"] = _audioCorrection;
                 SceneManager.GameSettings["MaxAudioVolume"] = _maxAudioVolume;
+                SceneManager.GameSettings["DifficultyLevel"] = _currentDifficulty;
                 SceneManager.RemoveScene(this);
             }
         }
