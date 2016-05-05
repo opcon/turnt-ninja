@@ -107,30 +107,6 @@ namespace BeatDetection.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("../../External Programs/sonic-annotator-1.0-win32/sonic-annotator.exe")]
-        public string SonicAnnotatorPath {
-            get {
-                return ((string)(this["SonicAnnotatorPath"]));
-            }
-            set {
-                this["SonicAnnotatorPath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("../../External Programs/Vamp Plugins")]
-        public string PluginPath {
-            get {
-                return ((string)(this["PluginPath"]));
-            }
-            set {
-                this["PluginPath"] = value;
-            }
-        }
-        
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute(".mp3,.flac,.wav,.m4a,.wma")]

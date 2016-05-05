@@ -110,7 +110,6 @@
     <Compile Include="Audio\PlaylistHelper.cs" />
     <Compile Include="Audio\Song.cs" />
     <Compile Include="Audio\SongCache.cs" />
-    <Compile Include="Audio\SonicAnnotatorWrapper.cs" />
     <Compile Include="Core\Settings\PropertySettings.cs" />
     <Compile Include="FileSystem\DirectoryBrowser.cs" />
     <Compile Include="FileSystem\IFileSystem.cs" />

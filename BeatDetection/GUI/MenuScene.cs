@@ -20,8 +20,6 @@ namespace BeatDetection.GUI
 {
     class MenuScene : Scene
     {
-        private string _sonicAnnotator;
-        private string _pluginPath;
         private ShaderProgram _shaderProgram;
         private Player _player;
 
@@ -38,10 +36,8 @@ namespace BeatDetection.GUI
 
         private GUIComponentContainer _GUIComponents;
 
-        public MenuScene(string sonicAnnotator, string pluginPath)
+        public MenuScene()
         {
-            _sonicAnnotator = sonicAnnotator;
-            _pluginPath = pluginPath;
         }
 
         public override void Load()
