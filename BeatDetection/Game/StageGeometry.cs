@@ -197,6 +197,8 @@ namespace BeatDetection.Game
             }
             var c = new Clipper();
             c.AddPaths(_beats.GetPolygonBounds(_beats.Index), PolyType.ptSubject, true);
+            if (_beats.Index < _beats.Count - 1)
+                c.AddPaths(_beats.GetPolygonBounds(_beats.Index + 1), PolyType.ptSubject, true);
             c.AddPath(Player.GetBounds(), PolyType.ptClip, true);
 
             var soln = new List<List<IntPoint>>();
