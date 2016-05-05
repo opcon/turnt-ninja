@@ -36,6 +36,8 @@ namespace BeatDetection.GUI
 
         private GUIComponentContainer _GUIComponents;
 
+        private string _gameVersion;
+
         public MenuScene()
         {
         }
@@ -43,6 +45,8 @@ namespace BeatDetection.GUI
         public override void Load()
         {
             SceneManager.GameWindow.Cursor = MouseCursor.Default;
+
+            _gameVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             //load shaders
             var vert = new Shader(Path.Combine(SceneManager.Directories["Shaders"].FullName, "simple.vs"));
@@ -195,6 +199,8 @@ namespace BeatDetection.GUI
 
             _menuFontDrawing.RefreshBuffers();
             _menuFontDrawing.Draw();
+
+            SceneManager.DrawTextLine(_gameVersion, new Vector3(-WindowWidth / 2+10, -WindowHeight / 2 + 30, 0), Color.White, QFontAlignment.Left);
         }
 
         public override void Dispose()
