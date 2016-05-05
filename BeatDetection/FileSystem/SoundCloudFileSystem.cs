@@ -88,5 +88,8 @@ namespace BeatDetection.FileSystem
         {
             return _scclient.Resolve.GetTrack(song.InternalName) != null;
         }
+        public void Focused()
+        {
+        }
     }
 }

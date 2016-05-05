@@ -183,5 +183,9 @@ namespace BeatDetection.FileSystem
         {
             return File.Exists(song.InternalName);
         }
+
+        public void Focused()
+        {
+        }
     }
 }

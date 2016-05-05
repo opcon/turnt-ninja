@@ -39,8 +39,15 @@ namespace BeatDetection.FileSystem
 
         public int Initialise(FileBrowserEntry separator)
         {
+            BuildRecentSongList();
+            return 0;
+        }
+
+        private void BuildRecentSongList()
+        {
             //Build song list
             var _toRemove = new List<SongBase>();
+            _recentSongList.Clear();
             foreach (var s in _recentSongBaseList)
             {
                 var fs = FileSystemCollection.First(f => f.FriendlyName.Equals(s.FileSystemFriendlyName, StringComparison.OrdinalIgnoreCase));
@@ -54,8 +61,6 @@ namespace BeatDetection.FileSystem
             _recentSongs.Clear();
 
             _recentSongs = _recentSongList.ConvertAll(s => new FileBrowserEntry { EntryType = FileBrowserEntryType.Song, Name = s.SongBase.Identifier, Path = s.SongBase.InternalName });
-
-            return 0;
         }
 
         public void LoadSongAudio(Song song)
@@ -75,6 +80,11 @@ namespace BeatDetection.FileSystem
         public bool SongExists(SongBase song)
         {
             throw new NotImplementedException();
+        }
+
+        public void Focused()
+        {
+            BuildRecentSongList();
         }
     }
 }

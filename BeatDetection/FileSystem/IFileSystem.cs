@@ -17,6 +17,7 @@ namespace BeatDetection.FileSystem
         string FriendlyName { get; }
 
         int Initialise(FileBrowserEntry separator);
+        void Focused();
 
         bool EntrySelected(ref int entryIndex);
         bool SongExists(SongBase song);
