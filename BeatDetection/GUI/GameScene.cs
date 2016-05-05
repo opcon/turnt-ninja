@@ -106,6 +106,10 @@ namespace BeatDetection.GUI
             xOffset += SceneManager.DrawTextLine(string.Format("Song Playing {0}", !_stage._stageAudio.IsStopped), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
             xOffset += SceneManager.DrawTextLine(string.Format("Beat Frequency {0}", _stage.StageGeometry.CurrentBeatFrequency), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
 
+            yOffset = SceneManager.Height * 0.5f;
+            xOffset = -SceneManager.Width * 0.5f + 20;
+            yOffset -= SceneManager.DrawTextLine(_stage.StageGeometry.ColourModifiers.ToString(), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Height + 20;
+
             //if (_stage.Ended) SceneManager.Font.Print("Song Finished", Vector3.Zero, QFontAlignment.Centre, Color.White);
         }
 
