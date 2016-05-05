@@ -156,9 +156,13 @@ namespace BeatDetection.GUI
                 switch (_selectedMenuItem)
                 {
                     case MainMenuOptions.SinglePlayer:
-                        //SceneManager.GameWindow.WindowState = WindowState.Normal;
-                        //SceneManager.AddScene(new LoadingScene(_sonicAnnotator, _pluginPath, (float) SceneManager.GameSettings["AudioCorrection"], (float) SceneManager.GameSettings["MaxAudioVolume"], _centerPolygon, _player, _shaderProgram), this);
-                        SceneManager.AddScene(new ChooseSongScene(_GUIComponents, _centerPolygon, _player, _shaderProgram), this);
+                        var cs = SceneManager.SceneList.Find(s => s.GetType() == typeof(ChooseSongScene));
+                        if (cs == null)
+                        {
+                            cs = new ChooseSongScene(_GUIComponents, _centerPolygon, _player, _shaderProgram);
+                            SceneManager.AddScene(cs, this);
+                        }
+                        cs.Visible = true;
                         break;
                     case MainMenuOptions.Options:
                         SceneManager.AddScene(new OptionsScene(_GUIComponents), this);

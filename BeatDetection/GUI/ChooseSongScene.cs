@@ -66,7 +66,8 @@ namespace BeatDetection.GUI
             _recentSongs.Insert(0, song.SongBase);
 
             SceneManager.GameSettings["RecentSongs"] = _recentSongs;
-            SceneManager.RemoveScene(this);
+            //SceneManager.RemoveScene(this);
+            this.Visible = false;
             SceneManager.AddScene(
                 new LoadingScene(
                     (float)SceneManager.GameSettings["AudioCorrection"],
@@ -83,9 +84,12 @@ namespace BeatDetection.GUI
 
         public override void Update(double time, bool focused = false)
         {
-            if (InputSystem.NewKeys.Contains(Key.Escape)) SceneManager.RemoveScene(this);
+            if (focused)
+            {
+                if (InputSystem.NewKeys.Contains(Key.Escape)) this.Visible = false;
 
-            _directoryBrowser.Update(time);
+                _directoryBrowser.Update(time);
+            }
         }
 
         public override void Draw(double time)
