@@ -74,7 +74,29 @@ namespace BeatDetection.GUI
 
             _songText = QFontDrawingPrimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, _song.SongBase.Identifier, new SizeF(SceneManager.GameWindow.Width - 40, -1), QFontAlignment.Centre);
 
-            var dOptions = new DifficultyOptions(600f, 0.15f, 0.35f, 1.5f);
+            //Get difficulty options
+            DifficultyOptions dOptions;
+            switch ((DifficultyLevels)SceneManager.GameSettings["DifficultyLevel"])
+            {
+                case DifficultyLevels.Easy:
+                    dOptions = DifficultyOptions.Easy;
+                    break;
+                case DifficultyLevels.Medium:
+                    dOptions = DifficultyOptions.Medium;
+                    break;
+                case DifficultyLevels.Hard:
+                    dOptions = DifficultyOptions.Hard;
+                    break;
+                case DifficultyLevels.Ultra:
+                    dOptions = DifficultyOptions.Ultra;
+                    break;
+                case DifficultyLevels.Ninja:
+                    dOptions = DifficultyOptions.Ninja;
+                    break;
+                default:
+                    //shouldn't happen
+                    throw new Exception("Invalid difficulty level specified");
+            }
 
             var progress = new Progress<string>(status =>
             {
