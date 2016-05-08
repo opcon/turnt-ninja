@@ -185,6 +185,7 @@ namespace BeatDetection
             directoryHandler.AddPath("Shaders", Path.Combine(directoryHandler["Resources"].FullName, @"Shaders"));
             directoryHandler.AddPath("Images", Path.Combine(directoryHandler["Resources"].FullName, @"Images"));
             directoryHandler.AddPath("Crash", @"..\..\CrashLogs");
+            directoryHandler.AddPath("BundledSongs", Path.Combine(directoryHandler["Resources"].FullName, @"Songs"));
 
             if (!Debugger.IsAttached)
             {
