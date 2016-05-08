@@ -43,12 +43,15 @@ namespace BeatDetection
         private DirectoryHandler _directoryHandler;
         private static CrashReporter _crashReporter;
 
+        public ValueWrapper<bool> Debug = new ValueWrapper<bool>();
+
         public GameController(IGameSettings gameSettings, int rX, int rY, GraphicsMode graphicsMode, DirectoryHandler directoryHandler)
             : base(rX, rY, graphicsMode)
         {
             KeyDown += Keyboard_KeyDown;
             this.VSync = (bool) gameSettings["VSync"] ? VSyncMode.On : VSyncMode.Off;
             this.WindowState = (WindowState) gameSettings["WindowState"];
+            Debug.Value = (bool)gameSettings["Debug"];
             _gameSettings = gameSettings;
             _directoryHandler = directoryHandler;
         }
@@ -91,7 +94,7 @@ namespace BeatDetection
             var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
             var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Regular);
-            _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath, _directoryHandler, _gameSettings);
+            _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath, _directoryHandler, _gameSettings, Debug);
             _gameSceneManager.AddScene(new MenuScene(), null);
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
@@ -108,8 +111,6 @@ namespace BeatDetection
 
         #endregion
 
-        #region OnResize
-
         /// <summary>
         /// Respond to resize events here.
         /// </summary>
@@ -121,9 +122,6 @@ namespace BeatDetection
 
             _gameSceneManager.Resize(e);
         }
-
-
-        #endregion
 
         #region OnUpdateFrame
 
@@ -138,6 +136,8 @@ namespace BeatDetection
             while (_lag >= _dt)
             {
                 _gameSceneManager.Update(_dt);
+                if (InputSystem.NewKeys.Contains(Key.F12))
+                    Debug.Value = !Debug.Value;
 
                 //only update input system once per frame!
                 InputSystem.Update(this.Focused, _dt);
@@ -168,6 +168,7 @@ namespace BeatDetection
         protected override void OnUnload(EventArgs e)
         {
             _gameSceneManager.Dispose();
+            _gameSettings["Debug"] = Debug;
             _gameSettings.Save();
             base.OnUnload(e);
         }
