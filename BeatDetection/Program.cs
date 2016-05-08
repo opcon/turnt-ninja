@@ -205,7 +205,7 @@ namespace BeatDetection
 
             using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode, directoryHandler))
             {
-                game.Title = "Codename: turnt-ninja";
+                game.Title = "Turnt Ninja";
                 game.Run();
             }
         }
