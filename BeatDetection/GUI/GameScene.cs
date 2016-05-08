@@ -25,7 +25,7 @@ namespace BeatDetection.GUI
         public bool UsingPlaylist { get; set; }
         public List<string> PlaylistFiles { get; set; }
 
-        private const float TIMETOWAIT = 3.0f;
+        private const float TIMETOWAIT = 1.0f;
 
         private double _elapsedTime = 0;
 
