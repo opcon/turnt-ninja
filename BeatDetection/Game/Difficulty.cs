@@ -39,7 +39,7 @@ namespace BeatDetection.Game
         {
             get
             {
-                return new DifficultyOptions(500f, 0.2f, 0.5f, 1.0f, 0.3f, 1.0f);
+                return new DifficultyOptions(500f, 0.32f, 0.5f, 1.0f, 0.25f, 1.0f);
             }
         }
 
