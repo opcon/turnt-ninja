@@ -54,6 +54,8 @@ namespace BeatDetection.GUI
 
             // Make sure to add recent file system last!
             _directoryBrowser.AddFileSystem(new RecentFileSystem(_recentSongs));
+
+            _directoryBrowser.Resize(WindowWidth, WindowHeight);
             Loaded = true;
         }
 
@@ -80,6 +82,7 @@ namespace BeatDetection.GUI
 
         public override void Resize(EventArgs e)
         {
+            _directoryBrowser.Resize(WindowWidth, WindowHeight);
         }
 
         public override void Update(double time, bool focused = false)

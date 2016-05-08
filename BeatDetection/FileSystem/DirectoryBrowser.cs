@@ -10,6 +10,7 @@ using OpenTK.Input;
 using BeatDetection.GUI;
 using OpenTK;
 using OpenTK.Graphics;
+using System.Globalization;
 
 namespace BeatDetection.FileSystem
 {
@@ -32,6 +33,15 @@ namespace BeatDetection.FileSystem
         int _halfEntryDrawCount = 10;
         float _verticalEntrySpacing = 30;
 
+        string _searchString = "";
+        float _searchTimeout = 2.0f;
+        double _searchLastTime = 0.0f;
+        double _searchElapsedTime = 0.0f;
+
+        public string SearchString
+        {
+            get { return _searchString; }
+        }
 
         public DirectoryBrowser(SceneManager parentSceneManager, ChooseSongScene parentScene)
         {
@@ -66,11 +76,24 @@ namespace BeatDetection.FileSystem
             fileSystem.Focused();
             _currentFileSystem = fileSystem;
         }
+        
+        private void ResetSearch()
+        {
+            _searchLastTime = _searchElapsedTime = 0.0f;
+            _searchString = "";
+        }
+
+        public void Resize(int wWidth, int wHeight)
+        {
+            _halfEntryDrawCount = (int) (wHeight / _verticalEntrySpacing) / 2;
+        }
 
         public void Update(double time)
         {
             if (InputSystem.NewKeys.Contains(Key.Enter) && !_fileSystemEntries[_directoryBrowserEntryIndex].EntryType.HasFlag(FileBrowserEntryType.Separator))
             {
+                ResetSearch();
+
                 _fileSystemEntryIndex = _directoryBrowserEntryIndex - _fileSystemEntryIndexOffset;
                 if (_fileSystemEntryIndex >= 0)
                 {
@@ -113,11 +136,25 @@ namespace BeatDetection.FileSystem
             if (InputSystem.NewKeys.Contains(Key.Right))
                 _directoryBrowserEntryIndex += 10;
 
+            _searchElapsedTime += time;
+            if (_searchElapsedTime - _searchLastTime > _searchTimeout)
+                ResetSearch();
+
             // Update text search
             foreach (var c in InputSystem.PressedChars)
             {
-                int match = _fileSystemEntries.FindIndex(fbe => fbe.Name.StartsWith(c.ToString(), StringComparison.CurrentCultureIgnoreCase) && !fbe.EntryType.HasFlag(FileBrowserEntryType.Special));
+                _searchString = (_searchString + c).ToLowerInvariant();
+                _searchElapsedTime = _searchLastTime = 0.0f;
+                int match = _fileSystemEntries.FindIndex(fbe => fbe.Name.StartsWith(_searchString, StringComparison.CurrentCultureIgnoreCase));
+                if (match < 0)
+                    match = _fileSystemEntries.FindIndex(fbe => CultureInfo.CurrentCulture.CompareInfo.IndexOf(fbe.Name, _searchString, CompareOptions.IgnoreCase) >= 0 &&
+                        !(fbe.EntryType.HasFlag(FileBrowserEntryType.Special) || fbe.EntryType.HasFlag(FileBrowserEntryType.Plugin)));
                 if (match >= 0) _directoryBrowserEntryIndex = match;
+            }
+            if (InputSystem.NewKeys.Contains(Key.BackSpace) && _searchString.Length > 0)
+            {
+                _searchString = _searchString.Substring(0, _searchString.Length - 1);
+                _searchElapsedTime = _searchLastTime = 0.0f;
             }
 
             // Clamp the index
@@ -127,14 +164,16 @@ namespace BeatDetection.FileSystem
 
         public void Draw(double time)
         {
-            float startY = _verticalEntrySpacing * _halfEntryDrawCount;
+            float startY = _verticalEntrySpacing * (_halfEntryDrawCount - 2);
 
-            for (int i = _directoryBrowserEntryIndex - _halfEntryDrawCount; i < _directoryBrowserEntryIndex + _halfEntryDrawCount; i++)
+            for (int i = _directoryBrowserEntryIndex - (_halfEntryDrawCount - 2); i < _directoryBrowserEntryIndex + _halfEntryDrawCount; i++)
             {
                 if (i >= 0 && i < _fileSystemEntries.Count && i != _directoryBrowserEntryIndex) _parentManager.DrawTextLine(_fileSystemEntries[i].Name, new Vector3(0, startY, 0), Color4.Black, QuickFont.QFontAlignment.Centre);
                 startY -= 30;
             }
             _parentManager.DrawTextLine(_fileSystemEntries[_directoryBrowserEntryIndex].Name, new Vector3(0, 0, 0), Color4.White, QuickFont.QFontAlignment.Centre);
+
+            _parentManager.DrawTextLine(string.Format("Search: {0}", _searchString), new Vector3(0, _verticalEntrySpacing * _halfEntryDrawCount, 0), Color4.White, QuickFont.QFontAlignment.Centre);
         }
     }
 }
