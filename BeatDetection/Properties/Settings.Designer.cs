@@ -183,5 +183,65 @@ namespace BeatDetection.Properties {
                 this["DifficultyLevel"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OnsetOnline {
+            get {
+                return ((bool)(this["OnsetOnline"]));
+            }
+            set {
+                this["OnsetOnline"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.25")]
+        public float OnsetSlicePaddingLength {
+            get {
+                return ((float)(this["OnsetSlicePaddingLength"]));
+            }
+            set {
+                this["OnsetSlicePaddingLength"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public float OnsetSliceLength {
+            get {
+                return ((float)(this["OnsetSliceLength"]));
+            }
+            set {
+                this["OnsetSliceLength"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Debug {
+            get {
+                return ((bool)(this["Debug"]));
+            }
+            set {
+                this["Debug"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UpgradeRequired {
+            get {
+                return ((bool)(this["UpgradeRequired"]));
+            }
+            set {
+                this["UpgradeRequired"] = value;
+            }
+        }
     }
 }
