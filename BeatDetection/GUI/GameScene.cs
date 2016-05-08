@@ -91,26 +91,27 @@ namespace BeatDetection.GUI
             //Cleanup the program
             ShaderProgram.UnBind();
 
-            float yOffset = -SceneManager.Height * 0.5f + 30f;
-            float xOffset = -SceneManager.Width * 0.5f + 20;
-            xOffset += SceneManager.DrawTextLine(_stage.Overlap.ToString(), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
-            xOffset += SceneManager.DrawTextLine(_stage.Hits.ToString(), new Vector3(xOffset, yOffset, 0), Color.Red, QFontAlignment.Left).Width + 20;
-            xOffset += SceneManager.DrawTextLine(string.Format("{0}/{1}", _stage.CurrentPolygon, _stage.PolygonCount), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
-            //xOffset +=
-            //    SceneManager.Font.Print(string.Format("{0}/{1}", SceneManager.ScreenCamera.TargetScale, SceneManager.ScreenCamera.Scale), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left,
-            //        Color.White).Width + 20;
-            //xOffset += SceneManager.Font.Print(string.Format("Current score is {0}", _stage.StageGeometry.Player.Score), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
-            //xOffset += SceneManager.Font.Print(string.Format("Scale is {0}", SceneManager.ScreenCamera.Scale), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
-            //xOffset += SceneManager.Font.Print(string.Format("Pulse Multiplier is {0}", _stage.StageGeometry.CenterPolygon.PulseMultiplier), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
-            xOffset += SceneManager.DrawTextLine(string.Format("Mouse coordinates are {0}", InputSystem.MouseXY), new Vector3(xOffset, yOffset, 0), Color.White,  QFontAlignment.Left).Width + 20;
-            xOffset += SceneManager.DrawTextLine(string.Format("Song Playing {0}", !_stage._stageAudio.IsStopped), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
-            xOffset += SceneManager.DrawTextLine(string.Format("Beat Frequency {0}", _stage.StageGeometry.CurrentBeatFrequency), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
+            if (SceneManager.Debug)
+            {
+                float yOffset = -SceneManager.Height * 0.5f + 30f;
+                float xOffset = -SceneManager.Width * 0.5f + 20;
+                xOffset += SceneManager.DrawTextLine(_stage.Overlap.ToString(), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
+                xOffset += SceneManager.DrawTextLine(_stage.Hits.ToString(), new Vector3(xOffset, yOffset, 0), Color.Red, QFontAlignment.Left).Width + 20;
+                xOffset += SceneManager.DrawTextLine(string.Format("{0}/{1}", _stage.CurrentPolygon, _stage.PolygonCount), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
+                //xOffset +=
+                //    SceneManager.Font.Print(string.Format("{0}/{1}", SceneManager.ScreenCamera.TargetScale, SceneManager.ScreenCamera.Scale), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left,
+                //        Color.White).Width + 20;
+                //xOffset += SceneManager.Font.Print(string.Format("Current score is {0}", _stage.StageGeometry.Player.Score), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
+                //xOffset += SceneManager.Font.Print(string.Format("Scale is {0}", SceneManager.ScreenCamera.Scale), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
+                //xOffset += SceneManager.Font.Print(string.Format("Pulse Multiplier is {0}", _stage.StageGeometry.CenterPolygon.PulseMultiplier), new Vector3(xOffset, yOffset, 0), QFontAlignment.Left, Color.White).Width + 20;
+                xOffset += SceneManager.DrawTextLine(string.Format("Mouse coordinates are {0}", InputSystem.MouseXY), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
+                xOffset += SceneManager.DrawTextLine(string.Format("Song Playing {0}", !_stage._stageAudio.IsStopped), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
+                xOffset += SceneManager.DrawTextLine(string.Format("Beat Frequency {0}", _stage.StageGeometry.CurrentBeatFrequency), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Width + 20;
 
-            yOffset = SceneManager.Height * 0.5f;
-            xOffset = -SceneManager.Width * 0.5f + 20;
-            yOffset -= SceneManager.DrawTextLine(_stage.StageGeometry.ColourModifiers.ToString(), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Height + 20;
-
-            //if (_stage.Ended) SceneManager.Font.Print("Song Finished", Vector3.Zero, QFontAlignment.Centre, Color.White);
+                yOffset = SceneManager.Height * 0.5f;
+                xOffset = -SceneManager.Width * 0.5f + 20;
+                yOffset -= SceneManager.DrawTextLine(_stage.StageGeometry.ColourModifiers.ToString(), new Vector3(xOffset, yOffset, 0), Color.White, QFontAlignment.Left).Height + 20;
+            }
         }
 
         public override void Dispose()
