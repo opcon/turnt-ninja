@@ -200,7 +200,7 @@ namespace BeatDetection.GUI
             _menuFontDrawing.RefreshBuffers();
             _menuFontDrawing.Draw();
 
-            SceneManager.DrawTextLine(_gameVersion, new Vector3(-WindowWidth / 2+10, -WindowHeight / 2 + 30, 0), Color.White, QFontAlignment.Left);
+            SceneManager.DrawTextLine("Turnt Ninja version " + _gameVersion, new Vector3(-WindowWidth / 2+10, -WindowHeight / 2 + 30, 0), Color.White, QFontAlignment.Left);
         }
 
         public override void Dispose()
