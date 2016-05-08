@@ -145,6 +145,9 @@ namespace BeatDetection.Game
             var options = DetectorOptions.Default;
             options.ActivationThreshold = (float)SceneManager.GameSettings["OnsetActivationThreshold"];
             options.AdaptiveWhitening = (bool)SceneManager.GameSettings["OnsetAdaptiveWhitening"];
+            options.Online = (bool)SceneManager.GameSettings["OnsetOnline"];
+            options.SlicePaddingLength = (float)SceneManager.GameSettings["OnsetSlicePaddingLength"];
+            options.SliceLength = (float)SceneManager.GameSettings["OnsetSliceLength"];
             _audioFeatures = new AudioFeatures(options, "../../Processed Songs/", correction + (float)_easeInTime, progress);
 
             progress.Report("Extracting audio features");
