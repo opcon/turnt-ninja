@@ -178,6 +178,8 @@ namespace BeatDetection.GUI
 
             LayoutGUI();
 
+            _difficultySlider.Focus();
+
             Loaded = true;
         }
 
@@ -190,7 +192,7 @@ namespace BeatDetection.GUI
             _difficultyLabel.SetPosition(0, 0);
 
             //layout current difficulty label
-            _currentDifficultyLabel.SetPosition((_difficultyLabel.Width - _currentDifficultyLabel.Width)/2, _difficultyLabel.Height * 2);
+            _currentDifficultyLabel.SetPosition((_difficultyLabel.Width - _currentDifficultyLabel.Width)/2, _difficultyLabel.Height + _difficultySlider.Height);
 
             //layout correction slider
             _correctionSlider.SetPosition(-(_correctionSlider.Width + _numericCorrection.Width + 10) / 2 + _correctionLabel.TextWidth / 2, _correctionLabel.Height * 2);
@@ -246,9 +248,12 @@ namespace BeatDetection.GUI
                 _maxAudioVolume = _volumeSlider.Value*0.01f;
                 SceneManager.GameSettings["AudioCorrection"] = _audioCorrection;
                 SceneManager.GameSettings["MaxAudioVolume"] = _maxAudioVolume;
-                SceneManager.GameSettings["DifficultyLevel"] = _currentDifficulty;
+                SceneManager.GameSettings["DifficultyLevel"] = (int)_currentDifficulty;
                 SceneManager.RemoveScene(this);
             }
+
+            if (InputSystem.NewKeys.Contains(Key.Tab) && _volumeSlider.HasFocus)
+                _difficultySlider.Focus();
         }
 
         public override void Draw(double time)
