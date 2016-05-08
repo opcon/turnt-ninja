@@ -45,7 +45,7 @@ namespace BeatDetection.GUI
             InputSystem.RepeatingKeys.Add(Key.Right, KeyRepeatSettings.Default);
 
             _directoryBrowser = new DirectoryBrowser(SceneManager, this);
-            _directoryBrowser.AddFileSystem(new LocalFileSystem());
+            _directoryBrowser.AddFileSystem(new LocalFileSystem(SceneManager.Directories));
             _directoryBrowser.AddFileSystem(new SoundCloudFileSystem());
 
             if (SceneManager.GameSettings["RecentSongs"] == null)

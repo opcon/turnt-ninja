@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BeatDetection.Audio;
 using System.Diagnostics;
+using Substructio.Core;
 
 namespace BeatDetection.FileSystem
 {
@@ -17,14 +18,16 @@ namespace BeatDetection.FileSystem
         List<FileBrowserEntry> _drives;
         List<FileBrowserEntry> _localFileSystemEntries;
         List<FileBrowserEntry> _userFolders;
+        DirectoryHandler _directoryHandler;
 
         public ReadOnlyCollection<FileBrowserEntry> FileSystemEntryCollection { get { return _localFileSystemEntries.AsReadOnly(); } }
         public List<IFileSystem> FileSystemCollection { get; set; }
         public string FriendlyName { get { return "Local File System"; } }
 
-        public LocalFileSystem()
+        public LocalFileSystem(DirectoryHandler directoryHandler)
         {
             _fileFilter = CSCore.Codecs.CodecFactory.Instance.GetSupportedFileExtensions();
+            _directoryHandler = directoryHandler;
 
             _drives = new List<FileBrowserEntry>();
             _localFileSystemEntries = new List<FileBrowserEntry>();
@@ -81,15 +84,44 @@ namespace BeatDetection.FileSystem
             // Add Drive/Directory separator
             _localFileSystemEntries.Add(_entrySeparator);
 
-            int desiredIndex = _localFileSystemEntries.Count;
+            // Add user folders
+            _localFileSystemEntries.Add(new FileBrowserEntry
+            {
+                Path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                EntryType = FileBrowserEntryType.Directory,
+                Name = "My Documents"
+            });
+            _localFileSystemEntries.Add(new FileBrowserEntry
+            {
+                Path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+                EntryType = FileBrowserEntryType.Directory,
+                Name = "Desktop"
+            });
+            _localFileSystemEntries.Add(new FileBrowserEntry
+            {
+                Path = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic),
+                EntryType = FileBrowserEntryType.Directory,
+                Name = "My Music"
+            });
+
+            _localFileSystemEntries.Add(new FileBrowserEntry
+            {
+                Path = _directoryHandler["BundledSongs"].FullName,
+                EntryType = FileBrowserEntryType.Directory,
+                Name = "Bundled Songs"
+            });
+
+            _localFileSystemEntries.Add(_entrySeparator);
 
             // Add shortcut to parent directory
             _localFileSystemEntries.Add(new FileBrowserEntry
             {
                 Path = Path.Combine(directoryPath, "../"),
                 EntryType = FileBrowserEntryType.Directory | FileBrowserEntryType.Special,
-                Name = "Parent Directory"
+                Name = "Up a Directory"
             });
+
+            int desiredIndex = _localFileSystemEntries.Count;
 
             // Add the new directories
             foreach (var dir in childrenDirectories.OrderBy(Path.GetFileName))
