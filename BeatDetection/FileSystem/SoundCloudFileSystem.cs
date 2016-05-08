@@ -29,6 +29,8 @@ namespace BeatDetection.FileSystem
 
         public string FriendlyName { get { return "SoundCloud"; } }
 
+        private object _lock = new object();
+
         public SoundCloudFileSystem()
         {
             _soundcloudSongs = new List<FileBrowserEntry>();
@@ -46,9 +48,14 @@ namespace BeatDetection.FileSystem
             _scclient = _sconnector.UnauthorizedConnect(clientID, clientSecret);
 
             //Get tracks
-            _scCategories = _scclient.Explore.GetExploreCategories().ToList();
-
-            ShowCategories();
+            Task.Run(() =>
+            {
+                lock (_lock )
+                {
+                    _scCategories = _scclient.Explore.GetExploreCategories().ToList();
+                    ShowCategories();
+                }
+            });
 
             return 0;
         }
