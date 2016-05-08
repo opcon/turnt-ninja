@@ -101,6 +101,7 @@ namespace BeatDetection.Audio
 
         private string GetOnsetFilePath(string audioPath)
         {
+            if (!Directory.Exists(_csvDirectory)) Directory.CreateDirectory(_csvDirectory);
             return Path.Combine(_csvDirectory, String.Format("{0}_{1}", Path.GetFileNameWithoutExtension(audioPath), _outputSuffix) + ".csv");
         }
     }
