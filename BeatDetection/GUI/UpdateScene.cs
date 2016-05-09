@@ -148,7 +148,7 @@ namespace BeatDetection.GUI
 
         public override void Dispose()
         {
-            _updateManager.Dispose();
+            if (_updateManager != null) _updateManager.Dispose();
             _updateManager = null;
         }
 
