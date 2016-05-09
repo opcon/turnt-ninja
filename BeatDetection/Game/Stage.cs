@@ -47,6 +47,8 @@ namespace BeatDetection.Game
 
         public QFont MultiplierFont;
         public QFontDrawing MultiplierFontDrawing;
+        public QFont ScoreFont;
+        public QFontDrawing ScoreFontDrawing;
         private string _centerText = "";
 
         private MemoryStream ms;
@@ -89,6 +91,10 @@ namespace BeatDetection.Game
             MultiplierFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Regular);
             MultiplierFontDrawing = new QFontDrawing();
             MultiplierFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
+
+            ScoreFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Regular);
+            ScoreFontDrawing = new QFontDrawing();
+            ScoreFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
 
             _stageAudio = new StageAudio();
         }
@@ -213,7 +219,6 @@ namespace BeatDetection.Game
 
             //Scale multiplier font with beat
             MultiplierFontDrawing.ProjectionMatrix = Matrix4.Mult(Matrix4.CreateScale((float)(0.75 + 0.24f * StageGeometry.CenterPolygon.PulseWidth / StageGeometry.CenterPolygon.PulseWidthMax)), SceneManager.ScreenCamera.ScreenProjectionMatrix);
-
         }
 
         public void Draw(double time)
@@ -225,12 +230,19 @@ namespace BeatDetection.Game
                 QFontAlignment.Centre);
             MultiplierFontDrawing.RefreshBuffers();
             MultiplierFontDrawing.Draw();
+
+            ScoreFontDrawing.DrawingPrimitives.Clear();
+            ScoreFontDrawing.Print(MultiplierFont, StageGeometry.Player.Score.ToString(), new Vector3(-SceneManager.Width / 2 + 20, SceneManager.Height/2 - 10, 0), QFontAlignment.Left, Color.White);
+            ScoreFontDrawing.RefreshBuffers();
+            ScoreFontDrawing.Draw();
         }
 
         public void Dispose()
         {
             MultiplierFont.Dispose();
             MultiplierFontDrawing.Dispose();
+            ScoreFont.Dispose();
+            ScoreFontDrawing.Dispose();
             StageGeometry.Dispose();
         }
 

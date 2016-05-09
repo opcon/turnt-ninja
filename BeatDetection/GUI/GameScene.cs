@@ -64,6 +64,7 @@ namespace BeatDetection.GUI
         public override void Resize(EventArgs e)
         {
             _stage.MultiplierFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
+            _stage.ScoreFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
         }
 
         public override void Update(double time, bool focused = false)
