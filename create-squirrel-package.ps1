@@ -11,7 +11,7 @@ $xml = [xml](Get-Content 'turnt-ninja.nuspec')
 
 $xml.package.metadata.licenseUrl = "https://github.com/opcon/turnt-ninja/blob/master/LICENSE"
 $xml.package.metadata.projectUrl = "https://github.com/opcon/turnt-ninja"
-$xml.package.metadata.releaseNotes = "First github autoupdate!"
+$xml.package.metadata.releaseNotes = "TODO"
 
 # delete some entries
 $remove = $xml.package.metadata.dependencies
