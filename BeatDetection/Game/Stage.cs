@@ -148,7 +148,7 @@ namespace BeatDetection.Game
             options.Online = (bool)SceneManager.GameSettings["OnsetOnline"];
             options.SlicePaddingLength = (float)SceneManager.GameSettings["OnsetSlicePaddingLength"];
             options.SliceLength = (float)SceneManager.GameSettings["OnsetSliceLength"];
-            _audioFeatures = new AudioFeatures(options, "../../Processed Songs/", correction + (float)_easeInTime, progress);
+            _audioFeatures = new AudioFeatures(options, SceneManager.Directories["ProcessedSongs"].FullName, correction + (float)_easeInTime, progress);
 
             progress.Report("Extracting audio features");
             _audioFeatures.Extract(audioSource, s);

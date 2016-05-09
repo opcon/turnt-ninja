@@ -16,6 +16,8 @@ using Substructio.Core;
 using Substructio.Core.Settings;
 using Substructio.GUI;
 using Substructio.IO;
+using Squirrel;
+using System.Threading.Tasks;
 
 namespace BeatDetection
 {
@@ -95,7 +97,7 @@ namespace BeatDetection
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
             var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Regular);
             _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath, _directoryHandler, _gameSettings, Debug);
-            _gameSceneManager.AddScene(new MenuScene(), null);
+            _gameSceneManager.AddScene(new UpdateScene(), null);
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
             Keyboard.KeyUp += (o, args) => InputSystem.KeyUp(args);
@@ -180,12 +182,26 @@ namespace BeatDetection
         {
             //initialise directory handler
             var directoryHandler = new DirectoryHandler();
-            directoryHandler.AddPath("Resources", @"..\..\Resources");
+            //set application path
+            directoryHandler.AddPath("Application", Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+            //set base path
+            if (Directory.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Resources")))
+                directoryHandler.AddPath("Base", Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+            else if (Directory.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\Resources")))
+                directoryHandler.AddPath("Base", Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\"));
+            else
+            {
+                throw new Exception("Couldn't find resource folder location");
+            }
+
+
+            directoryHandler.AddPath("Resources", Path.Combine(directoryHandler["Base"].FullName, "Resources"));
             directoryHandler.AddPath("Fonts", Path.Combine(directoryHandler["Resources"].FullName, @"Fonts"));
             directoryHandler.AddPath("Shaders", Path.Combine(directoryHandler["Resources"].FullName, @"Shaders"));
             directoryHandler.AddPath("Images", Path.Combine(directoryHandler["Resources"].FullName, @"Images"));
-            directoryHandler.AddPath("Crash", @"..\..\CrashLogs");
+            directoryHandler.AddPath("Crash", Path.Combine(directoryHandler["Base"].FullName, "CrashLogs"));
             directoryHandler.AddPath("BundledSongs", Path.Combine(directoryHandler["Resources"].FullName, @"Songs"));
+            directoryHandler.AddPath("ProcessedSongs", Path.Combine(directoryHandler["Base"].FullName, @"Processed Songs"));
 
             if (!Debugger.IsAttached)
             {
@@ -196,6 +212,13 @@ namespace BeatDetection
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             }
 
+            //init logging
+            Splat.DependencyResolverMixins.RegisterConstant(Splat.Locator.CurrentMutable,
+                new SimpleLogger(directoryHandler["Application"].FullName, Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + ".log")
+                {
+                    Level = Splat.LogLevel.Debug
+                },
+                typeof(Splat.ILogger));
 
             IGameSettings gameSettings = new PropertySettings();
             gameSettings.Load();
