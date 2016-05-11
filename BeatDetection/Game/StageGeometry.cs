@@ -130,7 +130,7 @@ namespace BeatDetection.Game
                 var d = _random.NextDouble();
                 _direction = d > 0.95 ? -_direction : _direction;
                 ParentStage.Multiplier += _beats.BeatsHit;
-                Player.Score += ParentStage.Multiplier*ParentStage.ScoreMultiplier;
+                Player.Score += (ParentStage.Multiplier*ParentStage.ScoreMultiplier + 1)*10;
             }
 
             Player.Direction = _direction;

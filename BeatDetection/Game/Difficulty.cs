@@ -39,7 +39,7 @@ namespace BeatDetection.Game
         {
             get
             {
-                return new DifficultyOptions(500f, 0.32f, 0.5f, 1.0f, 0.25f, 1.0f);
+                return new DifficultyOptions(500f, 0.32f, 0.5f, 1.0f, 0.25f, 3.0f);
             }
         }
 
@@ -47,7 +47,7 @@ namespace BeatDetection.Game
         {
             get
             {
-                return new DifficultyOptions(550f, 0.2f, 0.4f, 1.2f, 0.15f, 2.0f); 
+                return new DifficultyOptions(550f, 0.2f, 0.4f, 1.2f, 0.15f, 6.0f); 
             }
         }
 
@@ -55,7 +55,7 @@ namespace BeatDetection.Game
         {
             get
             {
-                return new DifficultyOptions(600f, 0.15f, 0.35f, 1.5f, 0.0f, 3.0f);
+                return new DifficultyOptions(600f, 0.15f, 0.35f, 1.5f, 0.0f, 9.0f);
             }
         }
 
@@ -63,7 +63,7 @@ namespace BeatDetection.Game
         {
             get
             {
-                return new DifficultyOptions(700f, 0.15f, 0.30f, 1.9f, 0.0f, 4.0f);
+                return new DifficultyOptions(700f, 0.15f, 0.30f, 1.9f, 0.0f, 12.0f);
             }
         }
 
@@ -71,7 +71,7 @@ namespace BeatDetection.Game
         {
             get
             {
-                return new DifficultyOptions(800f, 0.15f, 0.25f, 2.2f, 0.0f, 5.0f);
+                return new DifficultyOptions(800f, 0.15f, 0.25f, 2.2f, 0.0f, 15.0f);
             }
         }
 
