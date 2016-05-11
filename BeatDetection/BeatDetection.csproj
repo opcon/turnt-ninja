@@ -84,6 +84,10 @@
       <HintPath>..\packages\squirrel.windows.1.4.0\lib\Net45\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="LiteDB, Version=1.0.4.0, Culture=neutral, PublicKeyToken=5c2fff750805920e, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiteDB.1.0.4\lib\net40\LiteDB.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net45\Mono.Cecil.dll</HintPath>
       <Private>True</Private>
@@ -162,6 +166,7 @@
     <Compile Include="FileSystem\SoundCloudFileSystem.cs" />
     <Compile Include="Game\BeatCollection.cs" />
     <Compile Include="Game\Difficulty.cs" />
+    <Compile Include="Game\HighScore.cs" />
     <Compile Include="Game\StageAudio.cs" />
     <Compile Include="Core\PolarPolygon.cs" />
     <Compile Include="Game\Stage.cs" />
