@@ -95,7 +95,7 @@ namespace BeatDetection.Game
         }
     }
 
-    enum DifficultyLevels
+    public enum DifficultyLevels
     {
         Easy,
         Medium,
