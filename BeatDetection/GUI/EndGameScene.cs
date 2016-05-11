@@ -48,7 +48,7 @@ namespace BeatDetection.GUI
             using (var db = new LiteDatabase(dbFile))
             {
                 var highSccoreCollection = db.GetCollection<HighScoreEntry>("highscores");
-                ulong hash = Utilities.FNV1aHash64(Encoding.Default.GetBytes(_stage.CurrentSong.SongBase.InternalName));
+                long hash = (long)Utilities.FNV1aHash64(Encoding.Default.GetBytes(_stage.CurrentSong.SongBase.InternalName));
 
                 //does this song exist in the database?
                 if (highSccoreCollection.Exists(Query.And(Query.EQ("SongID", hash), Query.EQ("DifficultyLevel", _stage.CurrentDifficulty.ToString()))))

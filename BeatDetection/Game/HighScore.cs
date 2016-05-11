@@ -11,7 +11,7 @@ namespace BeatDetection.Game
     {
         public ObjectId Id { get; set; }
         public string SongName { get; set; }
-        public UInt64 SongID { get; set; }
+        public long SongID { get; set; }
         public List<PlayerScore> HighScores { get; set; }
         public DifficultyLevels Difficulty { get; set; }
 
