@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Linq;
 using System.Net;
 using CSCore;
+using System.Globalization;
 
 namespace BeatDetection.Game
 {
@@ -78,6 +79,8 @@ namespace BeatDetection.Game
         }
 
         public bool FinishedEaseIn { get; private set; }
+        public Song CurrentSong { get; private set; }
+        public DifficultyLevels CurrentDifficulty { get; private set; }
 
         public StageGeometry StageGeometry;
         public StageAudio _stageAudio;
@@ -99,7 +102,7 @@ namespace BeatDetection.Game
             _stageAudio = new StageAudio();
         }
 
-        public void LoadAsync(Song song, float audioCorrection, float maxAudioVolume, IProgress<string> progress, PolarPolygon centerPolygon, Player player, DifficultyOptions difficultyOptions)
+        public void LoadAsync(Song song, float audioCorrection, float maxAudioVolume, IProgress<string> progress, PolarPolygon centerPolygon, Player player, DifficultyOptions difficultyOptions, DifficultyLevels difficultyLevel)
         {
             progress.Report("Loading audio");
 
@@ -142,6 +145,9 @@ namespace BeatDetection.Game
 
             _stageAudio.CancelAudioFades();
             _stageAudio.FadeOut(500, 0.0f, 0.01f, 2);
+
+            CurrentSong = song;
+            CurrentDifficulty = difficultyLevel;
 
             Loaded = true;
         }
