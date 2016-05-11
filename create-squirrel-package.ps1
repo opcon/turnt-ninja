@@ -1,5 +1,10 @@
 ﻿# create release file
 .\package-files-new.ps1
+
+# load release notes
+$rel = Get-Content .\release-notes.txt
+
+# do directory stuff
 $basedir = '.\SquirrelReleases\{0}_{1}_{2}_{3}' -f $ENV:major, $ENV:minor, $ENV:build, $ENV:private
 $dirname = '{0}\lib\net45' -f $basedir
 md -Force $dirname
@@ -11,7 +16,7 @@ $xml = [xml](Get-Content 'turnt-ninja.nuspec')
 
 $xml.package.metadata.licenseUrl = "https://github.com/opcon/turnt-ninja/blob/master/LICENSE"
 $xml.package.metadata.projectUrl = "https://github.com/opcon/turnt-ninja"
-$xml.package.metadata.releaseNotes = "TODO"
+$xml.package.metadata.releaseNotes = "$rel"
 
 # delete some entries
 $remove = $xml.package.metadata.dependencies
