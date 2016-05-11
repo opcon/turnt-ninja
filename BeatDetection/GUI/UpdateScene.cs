@@ -11,6 +11,7 @@ using OpenTK.Input;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.IO;
+using System.Threading;
 
 namespace BeatDetection.GUI
 {
@@ -24,6 +25,7 @@ namespace BeatDetection.GUI
         private UpdateInfo _updateInfo;
         private Dictionary<ReleaseEntry, string> _releaseNotes;
         Exception _ex = null;
+        CancellationTokenSource _cancellationTokenSource;
 
         const string LOCALPACKAGEHOST = @"D:\Patrick\Documents\Development\Game Related\turnt-ninja\Releases";
         const string GITHUBPACKAGEHOST = "https://github.com/opcon/turnt-ninja";
@@ -42,6 +44,7 @@ namespace BeatDetection.GUI
         public override void Load()
         {
             _statusString = "Checking for updates...";
+            _cancellationTokenSource = new CancellationTokenSource();
 
             Task.Run(() =>
             {
@@ -93,7 +96,7 @@ namespace BeatDetection.GUI
                     }
 
                 }
-            });
+            }, _cancellationTokenSource.Token);
 
             Loaded = true;
         }
@@ -136,7 +139,7 @@ namespace BeatDetection.GUI
             }
             if (_continue || InputSystem.NewKeys.Contains(Key.Escape))
             {
-                SceneManager.AddScene(new MenuScene(), null);
+                //SceneManager.AddScene(new MenuScene(), null);
                 SceneManager.RemoveScene(this);
             }
         }
@@ -148,6 +151,7 @@ namespace BeatDetection.GUI
 
         public override void Dispose()
         {
+            _cancellationTokenSource.Cancel();
             if (_updateManager != null) _updateManager.Dispose();
             _updateManager = null;
         }

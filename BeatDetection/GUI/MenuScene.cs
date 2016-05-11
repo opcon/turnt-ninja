@@ -143,6 +143,9 @@ namespace BeatDetection.GUI
                 case MainMenuOptions.Exit:
                     _selectedMenuItemText = "Exit";
                     break;
+                case MainMenuOptions.Update:
+                    _selectedMenuItemText = "Update";
+                    break;
                 case MainMenuOptions.None:
                 default:
                     _selectedMenuItem = MainMenuOptions.None;
@@ -169,6 +172,9 @@ namespace BeatDetection.GUI
                         break;
                     case MainMenuOptions.Exit:
                         Exit();
+                        break;
+                    case MainMenuOptions.Update:
+                        SceneManager.AddScene(new UpdateScene(), this);
                         break;
                     case MainMenuOptions.None:
                     default:
@@ -214,6 +220,7 @@ namespace BeatDetection.GUI
         Scores = 2,
         Options = 3,
         Exit = 4,
+        Update = 5,
         None = -1
     }
 }
