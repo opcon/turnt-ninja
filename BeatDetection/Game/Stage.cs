@@ -238,7 +238,7 @@ namespace BeatDetection.Game
             MultiplierFontDrawing.Draw();
 
             ScoreFontDrawing.DrawingPrimitives.Clear();
-            ScoreFontDrawing.Print(MultiplierFont, StageGeometry.Player.Score.ToString(), new Vector3(-SceneManager.Width / 2 + 20, SceneManager.Height/2 - 10, 0), QFontAlignment.Left, Color.White);
+            ScoreFontDrawing.Print(MultiplierFont, StageGeometry.Player.Score.ToString("N0", CultureInfo.CurrentCulture), new Vector3(-SceneManager.Width / 2 + 20, SceneManager.Height/2 - 10, 0), QFontAlignment.Left, Color.White);
             ScoreFontDrawing.RefreshBuffers();
             ScoreFontDrawing.Draw();
         }
