@@ -34,7 +34,7 @@ namespace BeatDetection.GUI
             UpdateText();
             SceneManager.RemoveScene(ParentScene);
             SceneManager.ScreenCamera.ExtraScale = 0;
-            SceneManager.ScreenCamera.Scale = new Vector2(1, 1);
+            SceneManager.ScreenCamera.Scale = SceneManager.ScreenCamera.TargetScale = new Vector2(1, 1);
             Loaded = true;
         }
 
