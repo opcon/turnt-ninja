@@ -26,7 +26,7 @@
     <Setting Name="FileFilter" Type="System.String" Scope="Application">
       <Value Profile="(Default)">.mp3,.flac,.wav,.m4a,.wma</Value>
     </Setting>
-    <Setting Name="TempFolderName" Type="System.String" Scope="Application">
+    <Setting Name="AppDataFolderName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">turnt-ninja</Value>
     </Setting>
     <Setting Name="OnsetActivationThreshold" Type="System.Single" Scope="User">
@@ -43,6 +43,27 @@
     </Setting>
     <Setting Name="DifficultyLevel" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">2</Value>
+    </Setting>
+    <Setting Name="OnsetOnline" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="OnsetSlicePaddingLength" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.2</Value>
+    </Setting>
+    <Setting Name="OnsetSliceLength" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="Debug" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="UpgradeRequired" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="DatabaseFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">turnt-ninja.db</Value>
+    </Setting>
+    <Setting Name="PlayerName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">opcon</Value>
     </Setting>
   </Settings>
 </SettingsFile>

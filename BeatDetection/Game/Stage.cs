@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Linq;
 using System.Net;
 using CSCore;
+using System.Globalization;
 
 namespace BeatDetection.Game
 {
@@ -47,6 +48,8 @@ namespace BeatDetection.Game
 
         public QFont MultiplierFont;
         public QFontDrawing MultiplierFontDrawing;
+        public QFont ScoreFont;
+        public QFontDrawing ScoreFontDrawing;
         private string _centerText = "";
 
         private MemoryStream ms;
@@ -76,6 +79,8 @@ namespace BeatDetection.Game
         }
 
         public bool FinishedEaseIn { get; private set; }
+        public Song CurrentSong { get; private set; }
+        public DifficultyLevels CurrentDifficulty { get; private set; }
 
         public StageGeometry StageGeometry;
         public StageAudio _stageAudio;
@@ -90,10 +95,14 @@ namespace BeatDetection.Game
             MultiplierFontDrawing = new QFontDrawing();
             MultiplierFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
 
+            ScoreFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Regular);
+            ScoreFontDrawing = new QFontDrawing();
+            ScoreFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
+
             _stageAudio = new StageAudio();
         }
 
-        public void LoadAsync(Song song, float audioCorrection, float maxAudioVolume, IProgress<string> progress, PolarPolygon centerPolygon, Player player, DifficultyOptions difficultyOptions)
+        public void LoadAsync(Song song, float audioCorrection, float maxAudioVolume, IProgress<string> progress, PolarPolygon centerPolygon, Player player, DifficultyOptions difficultyOptions, DifficultyLevels difficultyLevel)
         {
             progress.Report("Loading audio");
 
@@ -137,6 +146,9 @@ namespace BeatDetection.Game
             _stageAudio.CancelAudioFades();
             _stageAudio.FadeOut(500, 0.0f, 0.01f, 2);
 
+            CurrentSong = song;
+            CurrentDifficulty = difficultyLevel;
+
             Loaded = true;
         }
 
@@ -145,7 +157,10 @@ namespace BeatDetection.Game
             var options = DetectorOptions.Default;
             options.ActivationThreshold = (float)SceneManager.GameSettings["OnsetActivationThreshold"];
             options.AdaptiveWhitening = (bool)SceneManager.GameSettings["OnsetAdaptiveWhitening"];
-            _audioFeatures = new AudioFeatures(options, "../../Processed Songs/", correction + (float)_easeInTime, progress);
+            options.Online = (bool)SceneManager.GameSettings["OnsetOnline"];
+            options.SlicePaddingLength = (float)SceneManager.GameSettings["OnsetSlicePaddingLength"];
+            options.SliceLength = (float)SceneManager.GameSettings["OnsetSliceLength"];
+            _audioFeatures = new AudioFeatures(options, SceneManager.Directories["ProcessedSongs"].FullName, correction + (float)_easeInTime, progress);
 
             progress.Report("Extracting audio features");
             _audioFeatures.Extract(audioSource, s);
@@ -210,7 +225,6 @@ namespace BeatDetection.Game
 
             //Scale multiplier font with beat
             MultiplierFontDrawing.ProjectionMatrix = Matrix4.Mult(Matrix4.CreateScale((float)(0.75 + 0.24f * StageGeometry.CenterPolygon.PulseWidth / StageGeometry.CenterPolygon.PulseWidthMax)), SceneManager.ScreenCamera.ScreenProjectionMatrix);
-
         }
 
         public void Draw(double time)
@@ -222,12 +236,19 @@ namespace BeatDetection.Game
                 QFontAlignment.Centre);
             MultiplierFontDrawing.RefreshBuffers();
             MultiplierFontDrawing.Draw();
+
+            ScoreFontDrawing.DrawingPrimitives.Clear();
+            ScoreFontDrawing.Print(MultiplierFont, StageGeometry.Player.Score.ToString("N0", CultureInfo.CurrentCulture), new Vector3(-SceneManager.Width / 2 + 20, SceneManager.Height/2 - 10, 0), QFontAlignment.Left, Color.White);
+            ScoreFontDrawing.RefreshBuffers();
+            ScoreFontDrawing.Draw();
         }
 
         public void Dispose()
         {
             MultiplierFont.Dispose();
             MultiplierFontDrawing.Dispose();
+            ScoreFont.Dispose();
+            ScoreFontDrawing.Dispose();
             StageGeometry.Dispose();
         }
 
@@ -236,7 +257,7 @@ namespace BeatDetection.Game
             _stageAudio.FadeOut(1000, 0, 0.01f, 2);
             StageGeometry.CenterPolygon.Position.Azimuth = 0;
             //reset hit hexagons
-            StageGeometry.Player.Hits = 0;
+            //StageGeometry.Player.Hits = 0;
         }
     }
 }

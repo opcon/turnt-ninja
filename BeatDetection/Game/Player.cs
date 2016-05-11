@@ -119,6 +119,12 @@ namespace BeatDetection
             _vertexArray.UnBind();
         }
 
+        public void Reset()
+        {
+            Score = 0;
+            Hits = 0;
+        }
+
         public List<IntPoint> GetBounds()
         {
             var p = new List<IntPoint>();

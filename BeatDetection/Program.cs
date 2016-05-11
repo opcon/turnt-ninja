@@ -16,6 +16,9 @@ using Substructio.Core;
 using Substructio.Core.Settings;
 using Substructio.GUI;
 using Substructio.IO;
+using Squirrel;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace BeatDetection
 {
@@ -43,12 +46,15 @@ namespace BeatDetection
         private DirectoryHandler _directoryHandler;
         private static CrashReporter _crashReporter;
 
+        public ValueWrapper<bool> Debug = new ValueWrapper<bool>();
+
         public GameController(IGameSettings gameSettings, int rX, int rY, GraphicsMode graphicsMode, DirectoryHandler directoryHandler)
             : base(rX, rY, graphicsMode)
         {
             KeyDown += Keyboard_KeyDown;
             this.VSync = (bool) gameSettings["VSync"] ? VSyncMode.On : VSyncMode.Off;
             this.WindowState = (WindowState) gameSettings["WindowState"];
+            Debug.Value = (bool)gameSettings["Debug"];
             _gameSettings = gameSettings;
             _directoryHandler = directoryHandler;
         }
@@ -91,7 +97,7 @@ namespace BeatDetection
             var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
             var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Regular);
-            _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath, _directoryHandler, _gameSettings);
+            _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath, _directoryHandler, _gameSettings, Debug);
             _gameSceneManager.AddScene(new MenuScene(), null);
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
@@ -108,8 +114,6 @@ namespace BeatDetection
 
         #endregion
 
-        #region OnResize
-
         /// <summary>
         /// Respond to resize events here.
         /// </summary>
@@ -121,9 +125,6 @@ namespace BeatDetection
 
             _gameSceneManager.Resize(e);
         }
-
-
-        #endregion
 
         #region OnUpdateFrame
 
@@ -138,6 +139,8 @@ namespace BeatDetection
             while (_lag >= _dt)
             {
                 _gameSceneManager.Update(_dt);
+                if (InputSystem.NewKeys.Contains(Key.F12))
+                    Debug.Value = !Debug.Value;
 
                 //only update input system once per frame!
                 InputSystem.Update(this.Focused, _dt);
@@ -168,6 +171,7 @@ namespace BeatDetection
         protected override void OnUnload(EventArgs e)
         {
             _gameSceneManager.Dispose();
+            _gameSettings["Debug"] = Debug;
             _gameSettings.Save();
             base.OnUnload(e);
         }
@@ -177,13 +181,36 @@ namespace BeatDetection
         [STAThread]
         public static void Main(string[] args)
         {
+            // Load game settings
+            IGameSettings gameSettings = new PropertySettings();
+            gameSettings.Load();
+
             //initialise directory handler
             var directoryHandler = new DirectoryHandler();
-            directoryHandler.AddPath("Resources", @"..\..\Resources");
+            //set application path
+            directoryHandler.AddPath("Application", Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+            //set base path
+            if (Directory.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Resources")))
+                directoryHandler.AddPath("Base", Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+            else if (Directory.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\Resources")))
+                directoryHandler.AddPath("Base", Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\"));
+            else
+            {
+                throw new Exception("Couldn't find resource folder location");
+            }
+
+            directoryHandler.AddPath("AppData", 
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), (string)gameSettings["AppDataFolderName"]));
+
+            directoryHandler.AddPath("Resources", Path.Combine(directoryHandler["Base"].FullName, "Resources"));
             directoryHandler.AddPath("Fonts", Path.Combine(directoryHandler["Resources"].FullName, @"Fonts"));
             directoryHandler.AddPath("Shaders", Path.Combine(directoryHandler["Resources"].FullName, @"Shaders"));
             directoryHandler.AddPath("Images", Path.Combine(directoryHandler["Resources"].FullName, @"Images"));
-            directoryHandler.AddPath("Crash", @"..\..\CrashLogs");
+            directoryHandler.AddPath("Crash", Path.Combine(directoryHandler["AppData"].FullName, "CrashLogs"));
+            directoryHandler.AddPath("BundledSongs", Path.Combine(directoryHandler["Resources"].FullName, @"Songs"));
+            directoryHandler.AddPath("ProcessedSongs", Path.Combine(directoryHandler["AppData"].FullName, @"Processed Songs"));
+
+            if (!Directory.Exists(directoryHandler["AppData"].FullName)) Directory.CreateDirectory(directoryHandler["AppData"].FullName);
 
             if (!Debugger.IsAttached)
             {
@@ -194,18 +221,69 @@ namespace BeatDetection
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             }
 
+            //init logging
+            Splat.DependencyResolverMixins.RegisterConstant(Splat.Locator.CurrentMutable,
+                new SimpleLogger(directoryHandler["Application"].FullName, Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + ".log")
+                {
+                    Level = Splat.LogLevel.Debug
+                },
+                typeof(Splat.ILogger));
 
-            IGameSettings gameSettings = new PropertySettings();
-            gameSettings.Load();
+
 
             int rX = (int)gameSettings["ResolutionX"];
             int rY = (int)gameSettings["ResolutionY"];
             int FSAASamples = (int)gameSettings["AntiAliasingSamples"];
             GraphicsMode graphicsMode = new GraphicsMode(32, 24, 8, FSAASamples);
 
+            //// database init
+            //using (var db = new LiteDB.LiteDatabase(Path.Combine(directoryHandler["AppData"].FullName, "turnt-ninja.db")))
+            //{
+            //    db.BeginTrans();
+            //    var highScores = db.GetCollection("highscores");
+            //    var r = new Random();
+
+            //    for (int i = 0; i < 100000; i++)
+            //    {
+            //        var doc = new LiteDB.BsonDocument();
+            //        doc.Add("ID", r.Next());
+            //        doc.Add("songName", new LiteDB.BsonValue("This is a test name"));
+            //        doc.Add("songID", new LiteDB.BsonValue(directoryHandler["Application"].FullName));
+            //        doc.Add("players", new LiteDB.BsonValue(new List<LiteDB.BsonValue>()
+            //        {
+            //            "opcon",
+            //            "hayden",
+            //            "noah",
+            //            "matt"
+            //        }));
+            //        doc.Add("scores", new LiteDB.BsonValue(new List<LiteDB.BsonValue>()
+            //        {
+            //            r.Next(),
+            //            r.Next(),
+            //            r.Next(),
+            //            r.Next()
+            //        }));
+            //        highScores.Insert(doc);
+            //    }
+                
+            //    highScores.EnsureIndex("songID");
+            //    highScores.EnsureIndex("ID");
+            //    db.Commit();
+            //}
+
+            //using (var db = new LiteDB.LiteDatabase(Path.Combine(directoryHandler["AppData"].FullName, "turnt-ninja.db")))
+            //{
+            //    var s = Stopwatch.StartNew();
+            //    var highScores = db.GetCollection("highscores");
+            //    var scores = highScores.FindAll();
+            //    var s1 = highScores.FindOne(LiteDB.Query.EQ("ID", 1037482557));
+            //    s.Stop();
+            //    var m = s.ElapsedMilliseconds;
+            //}
+
             using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode, directoryHandler))
             {
-                game.Title = "Codename: turnt-ninja";
+                game.Title = "Turnt Ninja";
                 game.Run();
             }
         }

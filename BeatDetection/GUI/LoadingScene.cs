@@ -102,7 +102,7 @@ namespace BeatDetection.GUI
             {
                 _loadingStatus = status;
             });
-            _loadTask = Task.Factory.StartNew(() => _stage.LoadAsync(_song, _audioCorrection, _maxAudioVolume, progress, _centerPolygon, _player, dOptions));
+            _loadTask = Task.Factory.StartNew(() => _stage.LoadAsync(_song, _audioCorrection, _maxAudioVolume, progress, _centerPolygon, _player, dOptions, (DifficultyLevels)SceneManager.GameSettings["DifficultyLevel"]));
 
             Loaded = true;
         }

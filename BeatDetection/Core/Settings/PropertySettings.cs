@@ -32,9 +32,14 @@ namespace BeatDetection.Core.Settings
 
         public void Load()
         {
-            Properties.Settings.Default.Reload();
-            var antiAliasingSamples = Properties.Settings.Default.AntiAliasingSamples;
-            antiAliasingSamples *= 2;
+            if (Properties.Settings.Default.UpgradeRequired)
+            {
+                Properties.Settings.Default.Upgrade();
+                Properties.Settings.Default.UpgradeRequired = false;
+                Properties.Settings.Default.Save();
+            }
+
+            //Properties.Settings.Default.Reload();
             //load all the settings
             _settings = new Dictionary<string, SettingsPropertyValue>();
             SettingsPropertyValue[] values = new SettingsPropertyValue[Properties.Settings.Default.PropertyValues.Count];

@@ -143,6 +143,9 @@ namespace BeatDetection.GUI
                 case MainMenuOptions.Exit:
                     _selectedMenuItemText = "Exit";
                     break;
+                case MainMenuOptions.Update:
+                    _selectedMenuItemText = "Update";
+                    break;
                 case MainMenuOptions.None:
                 default:
                     _selectedMenuItem = MainMenuOptions.None;
@@ -169,6 +172,9 @@ namespace BeatDetection.GUI
                         break;
                     case MainMenuOptions.Exit:
                         Exit();
+                        break;
+                    case MainMenuOptions.Update:
+                        SceneManager.AddScene(new UpdateScene(), this);
                         break;
                     case MainMenuOptions.None:
                     default:
@@ -200,7 +206,7 @@ namespace BeatDetection.GUI
             _menuFontDrawing.RefreshBuffers();
             _menuFontDrawing.Draw();
 
-            SceneManager.DrawTextLine(_gameVersion, new Vector3(-WindowWidth / 2+10, -WindowHeight / 2 + 30, 0), Color.White, QFontAlignment.Left);
+            SceneManager.DrawTextLine("Turnt Ninja version " + _gameVersion, new Vector3(-WindowWidth / 2+10, -WindowHeight / 2 + 30, 0), Color.White, QFontAlignment.Left);
         }
 
         public override void Dispose()
@@ -214,6 +220,7 @@ namespace BeatDetection.GUI
         Scores = 2,
         Options = 3,
         Exit = 4,
+        Update = 5,
         None = -1
     }
 }
