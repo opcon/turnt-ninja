@@ -175,3 +175,8 @@ $RECYCLE.BIN/
 *.sublime*
 
 *.csv
+
+# Squirrel and autobuild/release stuff
+Releases/
+SquirrelReleases/
+*.rar
