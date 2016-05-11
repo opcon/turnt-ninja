@@ -52,7 +52,8 @@ namespace BeatDetection.FileSystem
             {
                 lock (_lock )
                 {
-                    _scCategories = _scclient.Explore.GetExploreCategories().ToList();
+                    //_scCategories = _scclient.Explore.GetExploreCategories().ToList();
+                    _scCategories = GetSoundcloudCategories();
                     ShowCategories();
                 }
             });
@@ -135,6 +136,44 @@ namespace BeatDetection.FileSystem
 
         public void Focused()
         {
+        }
+
+        public static List<SCExploreCategory> GetSoundcloudCategories()
+        {
+            return new List<SCExploreCategory>
+            {
+                new SCExploreCategory { Name = "Popular+Music" },
+                new SCExploreCategory { Name = "Alternative+Rock" },
+                new SCExploreCategory { Name = "Ambient" },
+                new SCExploreCategory { Name = "Classical" },
+                new SCExploreCategory { Name = "Country" },
+                new SCExploreCategory { Name = "Danceedm" },
+                new SCExploreCategory { Name = "Dancehall" },
+                new SCExploreCategory { Name = "Deephouse" },
+                new SCExploreCategory { Name = "Disco" },
+                new SCExploreCategory { Name = "Drumbass" },
+                new SCExploreCategory { Name = "Dubstep" },
+                new SCExploreCategory { Name = "Electronic" },
+                new SCExploreCategory { Name = "Folksingersongwriter" },
+                new SCExploreCategory { Name = "Hiphoprap" },
+                new SCExploreCategory { Name = "House" },
+                new SCExploreCategory { Name = "Indie" },
+                new SCExploreCategory { Name = "Jazzblues" },
+                new SCExploreCategory { Name = "Latin" },
+                new SCExploreCategory { Name = "Metal" },
+                new SCExploreCategory { Name = "Piano" },
+                new SCExploreCategory { Name = "Pop" },
+                new SCExploreCategory { Name = "Rbsoul" },
+                new SCExploreCategory { Name = "Reggae" },
+                new SCExploreCategory { Name = "Reggaeton" },
+                new SCExploreCategory { Name = "Rock" },
+                new SCExploreCategory { Name = "Soundtrack" },
+                new SCExploreCategory { Name = "Techno" },
+                new SCExploreCategory { Name = "Trance" },
+                new SCExploreCategory { Name = "Trap" },
+                new SCExploreCategory { Name = "Triphop" },
+                new SCExploreCategory { Name = "World" },
+            };
         }
     }
 }
