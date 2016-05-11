@@ -180,6 +180,10 @@ namespace BeatDetection
         [STAThread]
         public static void Main(string[] args)
         {
+            // Load game settings
+            IGameSettings gameSettings = new PropertySettings();
+            gameSettings.Load();
+
             //initialise directory handler
             var directoryHandler = new DirectoryHandler();
             //set application path
@@ -194,14 +198,18 @@ namespace BeatDetection
                 throw new Exception("Couldn't find resource folder location");
             }
 
+            directoryHandler.AddPath("AppData", 
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), (string)gameSettings["AppDataFolderName"]));
 
             directoryHandler.AddPath("Resources", Path.Combine(directoryHandler["Base"].FullName, "Resources"));
             directoryHandler.AddPath("Fonts", Path.Combine(directoryHandler["Resources"].FullName, @"Fonts"));
             directoryHandler.AddPath("Shaders", Path.Combine(directoryHandler["Resources"].FullName, @"Shaders"));
             directoryHandler.AddPath("Images", Path.Combine(directoryHandler["Resources"].FullName, @"Images"));
-            directoryHandler.AddPath("Crash", Path.Combine(directoryHandler["Base"].FullName, "CrashLogs"));
+            directoryHandler.AddPath("Crash", Path.Combine(directoryHandler["AppData"].FullName, "CrashLogs"));
             directoryHandler.AddPath("BundledSongs", Path.Combine(directoryHandler["Resources"].FullName, @"Songs"));
-            directoryHandler.AddPath("ProcessedSongs", Path.Combine(directoryHandler["Base"].FullName, @"Processed Songs"));
+            directoryHandler.AddPath("ProcessedSongs", Path.Combine(directoryHandler["AppData"].FullName, @"Processed Songs"));
+
+            if (!Directory.Exists(directoryHandler["AppData"].FullName)) Directory.CreateDirectory(directoryHandler["AppData"].FullName);
 
             if (!Debugger.IsAttached)
             {
@@ -220,8 +228,7 @@ namespace BeatDetection
                 },
                 typeof(Splat.ILogger));
 
-            IGameSettings gameSettings = new PropertySettings();
-            gameSettings.Load();
+
 
             int rX = (int)gameSettings["ResolutionX"];
             int rY = (int)gameSettings["ResolutionY"];
