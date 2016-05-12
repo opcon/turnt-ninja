@@ -53,7 +53,7 @@ namespace BeatDetection.GUI
             SceneManager.ScreenCamera.Scale = SceneManager.ScreenCamera.TargetScale = new Vector2(1, 1);
             SceneManager.GameWindow.Cursor = MouseCursor.Default;
             if (GoToEndScene) SceneManager.AddScene(new EndGameScene(_stage), this);
-            else SceneManager.RemoveScene(this);
+            SceneManager.RemoveScene(this, !GoToEndScene);
         }
 
         public override void CallBack(GUICallbackEventArgs e)
