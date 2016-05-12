@@ -2,7 +2,7 @@
 .\package-files-new.ps1
 
 # load release notes
-$rel = Get-Content .\release-notes.txt
+$rel = Get-Content .\release-notes.txt -Raw
 
 # do directory stuff
 $basedir = '.\SquirrelReleases\{0}_{1}_{2}_{3}' -f $ENV:major, $ENV:minor, $ENV:build, $ENV:private
