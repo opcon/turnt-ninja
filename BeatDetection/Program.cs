@@ -192,8 +192,8 @@ namespace BeatDetection
             //set base path
             if (Directory.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Resources")))
                 directoryHandler.AddPath("Base", Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-            else if (Directory.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\Resources")))
-                directoryHandler.AddPath("Base", Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\"));
+            else if (Directory.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"../../Resources")))
+                directoryHandler.AddPath("Base", Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"../../"));
             else
             {
                 throw new Exception("Couldn't find resource folder location");
