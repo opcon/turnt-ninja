@@ -249,7 +249,7 @@ namespace BeatDetection.Game
         public void Init(IWaveSource source)
         {
             _soundSource = source;
-            _soundOut = new WaveOut();
+			_soundOut = new ALSoundOut();
             _soundOut.Initialize(_soundSource);
             _soundOut.Stopped += (sender, args) => { if (args.HasError) throw new Exception("exception thrown on stoping audio", args.Exception); };
         }
