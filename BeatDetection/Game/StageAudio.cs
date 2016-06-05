@@ -281,11 +281,7 @@ namespace BeatDetection.Game
 
         public void Seek(float percent)
         {
-            var pos1 = _soundSource.Position;
-            var span = percent * _soundSource.GetLength().Milliseconds;
-            //_soundSource.Position = (_soundSource.GetRawElements(TimeSpan.FromMilliseconds(span)));
-            _soundSource.SetPosition(TimeSpan.FromMilliseconds(percent * _soundSource.GetLength().Milliseconds));
-            var pos2 = _soundSource.Position;
+            _soundSource.SetPosition(TimeSpan.FromMilliseconds(percent * _soundSource.GetLength().TotalMilliseconds));
         }
 
         public void ConvertToWav(string wavFilePath)
