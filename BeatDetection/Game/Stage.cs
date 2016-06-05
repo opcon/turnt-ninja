@@ -20,6 +20,7 @@ using System.Linq;
 using System.Net;
 using CSCore;
 using System.Globalization;
+using CSCore.SoundOut;
 
 namespace BeatDetection.Game
 {
@@ -51,8 +52,6 @@ namespace BeatDetection.Game
         public QFont ScoreFont;
         public QFontDrawing ScoreFontDrawing;
         private string _centerText = "";
-
-        private MemoryStream ms;
 
         public bool Loaded { get; private set; }
 
@@ -108,12 +107,19 @@ namespace BeatDetection.Game
 
             if (!song.SongAudioLoaded)
                 song.LoadSongAudio();
-            _stageAudio.Load(song.SongAudio);
 
             var tempStream = new MemoryStream();
             song.SongAudio.WriteToStream(tempStream);
             tempStream.Position = 0;
+
+            var sourceStream = new MemoryStream();
+            tempStream.CopyTo(sourceStream);
+            tempStream.Position = sourceStream.Position = 0;
+
             IWaveSource detectionSource = new CSCore.Codecs.RAW.RawDataReader(tempStream, song.SongAudio.WaveFormat);
+
+            IWaveSource songSource = new CSCore.Codecs.RAW.RawDataReader(sourceStream, song.SongAudio.WaveFormat);
+            _stageAudio.Load(songSource);
 
             _stageAudio.MaxVolume = maxAudioVolume;
             _random = new Random(_stageAudio.AudioHashCode);
@@ -250,6 +256,7 @@ namespace BeatDetection.Game
             ScoreFont.Dispose();
             ScoreFontDrawing.Dispose();
             StageGeometry.Dispose();
+            _stageAudio.Dispose();
         }
 
         public void Reset()
