@@ -4,6 +4,7 @@ os:
 language: csharp
 solution: BeatDetection.sln
 install: git clone -q --branch=develop https://github.com/opcon/Substructio ../Substructio
+before_script: nuget restore ../Substructio/Substructio.sln
 notifications:
   email:
     on_success: change

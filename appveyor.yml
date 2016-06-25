@@ -7,6 +7,7 @@ install:
   - cmd: git clone -q --branch=develop https://github.com/opcon/Substructio C:\projects\Substructio
 before_build:
   - cmd: nuget restore BeatDetection.sln
+  - cmd: nuget restore ..\Substructio\Substructio.sln
 build:
   project: BeatDetection.sln
   parallel: true
