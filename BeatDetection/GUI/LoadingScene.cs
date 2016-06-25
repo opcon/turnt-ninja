@@ -13,6 +13,7 @@ using BeatDetection.Game;
 using OpenTK;
 using OpenTK.Graphics;
 using QuickFont;
+using QuickFont.Configuration;
 using Substructio.Core.Math;
 using Substructio.Graphics.OpenGL;
 using Substructio.GUI;

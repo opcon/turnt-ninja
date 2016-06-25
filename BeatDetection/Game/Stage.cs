@@ -9,6 +9,7 @@ using BeatDetection.Generation;
 using OpenTK;
 using OpenTK.Input;
 using QuickFont;
+using QuickFont.Configuration;
 using Substructio.Core;
 using Substructio.Graphics.OpenGL;
 using Substructio.GUI;
@@ -37,6 +38,8 @@ namespace BeatDetection.Game
 
         private double _warmupTime = 2.0f;
         private double _elapsedWarmupTime;
+
+
         private double _easeInTime = 2.0f;
         public bool Running;
         public bool Ended;
@@ -51,8 +54,6 @@ namespace BeatDetection.Game
         public QFont ScoreFont;
         public QFontDrawing ScoreFontDrawing;
         private string _centerText = "";
-
-        private MemoryStream ms;
 
         public bool Loaded { get; private set; }
 
@@ -135,9 +136,8 @@ namespace BeatDetection.Game
             //Build stage geometry
             StageGeometry = new StageGeometryBuilder().Build(_audioFeatures, _random, bOptions);
             StageGeometry.ParentStage = this;
-
-            StageGeometry.CenterPolygon = centerPolygon;
             StageGeometry.Player = player;
+            StageGeometry.CenterPolygon = centerPolygon;
             StageGeometry.RotationSpeed = _difficultyOptions.RotationSpeed;
 
             progress.Report("Load complete");
@@ -241,6 +241,12 @@ namespace BeatDetection.Game
             ScoreFontDrawing.Print(MultiplierFont, StageGeometry.Player.Score.ToString("N0", CultureInfo.CurrentCulture), new Vector3(-SceneManager.Width / 2 + 20, SceneManager.Height/2 - 10, 0), QFontAlignment.Left, Color.White);
             ScoreFontDrawing.RefreshBuffers();
             ScoreFontDrawing.Draw();
+        }
+
+        internal void Initialise()
+        {
+            StageGeometry.UpdateColours(0);
+            StageGeometry._p2.ShaderProgram = ShaderProgram;
         }
 
         public void Dispose()

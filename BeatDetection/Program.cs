@@ -12,6 +12,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using QuickFont;
+using QuickFont.Configuration;
 using Substructio.Core;
 using Substructio.Core.Settings;
 using Substructio.GUI;
@@ -93,10 +94,11 @@ namespace BeatDetection
         {
             //fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Chamgagne Limousines/Champagne & Limousines Italic.ttf");
             fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Ostrich Sans/OstrichSans-Black.otf");
+            //fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Comfortaa_Regular.ttf");
 
             var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
-            var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration(), FontStyle.Regular);
+            var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration());
             _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath, _directoryHandler, _gameSettings, Debug);
             _gameSceneManager.AddScene(new MenuScene(), null);
 
@@ -142,7 +144,6 @@ namespace BeatDetection
                 if (InputSystem.NewKeys.Contains(Key.F12))
                     Debug.Value = !Debug.Value;
 
-                //only update input system once per frame!
                 InputSystem.Update(this.Focused, _dt);
 
                 _lag -= _dt;

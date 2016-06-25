@@ -29,6 +29,7 @@ namespace BeatDetection.Game
         private Random _random;
 
         public Player Player;
+        public Player _p2;
         public PolarPolygon CenterPolygon;
         public PolarPolygon BackgroundPolygon;
         private int _direction = 1;
@@ -86,6 +87,8 @@ namespace BeatDetection.Game
             MinBeatFrequency = BeatFrequencies.Min();
             _baseColour = HUSLColor.FromColor4(_segmentStartColour);
             _initialHue = _baseColour.H;
+            _p2 = new Player() { UseGamePad = true };
+            //_p2.ShaderProgram = ParentStage.ShaderProgram;
         }
 
         public void Update(double time)
@@ -118,6 +121,10 @@ namespace BeatDetection.Game
                     t += MathHelper.DegreesToRadians(30);
                     Player.DoAI(t);
                 }
+                
+                //var t1 = _beats.CurrentOpeningAngle + rotate * _direction + CenterPolygon.Position.Azimuth;
+                //t1 += MathHelper.DegreesToRadians(30);
+                //_p2.DoAI(t1);
             }
 
             if (_beats.BeginPulse)
@@ -134,6 +141,7 @@ namespace BeatDetection.Game
             }
 
             Player.Direction = _direction;
+            _p2.Direction = _direction;
 
             //update center polygon colour if finished colliding 
             if (CenterPolygon.EvenColour == _colours.EvenCollisionColour && !Collided)
@@ -142,6 +150,9 @@ namespace BeatDetection.Game
             //Player.Position.Azimuth += rotate;
             Player.Position = new PolarVector(Player.Position.Azimuth + rotate, Player.Position.Radius);
             Player.Update(time, ParentStage.AI);
+
+            _p2.Position = new PolarVector(_p2.Position.Azimuth + rotate, _p2.Position.Radius);
+            _p2.Update(time, ParentStage.AI);
 
             CenterPolygon.Update(time, false);
             CenterPolygon.Position.Azimuth += rotate;
@@ -195,6 +206,8 @@ namespace BeatDetection.Game
 
             ParentStage.ShaderProgram.SetUniform("in_color", Color4.White);
             Player.Draw(time);
+            ParentStage.ShaderProgram.SetUniform("in_color", Color4.SkyBlue);
+            //_p2.Draw(time);
         }
 
         private void UpdatePlayerOverlap()

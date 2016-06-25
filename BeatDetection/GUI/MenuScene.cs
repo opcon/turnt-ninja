@@ -11,6 +11,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Input;
 using QuickFont;
+using QuickFont.Configuration;
 using Substructio.Core;
 using Substructio.Core.Math;
 using Substructio.Graphics.OpenGL;

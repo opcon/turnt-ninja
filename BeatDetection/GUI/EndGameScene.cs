@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using OpenTK;
 using OpenTK.Input;
 using QuickFont;
+using QuickFont.Configuration;
 using Substructio.Core;
 using Substructio.GUI;
 using BeatDetection.Game;
