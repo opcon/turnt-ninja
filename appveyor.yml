@@ -1,0 +1,13 @@
+version: 0.11.{build}-appveyor
+image: Visual Studio 2015
+configuration:
+- Debug
+- Release
+install:
+  - cmd: git clone -q --branch=develop https://github.com/opcon/Substructio C:\projects\Substructio
+before_build:
+  - cmd: nuget restore BeatDetection.sln
+build:
+  project: BeatDetection.sln
+  parallel: true
+  verbosity: minimal
