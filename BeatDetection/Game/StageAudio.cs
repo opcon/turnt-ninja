@@ -249,7 +249,7 @@ namespace BeatDetection.Game
         public void Init(IWaveSource source)
         {
             _soundSource = source;
-            _soundOut = new WaveOut();
+			_soundOut = new ALSoundOut();
             _soundOut.Initialize(_soundSource);
             _soundOut.Stopped += (sender, args) => { if (args.HasError) throw new Exception("exception thrown on stoping audio", args.Exception); };
         }
@@ -281,11 +281,7 @@ namespace BeatDetection.Game
 
         public void Seek(float percent)
         {
-            var pos1 = _soundSource.Position;
-            var span = percent * _soundSource.GetLength().Milliseconds;
-            //_soundSource.Position = (_soundSource.GetRawElements(TimeSpan.FromMilliseconds(span)));
-            _soundSource.SetPosition(TimeSpan.FromMilliseconds(percent * _soundSource.GetLength().Milliseconds));
-            var pos2 = _soundSource.Position;
+            _soundSource.SetPosition(TimeSpan.FromMilliseconds(percent * _soundSource.GetLength().TotalMilliseconds));
         }
 
         public void ConvertToWav(string wavFilePath)

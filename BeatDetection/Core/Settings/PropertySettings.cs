@@ -32,12 +32,22 @@ namespace BeatDetection.Core.Settings
 
         public void Load()
         {
-            if (Properties.Settings.Default.UpgradeRequired)
-            {
-                Properties.Settings.Default.Upgrade();
-                Properties.Settings.Default.UpgradeRequired = false;
-                Properties.Settings.Default.Save();
-            }
+			try 
+			{
+	            if (Properties.Settings.Default.UpgradeRequired)
+	            {
+	                Properties.Settings.Default.Upgrade();
+	                Properties.Settings.Default.UpgradeRequired = false;
+	                Properties.Settings.Default.Save();
+	            }
+			}
+			catch 
+			{
+				Properties.Settings.Default.Reload();
+				// There was an error loading the settings, reset them ( :( )
+				Properties.Settings.Default.Reset();
+			}
+
 
             //Properties.Settings.Default.Reload();
             //load all the settings
