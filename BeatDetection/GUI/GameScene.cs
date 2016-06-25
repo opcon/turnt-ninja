@@ -33,7 +33,8 @@ namespace BeatDetection.GUI
         {
             Exclusive = true;
             _stage = stage;
-            _stage.StageGeometry.UpdateColours(0);
+            //_stage.StageGeometry.UpdateColours(0);
+            _stage.Initialise();
         }
 
         public override void Load()
