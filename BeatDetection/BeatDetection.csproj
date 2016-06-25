@@ -140,7 +140,7 @@
     </Reference>
     <Reference Include="SoundCloud.API.Client, Version=1.0.0.4, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Libraries\SoundCloud.API.Client\SoundCloud.API.Client\bin\Debug\SoundCloud.API.Client.dll</HintPath>
+      <HintPath>..\Dependencies\SoundCloud.API.Clent\SoundCloud.API.Client.dll</HintPath>
     </Reference>
     <Reference Include="Splat, Version=1.6.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Splat.1.6.2\lib\Net45\Splat.dll</HintPath>
