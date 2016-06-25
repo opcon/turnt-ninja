@@ -235,7 +235,7 @@ namespace BeatDetection
             int rX = (int)gameSettings["ResolutionX"];
             int rY = (int)gameSettings["ResolutionY"];
             int FSAASamples = (int)gameSettings["AntiAliasingSamples"];
-            GraphicsMode graphicsMode = new GraphicsMode(32, 24, 8, FSAASamples);
+            GraphicsMode graphicsMode = new GraphicsMode(32, 24, 8, FSAASamples, ColorFormat.Empty, 3);
 
             //// database init
             //using (var db = new LiteDB.LiteDatabase(Path.Combine(directoryHandler["AppData"].FullName, "turnt-ninja.db")))
