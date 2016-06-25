@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Turnt Ninja")]
 [assembly: AssemblyDescription("Turnt Ninja")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Opcon")]
+[assembly: AssemblyCompany("VirtualHighRise")]
 [assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyCopyright("Copyright Patrick Yates ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
