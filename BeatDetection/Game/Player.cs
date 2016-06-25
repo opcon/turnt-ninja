@@ -27,6 +27,8 @@ namespace BeatDetection
         private VertexArray _vertexArray;
         private BufferDataSpecification _dataSpecification;
 
+        public bool UseGamePad { get; set; }
+
         public ShaderProgram ShaderProgram
         {
             get { return _shaderProgram; }
@@ -67,6 +69,7 @@ namespace BeatDetection
             _length = (10) * (0.0174533);
             _width = 20;
             Direction = 1;
+            UseGamePad = false;
         }
 
         public void Update(double time, bool AI = false)
@@ -156,8 +159,13 @@ namespace BeatDetection
         private Input GetUserInput()
         {
             Input i = Input.Default;
-            //if (OpenTK.Input.GamePad.GetState(0).Buttons.BigButton == ButtonState.Pressed)
-            //    i |= Input.Left;
+            //if (GamePad.GetCapabilities(0).IsConnected)
+            //{
+            //    if (OpenTK.Input.GamePad.GetState(0).Buttons.LeftShoulder == ButtonState.Pressed || GamePad.GetState(0).Triggers.Left > 0.3)
+            //        i |= Input.Left;
+            //    if (GamePad.GetState(0).Buttons.RightShoulder == ButtonState.Pressed || GamePad.GetState(0).Triggers.Right > 0.3)
+            //        i |= Input.Right;
+            //}
             if (InputSystem.CurrentKeys.Contains(Key.Left))
                 i |= Input.Left;
             if (InputSystem.CurrentKeys.Contains(Key.Right))
