@@ -10,7 +10,7 @@ let buildDir = buildDirBase + mode + "/"
 let substructioRepo = @"https://github.com/opcon/Substructio"
 let substructioBranch = "develop"
 let substructioFolder = "Substructio"
-let substructioDir = parentDir + substructioFolder
+let substructioDir = parentDir + substructioFolder + "/"
 let substructioBuildDir = substructioDir + buildDirBase + mode + "/"
 
 // Targets
@@ -42,7 +42,7 @@ Target "RestoreSubstructioPackages" (fun _ ->
 
 Target "BuildSubstructio" (fun _ ->
         "Building Substructio, in " + mode + " configuration" |> trace
-        !! (substructioDir + "**/*.csproj")
+        !! (substructioDir + "src/**/*.csproj")
             |>
             match mode.ToLower() with
                 | "release" -> MSBuildRelease "" "Build"
