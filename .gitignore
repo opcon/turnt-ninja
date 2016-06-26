@@ -180,3 +180,12 @@ $RECYCLE.BIN/
 Releases/
 SquirrelReleases/
 *.rar
+
+# FAKE
+.fake/
+
+# Build artifacts
+artifacts/
+
+# Deploy
+deploy/
