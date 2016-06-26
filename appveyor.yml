@@ -3,15 +3,8 @@ image: Visual Studio 2015
 configuration:
 - Debug
 - Release
-install:
-  - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
-  - cmd: git clone -q --branch=develop https://github.com/opcon/Substructio C:\projects\Substructio
-before_build:
-  - cmd: .paket\paket.bootstrapper.exe
-  - cmd: .paket\paket.exe restore
-  - cmd: ..\Substructio\.paket\paket.bootstrapper.exe
-  - cmd: ..\Substructio\.paket\paket.exe restore
 build:
-  project: BeatDetection.sln
   parallel: true
   verbosity: minimal
+build_script:
+  - cmd: .\build.cmd mode=%CONFIGURATION%

@@ -2,13 +2,10 @@ os:
   - linux
   - osx
 language: csharp
-solution: BeatDetection.sln
-before_script: 
-  - git clone -q --branch=develop https://github.com/opcon/Substructio ../Substructio
-  - mono .paket/paket.bootstrapper.exe
-  - mono .paket/paket.exe restore
-  - mono ../Substructio/.paket/paket.bootstrapper.exe
-  - mono ../Substructio/.paket/paket.exe restore
+env:
+  - CONFIGURATION=Release
+  - CONFIGURATION=Debug
+script: ./build.sh mode=$CONFIGURATION
 notifications:
   email:
     on_success: change
