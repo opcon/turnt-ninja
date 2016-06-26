@@ -34,6 +34,12 @@ Target "CheckSubstructioExists" (fun _ ->
             trace "Substructio folder already exists"
 )
 
+Target "RestoreSubstructioPackages" (fun _ ->
+        Paket.Restore (fun p ->
+        { p with
+            WorkingDir = substructioDir})
+)
+
 Target "BuildSubstructio" (fun _ ->
         "Building Substructio, in " + mode + " configuration" |> trace
         !! (substructioDir + "**/*.csproj")
@@ -64,6 +70,10 @@ Target "Default" (fun _ ->
     ==> "Default"
 
 "CleanSubstructio"
+    ==> "RestoreSubstructioPackages"
+    ==> "BuildSubstructio"
+
+"RestoreSubstructioPackages"
     ==> "BuildSubstructio"
 
 "BuildSubstructio"
