@@ -1,4 +1,4 @@
-Turnt Ninja
+Turnt Ninja [![Build Status](https://travis-ci.org/opcon/turnt-ninja.svg)](https://travis-ci.org/opcon/turnt-ninja) [![Build status](https://ci.appveyor.com/api/projects/status/5s980fxi2feotl37?svg=true)](https://ci.appveyor.com/project/opcon/turnt-ninja)
 ===========
 
 A beat-fighting-ninja-like-get-turnt ~~rythym~~ rhythm game inspired by the wonderful Super Hexagon by Terry Cavanagh.
