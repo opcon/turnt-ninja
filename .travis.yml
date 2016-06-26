@@ -3,8 +3,12 @@ os:
   - osx
 language: csharp
 solution: BeatDetection.sln
-install: git clone -q --branch=develop https://github.com/opcon/Substructio ../Substructio
-before_script: nuget restore ../Substructio/Substructio.sln
+before_script: 
+  - git clone -q --branch=develop https://github.com/opcon/Substructio ../Substructio
+  - mono .paket/paket.bootstrapper.exe
+  - mono .paket/paket.exe restore
+  - mono ../Substructio/.paket/paket.bootstrapper.exe
+  - mono ../Substructio/.paket/paket.exe restore
 notifications:
   email:
     on_success: change
