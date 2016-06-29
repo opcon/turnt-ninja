@@ -189,3 +189,6 @@ artifacts/
 
 # Deploy
 deploy/
+
+# Paket
+paket.exe
