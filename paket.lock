@@ -10,10 +10,6 @@ NUGET
     Mono.Cecil (0.9.6.1) - framework: >= net45
     Newtonsoft.Json (8.0.3) - framework: >= net45
     NuGet.CommandLine (3.4.3)
-    OpenTK.Next (1.2.2336.6514-pre) - framework: >= net45
-    SharpFont (3.1) - framework: >= net45
-      SharpFont.Dependencies
-    SharpFont.Dependencies (2.6) - framework: >= net45
     Splat (1.6.2) - framework: >= net45
     squirrel.windows (1.4) - framework: >= net45
       DeltaCompressionDotNet (>= 1.0)
@@ -21,20 +17,27 @@ NUGET
       Splat (>= 1.6.2)
     TagLib.Portable (1.0.4) - framework: >= net45
   remote: https://ci.appveyor.com/nuget/gwen-nolegacy-opentk-renderer-y8bf4l8s9nxo
-    Gwen (3.0.6020.16507) - framework: >= net45
-      QuickFont.Desktop (>= 4.3.6018.34176)
-    Gwen.Renderer.OpenTK (3.0.6020.16547) - framework: >= net45
+    Gwen (3.0.6024.717) - framework: >= net45
+      OpenTK.Next (>= 1.1.1616.8959)
+    Gwen.Renderer.OpenTK (3.0.6024.753) - framework: >= net45
       Gwen (>= 3.0)
+      OpenTK.Next (>= 1.1.1616.8959)
       QuickFont.Desktop (>= 4.3.6018.34176)
+      SharpFont (>= 3.1)
+      SharpFont.Dependencies (>= 2.6)
   remote: https://ci.appveyor.com/nuget/onset-detection-ce96cu4ph0k5
     OnsetDetection (1.0.6020.16658) - framework: >= net45
       CSCore (>= 1.1)
       MathNet.Numerics (>= 3.11.1)
   remote: https://ci.appveyor.com/nuget/quickfont-m6wdxb2yf1v5
-    QuickFont.Desktop (4.3.6020.14402) - framework: >= net45
+    OpenTK.Next (1.2.2336.6514-pre) - framework: >= net45
+    QuickFont.Desktop (4.3.6024.4) - framework: >= net45
       OpenTK.Next (>= 1.1.1616.8959)
       SharpFont (>= 3.1)
       SharpFont.Dependencies (>= 2.6)
+    SharpFont (3.1.0) - framework: >= net45
+      SharpFont.Dependencies
+    SharpFont.Dependencies (2.6) - framework: >= net45
 
 GROUP Build
 NUGET
