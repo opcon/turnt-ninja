@@ -185,7 +185,7 @@ SquirrelReleases/
 .fake/
 
 # Build artifacts
-artifacts/
+tmp/
 
 # Deploy
 deploy/
