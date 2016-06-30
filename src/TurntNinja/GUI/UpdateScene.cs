@@ -37,7 +37,7 @@ namespace BeatDetection.GUI
 
         public override void Draw(double time)
         {
-            var tSize = SceneManager.Font.Measure(_statusString);
+            var tSize = SceneManager.DefaultFont.Font.Measure(_statusString);
             SceneManager.DrawTextLine(_statusString, new OpenTK.Vector3(0, tSize.Height/2, 0), Color4.White);
         }
 

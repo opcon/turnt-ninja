@@ -11,6 +11,7 @@ using BeatDetection.GUI;
 using OpenTK;
 using OpenTK.Graphics;
 using System.Globalization;
+using System.IO;
 
 namespace BeatDetection.FileSystem
 {
@@ -22,6 +23,10 @@ namespace BeatDetection.FileSystem
         IFileSystem _currentFileSystem;
         List<FileBrowserEntry> _fileSystemEntries;
 
+        GameFont _unselectedFont;
+        GameFont _selectedFont;
+        GameFont _searchFont;
+
         public FileBrowserEntry EntrySeparator { get; private set; }
 
         //int _entryIndex = 0;
@@ -31,7 +36,6 @@ namespace BeatDetection.FileSystem
         int _fileSystemEntryIndexOffset { get { return _fileSystemCollection.Count + 1; } }
 
         int _halfEntryDrawCount = 10;
-        float _verticalEntrySpacing = 30;
 
         string _searchString = "";
         float _searchTimeout = 2.0f;
@@ -49,6 +53,11 @@ namespace BeatDetection.FileSystem
             _parentScene = parentScene;
             _fileSystemCollection = new List<IFileSystem>();
             _fileSystemEntries = new List<FileBrowserEntry>();
+
+            _unselectedFont = _parentManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Body);
+            _selectedFont = _parentManager.GameFontLibrary.GetFirstOrDefault("selected");
+            _searchFont = _parentManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Heading);
+            _halfEntryDrawCount = (int)(_parentManager.Width / _unselectedFont.MaxLineHeight) / 2 - (int)(_selectedFont.MaxLineHeight / (float)_unselectedFont.MaxLineHeight) -1;
 
             EntrySeparator = new FileBrowserEntry
             {
@@ -85,7 +94,7 @@ namespace BeatDetection.FileSystem
 
         public void Resize(int wWidth, int wHeight)
         {
-            _halfEntryDrawCount = (int) (wHeight / _verticalEntrySpacing) / 2;
+            _halfEntryDrawCount = (int) (wHeight / _unselectedFont.MaxLineHeight) / 2 - (int) (_selectedFont.MaxLineHeight / (float)_unselectedFont.MaxLineHeight) -1;
         }
 
         public void Update(double time)
@@ -164,16 +173,18 @@ namespace BeatDetection.FileSystem
 
         public void Draw(double time)
         {
-            float startY = _verticalEntrySpacing * (_halfEntryDrawCount - 2);
+            float startY = _unselectedFont.MaxLineHeight * (_halfEntryDrawCount);
 
-            for (int i = _directoryBrowserEntryIndex - (_halfEntryDrawCount - 2); i < _directoryBrowserEntryIndex + _halfEntryDrawCount; i++)
+            for (int i = _directoryBrowserEntryIndex - (_halfEntryDrawCount); i < _directoryBrowserEntryIndex + _halfEntryDrawCount; i++)
             {
-                if (i >= 0 && i < _fileSystemEntries.Count && i != _directoryBrowserEntryIndex) _parentManager.DrawTextLine(_fileSystemEntries[i].Name, new Vector3(0, startY, 0), Color4.Black, QuickFont.QFontAlignment.Centre);
-                startY -= 30;
+                if (i >= 0 && i < _fileSystemEntries.Count && i != _directoryBrowserEntryIndex)
+                    _parentManager.DrawTextLine(_fileSystemEntries[i].Name, new Vector3(0, startY, 0), Color4.Black, QuickFont.QFontAlignment.Centre, _unselectedFont.Font);
+                if (i == _directoryBrowserEntryIndex) startY -= _selectedFont.MaxLineHeight;
+                if (i != _directoryBrowserEntryIndex) startY -= _unselectedFont.MaxLineHeight;
             }
-            _parentManager.DrawTextLine(_fileSystemEntries[_directoryBrowserEntryIndex].Name, new Vector3(0, 0, 0), Color4.White, QuickFont.QFontAlignment.Centre);
+            _parentManager.DrawTextLine(_fileSystemEntries[_directoryBrowserEntryIndex].Name, new Vector3(0, 0, 0), Color4.White, QuickFont.QFontAlignment.Centre, _selectedFont.Font);
 
-            _parentManager.DrawTextLine(string.Format("Search: {0}", _searchString), new Vector3(0, _verticalEntrySpacing * _halfEntryDrawCount, 0), Color4.White, QuickFont.QFontAlignment.Centre);
+            _parentManager.DrawTextLine(string.Format("Search: {0}", _searchString), new Vector3(0, (_parentManager.Height / 2), 0), Color4.White, QuickFont.QFontAlignment.Centre, _searchFont.Font);
         }
     }
 }

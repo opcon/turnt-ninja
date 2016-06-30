@@ -33,7 +33,6 @@ namespace BeatDetection
         private const float prefWidth = 1920;
         private const float prefHeight = 1080;
 
-        private string fontPath = "";
         float correction = 0.0f;
 
         private Stopwatch _watch;
@@ -93,13 +92,47 @@ namespace BeatDetection
         protected override void OnLoad(EventArgs e)
         {
             //fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Chamgagne Limousines/Champagne & Limousines Italic.ttf");
-            fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Ostrich Sans/OstrichSans-Black.otf");
-            //fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Comfortaa_Regular.ttf");
+            //fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Ostrich Sans/OstrichSans-Black.otf");
+            var menuFontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Oswald-Bold.ttf");
+            var versionFontPath = _directoryHandler.Locate("Fonts", "./Oswald-Regular.ttf");
+            var bodyFontPath = _directoryHandler.Locate("Fonts", "./Open Sans/OpenSans-Regular.ttf");
+            var selectedFontPath = _directoryHandler.Locate("Fonts", "./Open Sans/OpenSans-Bold.ttf");
 
-            var gameCamera = new Camera(prefWidth, prefHeight, this.Width, this.Height, this.Mouse);
+            Console.WriteLine("Initializing");
+            var gameCamera = new Camera(prefWidth, prefHeight, Width, Height, Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
-            var gameFont = new QFont(fontPath, 18, new QFontBuilderConfiguration());
-            _gameSceneManager = new SceneManager(this, gameCamera, gameFont, fontPath, _directoryHandler, _gameSettings, Debug);
+
+            var fontLibrary = new FontLibrary();
+
+            // Default font
+            var gameFont = new QFont(bodyFontPath, 18, new QFontBuilderConfiguration());
+            fontLibrary.AddFont(new GameFont(gameFont, GameFontType.Default, new Vector2(Width, Height)));
+
+            // Menu font
+            fontLibrary.AddFont(
+                                new GameFont(new QFont(menuFontPath, 50, new QFontBuilderConfiguration(true)),
+                                GameFontType.Menu, 
+                                new Vector2(Width, Height)));
+
+            // Heading font
+            fontLibrary.AddFont(
+                                new GameFont(new QFont(menuFontPath, 20, new QFontBuilderConfiguration(true)),
+                                GameFontType.Heading, 
+                                new Vector2(Width, Height)));
+
+            // Version text font
+            fontLibrary.AddFont(
+                                new GameFont(new QFont(versionFontPath, 15, new QFontBuilderConfiguration()),
+                                "versiontext",
+                                new Vector2(Width, Height)));
+
+            // Selected text font (song browser
+            fontLibrary.AddFont(
+                                new GameFont(new QFont(selectedFontPath, 34, new QFontBuilderConfiguration()),
+                                "selected",
+                                new Vector2(Width, Height)));
+
+            _gameSceneManager = new SceneManager(this, gameCamera, fontLibrary, bodyFontPath, _directoryHandler, _gameSettings, Debug);
             _gameSceneManager.AddScene(new MenuScene(), null);
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);

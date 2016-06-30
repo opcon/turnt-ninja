@@ -31,7 +31,8 @@ namespace BeatDetection.GUI
         private MainMenuOptions _selectedMenuItem = MainMenuOptions.None;
         private bool _selectedItemChanged;
 
-        private QFont _menuFont;
+        private GameFont _menuFont;
+        private GameFont _versionFont;
         private QFontDrawing _menuFontDrawing;
         private QFontRenderOptions _menuRenderOptions;
 
@@ -66,10 +67,12 @@ namespace BeatDetection.GUI
             _singlePlayerPolygon.PulseMultiplier = 25;
             _singlePlayerPolygon.PulseWidthMax = 7;
 
-            _menuFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Regular);
+            _menuFont = SceneManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Menu);
             _menuFontDrawing = new QFontDrawing();
             _menuFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
-            _menuRenderOptions = new QFontRenderOptions {DropShadowActive = true};
+            _menuRenderOptions = new QFontRenderOptions { DropShadowActive = true, Colour = Color.White };
+
+            _versionFont = SceneManager.GameFontLibrary.GetFirstOrDefault("versiontext");
 
             var guiRenderer = new Gwen.Renderer.OpenTK();
             var skin = new TexturedBase(guiRenderer, Path.Combine(SceneManager.Directories["Images"].FullName, "DefaultSkin.png"));
@@ -105,14 +108,14 @@ namespace BeatDetection.GUI
             if (_selectedItemChanged)
             {
                 _menuFontDrawing.DrawingPrimitives.Clear();
-                _menuFontDrawing.Print(_menuFont, _selectedMenuItemText, new Vector3(0, -SceneManager.Height*0.5f + 80, 0), QFontAlignment.Centre, Color.White);
+                _menuFontDrawing.Print(_menuFont.Font, _selectedMenuItemText.ToUpper(), new Vector3(0, -SceneManager.Height*0.5f + 150, 0), QFontAlignment.Centre, _menuRenderOptions);
                 _selectedItemChanged = false;
             }
         }
 
         public void Exit()
         {
-            SceneManager.RemoveScene(this);
+            SceneManager.RemoveScene(this, true);
             SceneManager.GameWindow.Exit();
         }
 
@@ -207,7 +210,7 @@ namespace BeatDetection.GUI
             _menuFontDrawing.RefreshBuffers();
             _menuFontDrawing.Draw();
 
-            SceneManager.DrawTextLine("Turnt Ninja version " + _gameVersion, new Vector3(-WindowWidth / 2+10, -WindowHeight / 2 + 30, 0), Color.White, QFontAlignment.Left);
+            SceneManager.DrawTextLine("TURNT NINJA " + _gameVersion, new Vector3(-WindowWidth / 2+5, -WindowHeight / 2 + _versionFont.Font.MaxLineHeight, 0), Color.White, QFontAlignment.Left, _versionFont.Font);
         }
 
         public override void Dispose()

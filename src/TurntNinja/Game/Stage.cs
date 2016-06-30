@@ -50,9 +50,8 @@ namespace BeatDetection.Game
         public ShaderProgram ShaderProgram { get; set; }
         public SceneManager SceneManager { get; set; }
 
-        public QFont MultiplierFont;
+        public GameFont MultiplierFont;
         public QFontDrawing MultiplierFontDrawing;
-        public QFont ScoreFont;
         public QFontDrawing ScoreFontDrawing;
         private string _centerText = "";
 
@@ -93,11 +92,10 @@ namespace BeatDetection.Game
         {
             SceneManager = sceneManager;
 
-            MultiplierFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Regular);
+            MultiplierFont = SceneManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Menu);
             MultiplierFontDrawing = new QFontDrawing();
             MultiplierFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
 
-            ScoreFont = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Regular);
             ScoreFontDrawing = new QFontDrawing();
             ScoreFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
 
@@ -240,13 +238,13 @@ namespace BeatDetection.Game
             StageGeometry.Draw(time);
 
             MultiplierFontDrawing.DrawingPrimitives.Clear();
-            MultiplierFontDrawing.Print(MultiplierFont, _centerText, new Vector3(0, MultiplierFont.Measure("0", QFontAlignment.Centre).Height * 0.5f, 0),
+            MultiplierFontDrawing.Print(MultiplierFont.Font, _centerText, new Vector3(0, MultiplierFont.Font.Measure("0", QFontAlignment.Centre).Height * 0.5f, 0),
                 QFontAlignment.Centre);
             MultiplierFontDrawing.RefreshBuffers();
             MultiplierFontDrawing.Draw();
 
             ScoreFontDrawing.DrawingPrimitives.Clear();
-            ScoreFontDrawing.Print(MultiplierFont, StageGeometry.Player.Score.ToString("N0", CultureInfo.CurrentCulture), new Vector3(-SceneManager.Width / 2 + 20, SceneManager.Height/2 - 10, 0), QFontAlignment.Left, Color.White);
+            ScoreFontDrawing.Print(MultiplierFont.Font, StageGeometry.Player.Score.ToString("N0", CultureInfo.CurrentCulture), new Vector3(-SceneManager.Width / 2 + 20, SceneManager.Height/2 - 10, 0), QFontAlignment.Left, Color.White);
             ScoreFontDrawing.RefreshBuffers();
             ScoreFontDrawing.Draw();
         }
@@ -261,7 +259,6 @@ namespace BeatDetection.Game
         {
             MultiplierFont.Dispose();
             MultiplierFontDrawing.Dispose();
-            ScoreFont.Dispose();
             ScoreFontDrawing.Dispose();
             StageGeometry.Dispose();
             _stageAudio.Dispose();
