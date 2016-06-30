@@ -8,3 +8,5 @@ build:
   verbosity: minimal
 build_script:
   - cmd: .\build.cmd mode=%CONFIGURATION%
+after_build:
+  - cmd: .\build.cmd PushArtifacts mode=%CONFIGURATION%
