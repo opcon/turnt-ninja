@@ -27,7 +27,7 @@ namespace BeatDetection.FileSystem
         public List<IFileSystem> FileSystemCollection { get; set; }
         public ReadOnlyCollection<FileBrowserEntry> FileSystemEntryCollection { get { return _soundcloudSongs.AsReadOnly(); } }
 
-        public string FriendlyName { get { return "SoundCloud"; } }
+        public string FriendlyName { get { return "Sound Cloud"; } }
 
         private object _lock = new object();
 
