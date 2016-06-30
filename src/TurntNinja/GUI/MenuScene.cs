@@ -215,6 +215,14 @@ namespace BeatDetection.GUI
 
         public override void Dispose()
         {
+            _GUIComponents.Dispose();
+            if (_shaderProgram != null)
+            {
+                _shaderProgram.Dispose();
+                _shaderProgram = null;
+            }
+            _menuFontDrawing.Dispose();
+            _menuFont.Dispose();
         }
     }
 
