@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>turnt_ninja</id>
+    <version>@build.number@</version>
+    <title>@project@</title>
+    <authors>@authors@</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/opcon/turnt-ninja/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/opcon/turnt-ninja</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>https://github.com/opcon/turnt-ninja</description>
+    <releaseNotes>@releaseNotes@</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+  </metadata>
+  @files@
+</package>
