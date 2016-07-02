@@ -12,6 +12,8 @@ let substructioBranch = "develop"
 let substructioFolder = "Substructio"
 let substructioDir = parentDir + substructioFolder + "/"
 let substructioBuildDir = substructioDir + buildDirBase + mode + "/"
+let contentDirDeployName = "Content"
+let licenseDirDeployName = "Licenses"
 let tempDirBase = "tmp/"
 let appName = "turnt_ninja"
 let appPath = buildDir + appName + ".exe"
@@ -34,10 +36,17 @@ let deployName =
 let tempDirName = lazy 
                     tempDirBase + deployName.Value + "/"
 
+let tempMergedDirName = lazy
+                           tempDirBase + deployName.Value + "-merged/"
+
 let deployZipName = lazy
                         deployName.Value + ".zip"
 let deployZipPath = lazy
                         deployDir + deployZipName.Value
+let deployZipMergedName = lazy
+                             deployName.Value + "-merged.zip"
+let deployZipMergedPath = lazy
+                             deployDir + deployZipMergedName.Value
 
 // Targets
 Target "Clean" (fun _ -> 
@@ -104,14 +113,10 @@ Target "DeployZip" (fun _ ->
     ensureDirectory deployDir
 
     let mainFiles = !! (sprintf "%s*.dll" buildDir) ++ (sprintf "%s*.config" buildDir) ++ (sprintf "%s*.exe" buildDir)
-    let contentFiles = !! "src/TurntNinja/Content/**/*.*"
-    let contentDir = "Content"
-    let licenceFiles = !! "docs/licenses/**/*.*"
-    let licenceDir = "Licenses"
 
     CopyFiles tempDirName.Value mainFiles
-    CopyDir (tempDirName.Value + contentDir) "src/TurntNinja/Content/" (fun x -> true)
-    CopyDir (tempDirName.Value + licenceDir) "docs/licenses" (fun x-> true)
+    CopyDir (tempDirName.Value + contentDirDeployName) "src/TurntNinja/Content/" (fun x -> true)
+    CopyDir (tempDirName.Value + licenseDirDeployName) "docs/licenses" (fun x-> true)
 
     let dInfo = new System.IO.DirectoryInfo(tempDirName.Value)
     Zip tempDirName.Value deployZipPath.Value [ for f in dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories) do yield f.FullName]
@@ -148,17 +153,31 @@ Target "DeploySquirrel" (fun _ ->
 )
 
 Target "DeployMerged" (fun _ ->
-    let libraries =  [for x in (!! (tempDirName.Value + "*.dll") -- "**/freetype6.dll" -- "**/NuGet.Squirrel.dll") do yield x |> filename |> combinePaths tempDirName.Value ]
-    for x in libraries do x |> trace
+    //ensureDirectory tempMergedDirName.Value
+    let libraries =  [for x in (!! (tempDirName.Value + "*.dll") -- "**/freetype6.dll") do yield x |> filename |> combinePaths tempDirName.Value ]
+    // NuGet.Squirrel.dll is an already-merged assembly.
+    // To stop ILRepack from complaining about missing references, we need to add copies of
+    // NuGet.Squirrel.dll to the directory we're searching, but named the dlls we need to reference.
+    CopyFile (tempDirName.Value + "Microsoft.Data.OData.dll") (tempDirName.Value + "NuGet.Squirrel.dll")
+    CopyFile (tempDirName.Value + "Microsoft.Data.Services.Client.dll") (tempDirName.Value + "NuGet.Squirrel.dll")
+//    for x in libraries do x |> trace
     ILMerge (fun p ->
             {p with
                 ToolPath = findToolInSubPath ILMergeToolName ""
                 TargetKind = TargetKind.WinExe
                 Libraries = libraries
-                SearchDirectories = [tempDirName.Value]
+                SearchDirectories = [tempDirName.Value; "/usr/lib/mono/4.5/Facades/"]
+                TargetPlatform = "v4"
             })
-        (deployDir + deployName.Value + ".exe")
+        (tempMergedDirName.Value + deployName.Value + ".exe")
         (tempDirName.Value + appName + ".exe")
+
+    CopyDir (tempMergedDirName.Value + contentDirDeployName) (tempDirName.Value + contentDirDeployName) (fun x -> true)
+    CopyDir (tempMergedDirName.Value + licenseDirDeployName) (tempDirName.Value + licenseDirDeployName) (fun x-> true)
+    CopyFile (tempMergedDirName.Value + "freetype6.dll") (tempDirName.Value + "freetype6.dll")
+
+    let dInfo = new System.IO.DirectoryInfo(tempMergedDirName.Value)
+    Zip tempMergedDirName.Value deployZipMergedPath.Value [ for f in dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories) do yield f.FullName]
 )
 
 Target "Deploy" (fun _ -> ())
