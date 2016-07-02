@@ -47,4 +47,4 @@ NUGET
 GROUP Deploy
 NUGET
   remote: https://www.nuget.org/api/v2
-    ILRepack (2.1.0-beta1)
+    ILRepack (2.0.10)
