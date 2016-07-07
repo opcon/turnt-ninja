@@ -229,12 +229,12 @@ namespace BeatDetection
             //initialise directory handler
             var directoryHandler = new DirectoryHandler();
             //set application path
-            directoryHandler.AddPath("Application", Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+            directoryHandler.AddPath("Application", AppDomain.CurrentDomain.BaseDirectory);
             //set base path
-            if (Directory.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Content")))
-                directoryHandler.AddPath("Base", Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-            else if (Directory.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"../../src/TurntNinja/Content")))
-                directoryHandler.AddPath("Base", Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"../../src/TurntNinja"));
+            if (Directory.Exists(directoryHandler.Locate("Application", "Content")))
+                directoryHandler.AddPath("Base", directoryHandler["Application"].FullName);
+            else if (Directory.Exists(directoryHandler.Locate("Application", @"../../src/TurntNinja/Content")))
+                directoryHandler.AddPath("Base", directoryHandler.Locate("Application", @"../../src/TurntNinja"));
             else
             {
                 throw new Exception("Couldn't find resource folder location");
