@@ -50,7 +50,7 @@ namespace BeatDetection.FileSystem
             _recentSongList.Clear();
             foreach (var s in _recentSongBaseList)
             {
-                var fs = FileSystemCollection.First(f => f.FriendlyName.Equals(s.FileSystemFriendlyName, StringComparison.OrdinalIgnoreCase));
+                var fs = FileSystemCollection.FirstOrDefault(f => f.FriendlyName.Equals(s.FileSystemFriendlyName, StringComparison.OrdinalIgnoreCase));
                 if (fs != null && fs.SongExists(s))
                     _recentSongList.Add(new Song { SongBase = s, FileSystem = fs });
                 else

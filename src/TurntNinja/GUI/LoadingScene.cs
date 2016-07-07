@@ -142,7 +142,7 @@ namespace BeatDetection.GUI
         {
             GL.Disable(EnableCap.CullFace);
             _shaderProgram.Bind();
-            _shaderProgram.SetUniform("mvp", SceneManager.ScreenCamera.ModelViewProjection);
+            _shaderProgram.SetUniform("mvp", SceneManager.ScreenCamera.WorldModelViewProjection);
             _shaderProgram.SetUniform("in_color", Color4.White);
 
             //Draw the player

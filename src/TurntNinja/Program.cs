@@ -95,8 +95,9 @@ namespace BeatDetection
             //fontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Ostrich Sans/OstrichSans-Black.otf");
             var menuFontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Oswald-Bold.ttf");
             var versionFontPath = _directoryHandler.Locate("Fonts", "./Oswald-Regular.ttf");
-            var bodyFontPath = _directoryHandler.Locate("Fonts", "./Open Sans/OpenSans-Regular.ttf");
-            var selectedFontPath = _directoryHandler.Locate("Fonts", "./Open Sans/OpenSans-Bold.ttf");
+            var bodyFontPath = _directoryHandler.Locate("Fonts", "./Open Sans/OpenSans-Light.ttf");
+            //var selectedFontPath = _directoryHandler.Locate("Fonts", "./Open Sans/OpenSans-Bold.ttf");
+            var selectedFontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Oswald-Bold.ttf");
 
             Console.WriteLine("Initializing");
             var gameCamera = new Camera(prefWidth, prefHeight, Width, Height, Mouse);
@@ -105,13 +106,19 @@ namespace BeatDetection
             var fontLibrary = new FontLibrary();
 
             // Default font
-            var gameFont = new QFont(bodyFontPath, 18, new QFontBuilderConfiguration());
+            var gameFont = new QFont(bodyFontPath, 18, new QFontBuilderConfiguration() { SuperSampleLevels = 2 });
             fontLibrary.AddFont(new GameFont(gameFont, GameFontType.Default, new Vector2(Width, Height)));
 
             // Menu font
             fontLibrary.AddFont(
                                 new GameFont(new QFont(menuFontPath, 50, new QFontBuilderConfiguration(true)),
                                 GameFontType.Menu, 
+                                new Vector2(Width, Height)));
+
+            // Menu World font
+            fontLibrary.AddFont(
+                                new GameFont(new QFont(menuFontPath, 70, new QFontBuilderConfiguration(true) { SuperSampleLevels = 2 }),
+                                "menuworld", 
                                 new Vector2(Width, Height)));
 
             // Heading font
@@ -128,7 +135,7 @@ namespace BeatDetection
 
             // Selected text font (song browser
             fontLibrary.AddFont(
-                                new GameFont(new QFont(selectedFontPath, 34, new QFontBuilderConfiguration()),
+                                new GameFont(new QFont(selectedFontPath, 34, new QFontBuilderConfiguration() { SuperSampleLevels = 2, Characters = CharacterSet.General }),
                                 "selected",
                                 new Vector2(Width, Height)));
 

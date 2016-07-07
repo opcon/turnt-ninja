@@ -28,7 +28,7 @@ nuget TagLib.Portable >= 1.0.4 framework: >= net45
 group Deploy
 
 	source https://www.nuget.org/api/v2/
-	nuget ILRepack
+	nuget ILRepack prerelease
 
 group Build
 

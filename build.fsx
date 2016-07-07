@@ -1,12 +1,20 @@
 // include Fake lib
 #r @"packages/build/FAKE/tools/FakeLib.dll"
 open Fake
+open System.Net
 
 // Properties
 let mode = getBuildParamOrDefault "mode" "Release"
+
 let parentDir = "../"
+
+// Build directories
 let buildDirBase = "./bin/"
 let buildDir = buildDirBase + mode + "/"
+let appName = "turnt_ninja"
+let appPath = buildDir + appName + ".exe"
+
+// Substructio properties
 let substructioRepo = @"https://github.com/opcon/Substructio"
 let substructioBranch = "develop"
 let substructioFolder = "Substructio"
@@ -14,13 +22,16 @@ let substructioDir = parentDir + substructioFolder + "/"
 let substructioBuildDir = substructioDir + buildDirBase + mode + "/"
 let contentDirDeployName = "Content"
 let licenseDirDeployName = "Licenses"
+
+// MonoKickStart properties
+let monoKickStartRepo = @"https://github.com/MonoGame/MonoKickstart"
+let monoKickStartArchive = @"https://github.com/MonoGame/MonoKickstart/archive/master.zip"
+
+// More directories
+
 let tempDirBase = "tmp/"
-let appName = "turnt_ninja"
-let appPath = buildDir + appName + ".exe"
 let deployDir = "./deploy/"
 let squirrelDeployDir = deployDir + "squirrel/"
-let squirrelToolName = "squirrel.exe"
-let ILMergeToolName = "ILRepack.exe"
 
 // Get directory postfix
 let postFix = match mode.ToLower() with
@@ -47,6 +58,10 @@ let deployZipMergedName = lazy
                              deployName.Value + "-merged.zip"
 let deployZipMergedPath = lazy
                              deployDir + deployZipMergedName.Value
+
+// Tool names
+let squirrelToolName = "squirrel.exe"
+let ILMergeToolName = "ILRepack.exe"
 
 // Targets
 Target "Clean" (fun _ -> 
@@ -160,14 +175,14 @@ Target "DeployMerged" (fun _ ->
     // NuGet.Squirrel.dll to the directory we're searching, but named the dlls we need to reference.
     CopyFile (tempDirName.Value + "Microsoft.Data.OData.dll") (tempDirName.Value + "NuGet.Squirrel.dll")
     CopyFile (tempDirName.Value + "Microsoft.Data.Services.Client.dll") (tempDirName.Value + "NuGet.Squirrel.dll")
-//    for x in libraries do x |> trace
+    let searchDir = [tempDirName.Value]
+//    let searchDir = [tempDirName.Value; "/usr/lib/mono/4.5/Facades/"]
     ILMerge (fun p ->
             {p with
                 ToolPath = findToolInSubPath ILMergeToolName ""
                 TargetKind = TargetKind.WinExe
                 Libraries = libraries
-                SearchDirectories = [tempDirName.Value; "/usr/lib/mono/4.5/Facades/"]
-                TargetPlatform = "v4"
+                SearchDirectories = searchDir
             })
         (tempMergedDirName.Value + deployName.Value + ".exe")
         (tempDirName.Value + appName + ".exe")
@@ -178,6 +193,12 @@ Target "DeployMerged" (fun _ ->
 
     let dInfo = new System.IO.DirectoryInfo(tempMergedDirName.Value)
     Zip tempMergedDirName.Value deployZipMergedPath.Value [ for f in dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories) do yield f.FullName]
+)
+Target "DeployKickStart" (fun _ ->
+    ensureDirectory tempDirName.Value
+    // Download mono kickstart
+    let wc = new WebClient()
+    wc.DownloadFile(monoKickStartArchive, (tempDirName.Value + "kickstart.zip"))
 )
 
 Target "Deploy" (fun _ -> ())

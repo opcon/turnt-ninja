@@ -44,6 +44,11 @@ namespace BeatDetection
             get { return _length; }
         }
 
+        public double Width
+        {
+            get { return _width; }
+        }
+
         public PolarVector Position
         {
             get { return _position; }
