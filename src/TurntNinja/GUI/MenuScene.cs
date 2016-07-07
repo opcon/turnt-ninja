@@ -27,7 +27,7 @@ namespace BeatDetection.GUI
         private PolarPolygon _centerPolygon;
 
         private string _selectedMenuItemText = "";
-        private MainMenuOptions _selectedMenuItem = MainMenuOptions.None;
+        private MainMenuOptions _selectedMenuItem = MainMenuOptions.SinglePlayer;
         private bool _selectedItemChanged;
 
         private GameFont _menuFont;
@@ -41,6 +41,8 @@ namespace BeatDetection.GUI
         private double _totalTime;
 
         private string _gameVersion;
+
+        List<MenuEntry> _menuEntries;
 
         public override void Load()
         {
@@ -59,10 +61,18 @@ namespace BeatDetection.GUI
             _centerPolygon = new PolarPolygon(Enumerable.Repeat(true, 6).ToList(), new PolarVector(0.5, 0), 50, 80, 0);
             _centerPolygon.ShaderProgram = _shaderProgram;
 
+            _menuEntries = new List<MenuEntry>();
             _menuFont = SceneManager.GameFontLibrary.GetFirstOrDefault("menuworld");
             _menuFontDrawing = new QFontDrawing();
             _menuFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.WorldModelViewProjection;
             _menuRenderOptions = new QFontRenderOptions { DropShadowActive = true, Colour = Color.White };
+
+            _menuEntries.Add(new MenuEntry("PLAY", MainMenuOptions.SinglePlayer, _centerPolygon.AngleBetweenSides, _player, _menuFont.Font) { NewState = MenuState.Selected });
+            _menuEntries.Add(new MenuEntry("SCORES", MainMenuOptions.Scores, _centerPolygon.AngleBetweenSides, _player, _menuFont.Font));
+            _menuEntries.Add(new MenuEntry("OPTIONS", MainMenuOptions.Options, _centerPolygon.AngleBetweenSides, _player, _menuFont.Font));
+            _menuEntries.Add(new MenuEntry("EXIT", MainMenuOptions.Exit, _centerPolygon.AngleBetweenSides, _player, _menuFont.Font));
+            _menuEntries.Add(new MenuEntry("UPDATE", MainMenuOptions.Update, _centerPolygon.AngleBetweenSides, _player, _menuFont.Font));
+            _menuEntries.Add(new MenuEntry("COMING SOON", MainMenuOptions.ComingSoon, _centerPolygon.AngleBetweenSides, _player, _menuFont.Font));
 
             _versionFont = SceneManager.GameFontLibrary.GetFirstOrDefault("versiontext");
 
@@ -100,36 +110,43 @@ namespace BeatDetection.GUI
 
             DoGUI();
 
-            // Update next if needed
-            if (_selectedItemChanged)
+            _menuFontDrawing.DrawingPrimitives.Clear();
+            foreach (var me in _menuEntries)
             {
-                // Reset elapsed time
-                _totalTime = 0;
-
-                _menuFontDrawing.DrawingPrimitives.Clear();
-                _menuFDP = new QFontDrawingPrimitive(_menuFont.Font, _menuRenderOptions);
-
-
-                _menuFDP.Print(_selectedMenuItemText.ToUpper(), Vector3.Zero, QFontAlignment.Centre);
-                _menuFontDrawing.DrawingPrimitives.Add(_menuFDP);
-                _selectedItemChanged = false;
+                me.Update(time);
+                _menuFontDrawing.DrawingPrimitives.Add(me.Print(_menuRenderOptions));
             }
 
-            // Pulse text
-            var size = _menuFont.Font.Measure(_selectedMenuItemText.ToUpper());
-            var selectedSide = GetSelectedSide();
-            var newPos = new PolarVector(selectedSide * _centerPolygon.AngleBetweenSides + _centerPolygon.AngleBetweenSides * 0.5f, _player.Position.Radius + _player.Width + size.Height*0.9);
+            //// Update next if needed
+            //if (_selectedItemChanged)
+            //{
+            //    // Reset elapsed time
+            //    _totalTime = 0;
 
-            var extraRotation = (selectedSide >= 0 && selectedSide < 3) ? (-Math.PI / 2.0) : (Math.PI / 2.0);
-            var extraOffset = (selectedSide >= 0 && selectedSide < 3) ? (0) : (-size.Height / 4);
+            //    _menuFontDrawing.DrawingPrimitives.Clear();
+            //    _menuFDP = new QFontDrawingPrimitive(_menuFont.Font, _menuRenderOptions);
 
-            newPos.Radius += extraOffset;
-            var cart = newPos.ToCartesianCoordinates();
-            var mvm = Matrix4.CreateTranslation(0, size.Height / 2, 0)
-                        * Matrix4.CreateScale(0.90f + (float)Math.Pow(Math.Sin(_totalTime*3), 2)*0.10f)
-                        * Matrix4.CreateRotationZ((float)(newPos.Azimuth + extraRotation))
-                        * Matrix4.CreateTranslation(cart.X, cart.Y, 0);
-            _menuFDP.ModelViewMatrix = mvm;
+
+            //    _menuFDP.Print(_selectedMenuItemText.ToUpper(), Vector3.Zero, QFontAlignment.Centre);
+            //    _menuFontDrawing.DrawingPrimitives.Add(_menuFDP);
+            //    _selectedItemChanged = false;
+            //}
+
+            //// Pulse text
+            //var size = _menuFont.Font.Measure(_selectedMenuItemText.ToUpper());
+            //var selectedSide = GetSelectedSide();
+            //var newPos = new PolarVector(selectedSide * _centerPolygon.AngleBetweenSides + _centerPolygon.AngleBetweenSides * 0.5f, _player.Position.Radius + _player.Width + size.Height*0.9);
+
+            //var extraRotation = (selectedSide >= 0 && selectedSide < 3) ? (-Math.PI / 2.0) : (Math.PI / 2.0);
+            //var extraOffset = (selectedSide >= 0 && selectedSide < 3) ? (0) : (-size.Height / 4);
+
+            //newPos.Radius += extraOffset;
+            //var cart = newPos.ToCartesianCoordinates();
+            //var mvm = Matrix4.CreateTranslation(0, size.Height / 2, 0)
+            //            * Matrix4.CreateScale(0.90f + (float)Math.Pow(Math.Sin(_totalTime*3), 2)*0.10f)
+            //            * Matrix4.CreateRotationZ((float)(newPos.Azimuth + extraRotation))
+            //            * Matrix4.CreateTranslation(cart.X, cart.Y, 0);
+            //_menuFDP.ModelViewMatrix = mvm;
         }
 
         public void Exit()
@@ -156,6 +173,8 @@ namespace BeatDetection.GUI
             if (_selectedMenuItem != (MainMenuOptions) selectedSide) _selectedItemChanged = true;
             _selectedMenuItem = (MainMenuOptions) selectedSide;
 
+            _menuEntries.ForEach(me => me.NewState = MenuState.Unselected);
+            _menuEntries.First(me => me.Option == _selectedMenuItem).NewState = MenuState.Selected;
             switch (_selectedMenuItem)
             {
                 case MainMenuOptions.SinglePlayer:
@@ -176,9 +195,7 @@ namespace BeatDetection.GUI
                 case MainMenuOptions.ComingSoon:
                     _selectedMenuItemText = "Coming Soon";
                     break;
-                case MainMenuOptions.None:
                 default:
-                    _selectedMenuItem = MainMenuOptions.None;
                     _selectedMenuItemText = "";
                     break;
             }
@@ -205,9 +222,6 @@ namespace BeatDetection.GUI
                         break;
                     case MainMenuOptions.Update:
                         SceneManager.AddScene(new UpdateScene(), this);
-                        break;
-                    case MainMenuOptions.None:
-                    default:
                         break;
                 }
             }
@@ -258,6 +272,5 @@ namespace BeatDetection.GUI
         Exit = 4,
         Update = 5,
         ComingSoon = 0,
-        None = -1
     }
 }

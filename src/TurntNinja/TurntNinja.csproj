@@ -96,6 +96,7 @@
     <Compile Include="GUI\EndGameScene.cs" />
     <Compile Include="GUI\GameScene.cs" />
     <Compile Include="GUI\LoadingScene.cs" />
+    <Compile Include="GUI\MenuEntry.cs" />
     <Compile Include="GUI\MenuScene.cs" />
     <Compile Include="Game\Player.cs" />
     <Compile Include="GUI\OptionsScene.cs" />
