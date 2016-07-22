@@ -174,11 +174,13 @@ namespace BeatDetection.FileSystem
         public void Draw(double time)
         {
             float startY = _unselectedFont.MaxLineHeight * (_halfEntryDrawCount);
+            var col = Color4.Black;
+            col.A = 0.90f;
 
             for (int i = _directoryBrowserEntryIndex - (_halfEntryDrawCount); i < _directoryBrowserEntryIndex + _halfEntryDrawCount; i++)
             {
                 if (i >= 0 && i < _fileSystemEntries.Count && i != _directoryBrowserEntryIndex)
-                    _parentManager.DrawTextLine(_fileSystemEntries[i].Name, new Vector3(0, startY, 0), Color4.Black, QuickFont.QFontAlignment.Centre, _unselectedFont.Font);
+                    _parentManager.DrawTextLine(_fileSystemEntries[i].Name, new Vector3(0, startY, 0), col, QuickFont.QFontAlignment.Centre, _unselectedFont.Font);
                 if (i == _directoryBrowserEntryIndex) startY -= _selectedFont.MaxLineHeight;
                 if (i != _directoryBrowserEntryIndex) startY -= _unselectedFont.MaxLineHeight;
             }

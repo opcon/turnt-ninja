@@ -25,7 +25,6 @@ namespace BeatDetection.GUI
         private Player _player;
 
         private PolarPolygon _centerPolygon;
-        private PolarPolygon _singlePlayerPolygon;
 
         private string _selectedMenuItemText = "";
         private MainMenuOptions _selectedMenuItem = MainMenuOptions.None;
@@ -35,14 +34,13 @@ namespace BeatDetection.GUI
         private GameFont _versionFont;
         private QFontDrawing _menuFontDrawing;
         private QFontRenderOptions _menuRenderOptions;
+        private QFontDrawingPrimitive _menuFDP;
 
         private GUIComponentContainer _GUIComponents;
 
-        private string _gameVersion;
+        private double _totalTime;
 
-        public MenuScene()
-        {
-        }
+        private string _gameVersion;
 
         public override void Load()
         {
@@ -61,15 +59,9 @@ namespace BeatDetection.GUI
             _centerPolygon = new PolarPolygon(Enumerable.Repeat(true, 6).ToList(), new PolarVector(0.5, 0), 50, 80, 0);
             _centerPolygon.ShaderProgram = _shaderProgram;
 
-            _singlePlayerPolygon = new PolarPolygon(Enumerable.Repeat(true, 6).ToList(), new PolarVector(0.5, 0), 20, 10, 0);
-            _singlePlayerPolygon.Translate = PolarVector.ToCartesianCoordinates(new PolarVector(_singlePlayerPolygon.AngleBetweenSides*((int)MainMenuOptions.SinglePlayer + 0.5f), 270)); 
-            _singlePlayerPolygon.ShaderProgram = _shaderProgram;
-            _singlePlayerPolygon.PulseMultiplier = 25;
-            _singlePlayerPolygon.PulseWidthMax = 7;
-
-            _menuFont = SceneManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Menu);
+            _menuFont = SceneManager.GameFontLibrary.GetFirstOrDefault("menuworld");
             _menuFontDrawing = new QFontDrawing();
-            _menuFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
+            _menuFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.WorldModelViewProjection;
             _menuRenderOptions = new QFontRenderOptions { DropShadowActive = true, Colour = Color.White };
 
             _versionFont = SceneManager.GameFontLibrary.GetFirstOrDefault("versiontext");
@@ -78,6 +70,9 @@ namespace BeatDetection.GUI
             var skin = new TexturedBase(guiRenderer, Path.Combine(SceneManager.Directories["Images"].FullName, "DefaultSkin.png"));
             skin.DefaultFont = new Gwen.Font(guiRenderer, SceneManager.FontPath, 30);
             _GUIComponents = new GUIComponentContainer(guiRenderer, skin);
+
+            var desiredCoords = SceneManager.GameWindow.PointToScreen(new Point(WindowWidth/2, WindowHeight/8));
+            Mouse.SetPosition(desiredCoords.X, desiredCoords.Y);
 
             Loaded = true;
         }
@@ -89,28 +84,52 @@ namespace BeatDetection.GUI
         public override void Resize(EventArgs e)
         {
             _GUIComponents.Resize(SceneManager.ScreenCamera.ScreenProjectionMatrix, WindowWidth, WindowHeight);
-            _menuFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
+            _menuFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.WorldModelViewProjection;
             _selectedItemChanged = true;
         }
 
         public override void Update(double time, bool focused = false)
         {
+            // Update total elapsed time
+            _totalTime += time;
+
             if (InputSystem.NewKeys.Contains(Key.Escape)) Exit();
 
             _player.Update(time);
             _centerPolygon.Update(time, false);
 
-            _singlePlayerPolygon.Position.Azimuth += time*0.5f;
-            _singlePlayerPolygon.Update(time, false);
-
             DoGUI();
 
+            // Update next if needed
             if (_selectedItemChanged)
             {
+                // Reset elapsed time
+                _totalTime = 0;
+
                 _menuFontDrawing.DrawingPrimitives.Clear();
-                _menuFontDrawing.Print(_menuFont.Font, _selectedMenuItemText.ToUpper(), new Vector3(0, -SceneManager.Height*0.5f + 150, 0), QFontAlignment.Centre, _menuRenderOptions);
+                _menuFDP = new QFontDrawingPrimitive(_menuFont.Font, _menuRenderOptions);
+
+
+                _menuFDP.Print(_selectedMenuItemText.ToUpper(), Vector3.Zero, QFontAlignment.Centre);
+                _menuFontDrawing.DrawingPrimitives.Add(_menuFDP);
                 _selectedItemChanged = false;
             }
+
+            // Pulse text
+            var size = _menuFont.Font.Measure(_selectedMenuItemText.ToUpper());
+            var selectedSide = GetSelectedSide();
+            var newPos = new PolarVector(selectedSide * _centerPolygon.AngleBetweenSides + _centerPolygon.AngleBetweenSides * 0.5f, _player.Position.Radius + _player.Width + size.Height*0.9);
+
+            var extraRotation = (selectedSide >= 0 && selectedSide < 3) ? (-Math.PI / 2.0) : (Math.PI / 2.0);
+            var extraOffset = (selectedSide >= 0 && selectedSide < 3) ? (0) : (-size.Height / 4);
+
+            newPos.Radius += extraOffset;
+            var cart = newPos.ToCartesianCoordinates();
+            var mvm = Matrix4.CreateTranslation(0, size.Height / 2, 0)
+                        * Matrix4.CreateScale(0.90f + (float)Math.Pow(Math.Sin(_totalTime*3), 2)*0.10f)
+                        * Matrix4.CreateRotationZ((float)(newPos.Azimuth + extraRotation))
+                        * Matrix4.CreateTranslation(cart.X, cart.Y, 0);
+            _menuFDP.ModelViewMatrix = mvm;
         }
 
         public void Exit()
@@ -119,24 +138,28 @@ namespace BeatDetection.GUI
             SceneManager.GameWindow.Exit();
         }
 
+        private int GetSelectedSide()
+        {
+            var nTheta = MathUtilities.Normalise(_player.Position.Azimuth + _player.Length * 0.5f);
+            return (int)Math.Floor(nTheta / _centerPolygon.AngleBetweenSides);
+        }
+
         private void DoGUI()
         {
             //are we using the mouse to navigate?
             if (InputSystem.HasMouseMoved)
             {
                 _player.Position = new PolarVector(Math.Atan2(-InputSystem.MouseXY.Y + SceneManager.Height/2.0f, InputSystem.MouseXY.X - SceneManager.Width / 2.0f) - _player.Length*0.5f, _player.Position.Radius);
-
             }
-            var nTheta = MathUtilities.Normalise(_player.Position.Azimuth + _player.Length*0.5f);
-            int n = (int) Math.Floor(nTheta / _centerPolygon.AngleBetweenSides);
-            if (_selectedMenuItem != (MainMenuOptions) n) _selectedItemChanged = true;
-            _selectedMenuItem = (MainMenuOptions) n;
+
+            int selectedSide = GetSelectedSide();
+            if (_selectedMenuItem != (MainMenuOptions) selectedSide) _selectedItemChanged = true;
+            _selectedMenuItem = (MainMenuOptions) selectedSide;
 
             switch (_selectedMenuItem)
             {
                 case MainMenuOptions.SinglePlayer:
                     _selectedMenuItemText = "Play";
-                    if (!_singlePlayerPolygon.Pulsing) _singlePlayerPolygon.BeginPulse();
                     break;
                 case MainMenuOptions.Scores:
                     _selectedMenuItemText = "Scores";
@@ -149,6 +172,9 @@ namespace BeatDetection.GUI
                     break;
                 case MainMenuOptions.Update:
                     _selectedMenuItemText = "Update";
+                    break;
+                case MainMenuOptions.ComingSoon:
+                    _selectedMenuItemText = "Coming Soon";
                     break;
                 case MainMenuOptions.None:
                 default:
@@ -190,7 +216,7 @@ namespace BeatDetection.GUI
         public override void Draw(double time)
         {
             _shaderProgram.Bind();
-            _shaderProgram.SetUniform("mvp", SceneManager.ScreenCamera.ModelViewProjection);
+            _shaderProgram.SetUniform("mvp", SceneManager.ScreenCamera.WorldModelViewProjection);
             _shaderProgram.SetUniform("in_color", Color4.White);
 
             //Draw the player
@@ -198,11 +224,9 @@ namespace BeatDetection.GUI
 
             //Draw the center polygon
             _centerPolygon.Draw(time);
-            _singlePlayerPolygon.Draw(time);
 
             _shaderProgram.SetUniform("in_color", Color4.Black);
             _centerPolygon.DrawOutline(time);
-            _singlePlayerPolygon.DrawOutline(time);
 
             //Cleanup the program
             _shaderProgram.UnBind();
@@ -233,6 +257,7 @@ namespace BeatDetection.GUI
         Options = 3,
         Exit = 4,
         Update = 5,
+        ComingSoon = 0,
         None = -1
     }
 }
