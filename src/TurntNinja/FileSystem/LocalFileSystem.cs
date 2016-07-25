@@ -18,13 +18,13 @@ namespace TurntNinja.FileSystem
         List<FileBrowserEntry> _drives;
         List<FileBrowserEntry> _localFileSystemEntries;
         List<FileBrowserEntry> _userFolders;
-        DirectoryHandler _directoryHandler;
+        IDirectoryHandler _directoryHandler;
 
         public ReadOnlyCollection<FileBrowserEntry> FileSystemEntryCollection { get { return _localFileSystemEntries.AsReadOnly(); } }
         public List<IFileSystem> FileSystemCollection { get; set; }
         public string FriendlyName { get { return "Local File System"; } }
 
-        public LocalFileSystem(DirectoryHandler directoryHandler)
+        public LocalFileSystem(IDirectoryHandler directoryHandler)
         {
             _fileFilter = CSCore.Codecs.CodecFactory.Instance.GetSupportedFileExtensions();
             _directoryHandler = directoryHandler;
