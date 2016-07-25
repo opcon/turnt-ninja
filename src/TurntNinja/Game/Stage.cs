@@ -257,7 +257,6 @@ namespace TurntNinja.Game
 
         public void Dispose()
         {
-            MultiplierFont.Dispose();
             MultiplierFontDrawing.Dispose();
             ScoreFontDrawing.Dispose();
             StageGeometry.Dispose();
