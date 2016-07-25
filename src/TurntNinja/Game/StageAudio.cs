@@ -13,7 +13,7 @@ using OpenTK;
 using Substructio.Core;
 
 
-namespace BeatDetection.Game
+namespace TurntNinja.Game
 {
     class StageAudio : IDisposable
     {

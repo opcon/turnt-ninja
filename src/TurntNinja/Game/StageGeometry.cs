@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BeatDetection.Audio;
-using BeatDetection.Core;
+using TurntNinja.Audio;
+using TurntNinja.Core;
 using ClipperLib;
 using ColorMine.ColorSpaces;
 using OpenTK;
@@ -13,7 +13,7 @@ using Substructio.Core.Math;
 using HUSL;
 using OpenTK.Input;
 
-namespace BeatDetection.Game
+namespace TurntNinja.Game
 {
     class StageGeometry : IDisposable
     {

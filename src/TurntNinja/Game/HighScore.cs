@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BeatDetection.Game
+namespace TurntNinja.Game
 {
     public class HighScoreEntry
     {

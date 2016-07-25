@@ -10,7 +10,7 @@ using Substructio.Core;
 using Substructio.Core.Math;
 using Substructio.Graphics.OpenGL;
 
-namespace BeatDetection
+namespace TurntNinja
 {
     class Player
     {

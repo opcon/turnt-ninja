@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using BeatDetection.Core;
-using BeatDetection.Game;
+using TurntNinja.Core;
+using TurntNinja.Game;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
@@ -14,7 +14,7 @@ using Gwen;
 using Substructio.Core;
 using Key = OpenTK.Input.Key;
 
-namespace BeatDetection.GUI
+namespace TurntNinja.GUI
 {
     class GameScene : Scene
     {

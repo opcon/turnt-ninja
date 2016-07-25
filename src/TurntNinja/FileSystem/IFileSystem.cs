@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CSCore;
-using BeatDetection.Audio;
+using TurntNinja.Audio;
 
 
-namespace BeatDetection.FileSystem
+namespace TurntNinja.FileSystem
 {
     public interface IFileSystem
     {

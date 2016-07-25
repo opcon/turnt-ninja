@@ -5,11 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BeatDetection.Audio;
+using TurntNinja.Audio;
 using System.Diagnostics;
 using Substructio.Core;
 
-namespace BeatDetection.FileSystem
+namespace TurntNinja.FileSystem
 {
     class LocalFileSystem : IFileSystem
     {

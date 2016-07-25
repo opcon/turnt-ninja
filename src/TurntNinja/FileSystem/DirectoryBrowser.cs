@@ -7,13 +7,13 @@ using Substructio;
 using Substructio.GUI;
 using Substructio.Core;
 using OpenTK.Input;
-using BeatDetection.GUI;
+using TurntNinja.GUI;
 using OpenTK;
 using OpenTK.Graphics;
 using System.Globalization;
 using System.IO;
 
-namespace BeatDetection.FileSystem
+namespace TurntNinja.FileSystem
 {
     class DirectoryBrowser
     {

@@ -13,7 +13,7 @@ using System.Xml.Linq;
 using System.IO;
 using System.Threading;
 
-namespace BeatDetection.GUI
+namespace TurntNinja.GUI
 {
     class UpdateScene : Scene
     {

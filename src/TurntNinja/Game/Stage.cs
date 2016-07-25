@@ -3,9 +3,9 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatDetection.Audio;
-using BeatDetection.Core;
-using BeatDetection.Generation;
+using TurntNinja.Audio;
+using TurntNinja.Core;
+using TurntNinja.Generation;
 using OpenTK;
 using OpenTK.Input;
 using QuickFont;
@@ -23,7 +23,7 @@ using CSCore;
 using System.Globalization;
 using CSCore.SoundOut;
 
-namespace BeatDetection.Game
+namespace TurntNinja.Game
 {
     internal class Stage : IDisposable
     {

@@ -7,7 +7,7 @@ using System.Threading;
 using Gwen.Control;
 using Substructio.Core.Settings;
 
-namespace BeatDetection.Core.Settings
+namespace TurntNinja.Core.Settings
 {
     class PropertySettings : IGameSettings
     {

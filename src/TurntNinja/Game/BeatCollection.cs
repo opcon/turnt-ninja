@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BeatDetection.Core;
+using TurntNinja.Core;
 using ClipperLib;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using Substructio.Core.Math;
 using Substructio.Graphics.OpenGL;
 
-namespace BeatDetection.Game
+namespace TurntNinja.Game
 {
     class BeatCollection : IDisposable
     {

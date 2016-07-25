@@ -12,9 +12,9 @@ using Gwen.Control.Layout;
 using Gwen.Input;
 using Substructio.Core;
 using Key = OpenTK.Input.Key;
-using BeatDetection.Game;
+using TurntNinja.Game;
 
-namespace BeatDetection.GUI
+namespace TurntNinja.GUI
 {
     class OptionsScene : Scene
     {

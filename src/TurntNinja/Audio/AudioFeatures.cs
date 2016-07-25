@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using OnsetDetection;
 using CSCore;
 
-namespace BeatDetection.Audio
+namespace TurntNinja.Audio
 {
     class AudioFeatures
     {

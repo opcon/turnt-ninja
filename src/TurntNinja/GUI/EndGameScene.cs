@@ -10,12 +10,12 @@ using QuickFont;
 using QuickFont.Configuration;
 using Substructio.Core;
 using Substructio.GUI;
-using BeatDetection.Game;
+using TurntNinja.Game;
 using System.IO;
 using LiteDB;
 using System.Globalization;
 
-namespace BeatDetection.GUI
+namespace TurntNinja.GUI
 {
     class EndGameScene : Scene
     {

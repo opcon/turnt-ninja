@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using OpenTK.Graphics;
 
-namespace BeatDetection.Core
+namespace TurntNinja.Core
 {
     public struct HUSLColor
     {

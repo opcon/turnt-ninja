@@ -1,4 +1,4 @@
-﻿using BeatDetection.FileSystem;
+﻿using TurntNinja.FileSystem;
 using CSCore;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BeatDetection.Audio
+namespace TurntNinja.Audio
 {
     public class Song : IDisposable
     {

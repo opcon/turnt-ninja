@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BeatDetection.Core;
+using TurntNinja.Core;
 using Gwen.Skin;
 using OpenTK;
 using OpenTK.Graphics;
@@ -17,7 +17,7 @@ using Substructio.Core.Math;
 using Substructio.Graphics.OpenGL;
 using Substructio.GUI;
 
-namespace BeatDetection.GUI
+namespace TurntNinja.GUI
 {
     class MenuScene : Scene
     {

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
 
-namespace BeatDetection.Game
+namespace TurntNinja.Game
 {
     public class DifficultyOptions
     {

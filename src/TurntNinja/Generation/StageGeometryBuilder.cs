@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BeatDetection.Audio;
-using BeatDetection.Core;
-using BeatDetection.Game;
+using TurntNinja.Audio;
+using TurntNinja.Core;
+using TurntNinja.Game;
 using ColorMine.ColorSpaces;
 using OpenTK.Graphics;
 using Substructio.Core.Math;
 using Substructio.Graphics.OpenGL;
 
-namespace BeatDetection.Generation
+namespace TurntNinja.Generation
 {
     class StageGeometryBuilder
     {

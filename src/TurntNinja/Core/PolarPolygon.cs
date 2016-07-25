@@ -9,7 +9,7 @@ using Substructio.Core;
 using Substructio.Core.Math;
 using Substructio.Graphics.OpenGL;
 
-namespace BeatDetection.Core
+namespace TurntNinja.Core
 {
     struct PulseData
     {

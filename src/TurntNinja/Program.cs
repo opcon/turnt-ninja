@@ -1,12 +1,12 @@
-﻿
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
-using BeatDetection.Core.Settings;
-using BeatDetection.Game;
-using BeatDetection.GUI;
+using TurntNinja.Core.Settings;
+using TurntNinja.Game;
+using TurntNinja.GUI;
+using TurntNinja.Logging;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
@@ -21,7 +21,7 @@ using Squirrel;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace BeatDetection
+namespace TurntNinja
 {
     /// <summary>
     /// Demonstrates the GameWindow class.

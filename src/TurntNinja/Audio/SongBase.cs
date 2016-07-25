@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BeatDetection.Audio
+namespace TurntNinja.Audio
 {
     public class SongBase : IEquatable<SongBase>
     {

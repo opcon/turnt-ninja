@@ -4,12 +4,12 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BeatDetection.Audio;
+using TurntNinja.Audio;
 using SoundCloud.API.Client;
 using SoundCloud.API.Client.Objects;
 using System.Net;
 
-namespace BeatDetection.FileSystem
+namespace TurntNinja.FileSystem
 {
     class SoundCloudFileSystem : IFileSystem
     {

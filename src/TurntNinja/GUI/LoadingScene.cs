@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using BeatDetection.Audio;
-using BeatDetection.Core;
-using BeatDetection.Game;
+using TurntNinja.Audio;
+using TurntNinja.Core;
+using TurntNinja.Game;
 using OpenTK;
 using OpenTK.Graphics;
 using QuickFont;
@@ -21,7 +21,7 @@ using OpenTK.Graphics.OpenGL4;
 using Substructio.Core;
 using System.Diagnostics;
 
-namespace BeatDetection.GUI
+namespace TurntNinja.GUI
 {
     class LoadingScene : Scene
     {

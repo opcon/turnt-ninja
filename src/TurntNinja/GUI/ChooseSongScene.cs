@@ -5,17 +5,17 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BeatDetection.Core;
+using TurntNinja.Core;
 using Substructio.Core;
 using Substructio.Graphics.OpenGL;
 using Substructio.GUI;
 using Key = OpenTK.Input.Key;
 using OpenTK;
 using OpenTK.Graphics;
-using BeatDetection.FileSystem;
-using BeatDetection.Audio;
+using TurntNinja.FileSystem;
+using TurntNinja.Audio;
 
-namespace BeatDetection.GUI
+namespace TurntNinja.GUI
 {
     class ChooseSongScene : Scene
     {
