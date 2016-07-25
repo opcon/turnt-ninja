@@ -61,6 +61,8 @@ namespace TurntNinja.GUI
 
         public void SongChosen(Song song)
         {
+            ServiceLocator.Analytics.SetCustomVariable(1, "File System", song.FileSystem.FriendlyName, Substructio.Logging.CustomVariableScope.ApplicationView);
+            ServiceLocator.Analytics.TrackEvent("Song", "Play", song.FileSystem.FriendlyName);
             if (_recentSongs.Count >= (int)SceneManager.GameSettings["MaxRecentSongCount"])
                 _recentSongs.RemoveAt(_recentSongs.Count - 1);
             _recentSongs.Remove(song.SongBase);
