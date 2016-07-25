@@ -208,12 +208,10 @@ namespace TurntNinja
         protected override void OnUnload(EventArgs e)
         {
             _gameSceneManager.Dispose();
-            _gameSettings["Debug"] = Debug;
+            _gameSettings["Debug"] = DebugMode;
             _gameSettings.Save();
             base.OnUnload(e);
         }
-
-        #endregion
 
         [STAThread]
         public static void Main(string[] args)
