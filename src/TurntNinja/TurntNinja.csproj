@@ -98,6 +98,7 @@
     <Compile Include="Generation\StageGeometryBuilder.cs" />
     <Compile Include="GUI\ChooseSongScene.cs" />
     <Compile Include="GUI\EndGameScene.cs" />
+    <Compile Include="GUI\FirstRunScene.cs" />
     <Compile Include="GUI\GameScene.cs" />
     <Compile Include="GUI\LoadingScene.cs" />
     <Compile Include="GUI\MenuScene.cs" />
