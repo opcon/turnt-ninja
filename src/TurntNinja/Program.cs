@@ -324,57 +324,11 @@ namespace TurntNinja
                 },
                 typeof(Splat.ILogger));
 
-
-
             int rX = (int)gameSettings["ResolutionX"];
             int rY = (int)gameSettings["ResolutionY"];
             int FSAASamples = (int)gameSettings["AntiAliasingSamples"];
             GraphicsMode graphicsMode = new GraphicsMode(32, 24, 8, FSAASamples, GraphicsMode.Default.AccumulatorFormat, 3);
 
-            //// database init
-            //using (var db = new LiteDB.LiteDatabase(Path.Combine(directoryHandler["AppData"].FullName, "turnt-ninja.db")))
-            //{
-            //    db.BeginTrans();
-            //    var highScores = db.GetCollection("highscores");
-            //    var r = new Random();
-
-            //    for (int i = 0; i < 100000; i++)
-            //    {
-            //        var doc = new LiteDB.BsonDocument();
-            //        doc.Add("ID", r.Next());
-            //        doc.Add("songName", new LiteDB.BsonValue("This is a test name"));
-            //        doc.Add("songID", new LiteDB.BsonValue(directoryHandler["Application"].FullName));
-            //        doc.Add("players", new LiteDB.BsonValue(new List<LiteDB.BsonValue>()
-            //        {
-            //            "opcon",
-            //            "hayden",
-            //            "noah",
-            //            "matt"
-            //        }));
-            //        doc.Add("scores", new LiteDB.BsonValue(new List<LiteDB.BsonValue>()
-            //        {
-            //            r.Next(),
-            //            r.Next(),
-            //            r.Next(),
-            //            r.Next()
-            //        }));
-            //        highScores.Insert(doc);
-            //    }
-                
-            //    highScores.EnsureIndex("songID");
-            //    highScores.EnsureIndex("ID");
-            //    db.Commit();
-            //}
-
-            //using (var db = new LiteDB.LiteDatabase(Path.Combine(directoryHandler["AppData"].FullName, "turnt-ninja.db")))
-            //{
-            //    var s = Stopwatch.StartNew();
-            //    var highScores = db.GetCollection("highscores");
-            //    var scores = highScores.FindAll();
-            //    var s1 = highScores.FindOne(LiteDB.Query.EQ("ID", 1037482557));
-            //    s.Stop();
-            //    var m = s.ElapsedMilliseconds;
-            //}
             if ((bool)ServiceLocator.Settings["Analytics"])
                 ServiceLocator.Analytics.TrackApplicationStartup();
 
