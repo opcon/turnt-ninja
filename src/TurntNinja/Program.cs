@@ -38,28 +38,26 @@ namespace TurntNinja
         private Stopwatch _watch;
 
         private double _lag = 0.0;
-        private double _dt = 16.0/1000;
+        private double _dt = 16.0 / 1000;
 
         private Stage _stage;
 
         private IGameSettings _gameSettings;
-        private DirectoryHandler _directoryHandler;
+        private IDirectoryHandler _directoryHandler;
         private static CrashReporter _crashReporter;
 
-        public ValueWrapper<bool> Debug = new ValueWrapper<bool>();
+        public ValueWrapper<bool> DebugMode = new ValueWrapper<bool>();
 
-        public GameController(IGameSettings gameSettings, int rX, int rY, GraphicsMode graphicsMode, DirectoryHandler directoryHandler)
+        public GameController(IGameSettings gameSettings, int rX, int rY, GraphicsMode graphicsMode, IDirectoryHandler directoryHandler)
             : base(rX, rY, graphicsMode)
         {
             KeyDown += Keyboard_KeyDown;
-            this.VSync = (bool) gameSettings["VSync"] ? VSyncMode.On : VSyncMode.Off;
-            this.WindowState = (WindowState) gameSettings["WindowState"];
-            Debug.Value = (bool)gameSettings["Debug"];
+            this.VSync = (bool)gameSettings["VSync"] ? VSyncMode.On : VSyncMode.Off;
+            this.WindowState = (WindowState)gameSettings["WindowState"];
+            DebugMode.Value = (bool)gameSettings["Debug"];
             _gameSettings = gameSettings;
             _directoryHandler = directoryHandler;
         }
-
-        #region Keyboard_KeyDown
 
         /// <summary>
         /// Occurs when a key is pressed.
@@ -74,16 +72,12 @@ namespace TurntNinja
             }
         }
 
-        #endregion
-
         protected override void OnKeyPress(KeyPressEventArgs e)
         {
             if (Focused)
                 InputSystem.KeyPressed(e);
             base.OnKeyPress(e);
         }
-
-        #region OnLoad
 
         /// <summary>
         /// Setup OpenGL and load resources here.
@@ -96,12 +90,13 @@ namespace TurntNinja
             var menuFontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Oswald-Bold.ttf");
             var versionFontPath = _directoryHandler.Locate("Fonts", "./Oswald-Regular.ttf");
             var bodyFontPath = _directoryHandler.Locate("Fonts", "./Open Sans/OpenSans-Light.ttf");
+            var largeBodyFontPath = _directoryHandler.Locate("Fonts", "./Open Sans/OpenSans-Regular.ttf");
             //var selectedFontPath = _directoryHandler.Locate("Fonts", "./Open Sans/OpenSans-Bold.ttf");
             var selectedFontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Oswald-Bold.ttf");
 
             Console.WriteLine("Initializing");
             var gameCamera = new Camera(prefWidth, prefHeight, Width, Height, Mouse);
-            gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int) (prefHeight * 20));
+            gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int)(prefHeight * 20));
 
             var fontLibrary = new FontLibrary();
 
@@ -112,19 +107,25 @@ namespace TurntNinja
             // Menu font
             fontLibrary.AddFont(
                                 new GameFont(new QFont(menuFontPath, 50, new QFontBuilderConfiguration(true)),
-                                GameFontType.Menu, 
+                                GameFontType.Menu,
                                 new Vector2(Width, Height)));
 
             // Menu World font
             fontLibrary.AddFont(
                                 new GameFont(new QFont(menuFontPath, 70, new QFontBuilderConfiguration(true) { SuperSampleLevels = 2 }),
-                                "menuworld", 
+                                "menuworld",
                                 new Vector2(Width, Height)));
 
             // Heading font
             fontLibrary.AddFont(
-                                new GameFont(new QFont(menuFontPath, 20, new QFontBuilderConfiguration(true)),
-                                GameFontType.Heading, 
+                                new GameFont(new QFont(menuFontPath, 20, new QFontBuilderConfiguration(true) { SuperSampleLevels = 2 }),
+                                GameFontType.Heading,
+                                new Vector2(Width, Height)));
+
+            // Large body font
+            fontLibrary.AddFont(
+                                new GameFont(new QFont(largeBodyFontPath, 25, new QFontBuilderConfiguration() { SuperSampleLevels = 1 }),
+                                "largebody",
                                 new Vector2(Width, Height)));
 
             // Version text font
@@ -139,7 +140,7 @@ namespace TurntNinja
                                 "selected",
                                 new Vector2(Width, Height)));
 
-            _gameSceneManager = new SceneManager(this, gameCamera, fontLibrary, bodyFontPath, _directoryHandler, _gameSettings, Debug);
+            _gameSceneManager = new SceneManager(this, gameCamera, fontLibrary, bodyFontPath, _directoryHandler, _gameSettings, DebugMode);
             _gameSceneManager.AddScene(new MenuScene(), null);
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
@@ -154,8 +155,6 @@ namespace TurntNinja
             _watch = new Stopwatch();
         }
 
-        #endregion
-
         /// <summary>
         /// Respond to resize events here.
         /// </summary>
@@ -167,8 +166,6 @@ namespace TurntNinja
 
             _gameSceneManager.Resize(e);
         }
-
-        #region OnUpdateFrame
 
         /// <summary>
         /// Add your game logic here.
@@ -182,17 +179,13 @@ namespace TurntNinja
             {
                 _gameSceneManager.Update(_dt);
                 if (InputSystem.NewKeys.Contains(Key.F12))
-                    Debug.Value = !Debug.Value;
+                    DebugMode.Value = !DebugMode.Value;
 
                 InputSystem.Update(this.Focused, _dt);
 
                 _lag -= _dt;
             }
         }
-
-        #endregion
-
-        #region OnRenderFrame
 
         /// <summary>
         /// Add your game rendering code here.
