@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace BeatDetection.Properties {
+namespace TurntNinja.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -151,9 +151,9 @@ namespace BeatDetection.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Collections.Generic.List<BeatDetection.Audio.SongBase> RecentSongs {
+        public global::System.Collections.Generic.List<TurntNinja.Audio.SongBase> RecentSongs {
             get {
-                return ((global::System.Collections.Generic.List<BeatDetection.Audio.SongBase>)(this["RecentSongs"]));
+                return ((global::System.Collections.Generic.List<TurntNinja.Audio.SongBase>)(this["RecentSongs"]));
             }
             set {
                 this["RecentSongs"] = value;
@@ -265,6 +265,63 @@ namespace BeatDetection.Properties {
             }
             set {
                 this["PlayerName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string UserID {
+            get {
+                return ((string)(this["UserID"]));
+            }
+            set {
+                this["UserID"] = value;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("oeoywrZVrjYlcctPZZ3uTXFPp9ItVUkR3w28u+WDdd9SqYzE1PRkb+WPZsYQ+VvOfUjFQOlQ1tXc7oDXY" +
+            "4Km7A==")]
+        public string Piwik {
+            get {
+                return ((string)(this["Piwik"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("jA9OAo1hWfHPOoMipHAAaFxFf2N7iP8zuBEI9LVQq5ET0vc8yqnLsO/oNMqCcki0rvD4CQrkMz7fWHQ4r" +
+            "WuHAyRfY+7nxGinxdbgIaceyVtKOJLsSnbBh4/NBq3OkBIAFG2GTxUhWqyJbxNhgzbu+0HM8jv43LY53" +
+            "bxhwIALt+A=")]
+        public string Sentry {
+            get {
+                return ((string)(this["Sentry"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Analytics {
+            get {
+                return ((bool)(this["Analytics"]));
+            }
+            set {
+                this["Analytics"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool FirstRun {
+            get {
+                return ((bool)(this["FirstRun"]));
+            }
+            set {
+                this["FirstRun"] = value;
             }
         }
     }

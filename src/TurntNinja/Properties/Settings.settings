@@ -1,5 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="BeatDetection.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TurntNinja.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="AudioCorrection" Type="System.Single" Scope="User">
@@ -35,7 +35,7 @@
     <Setting Name="OnsetAdaptiveWhitening" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="RecentSongs" Type="System.Collections.Generic.List&lt;BeatDetection.Audio.SongBase&gt;" Scope="User">
+    <Setting Name="RecentSongs" Type="System.Collections.Generic.List&lt;TurntNinja.Audio.SongBase&gt;" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="MaxRecentSongCount" Type="System.Int32" Scope="User">
@@ -64,6 +64,21 @@
     </Setting>
     <Setting Name="PlayerName" Type="System.String" Scope="User">
       <Value Profile="(Default)">opcon</Value>
+    </Setting>
+    <Setting Name="UserID" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Piwik" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">oeoywrZVrjYlcctPZZ3uTXFPp9ItVUkR3w28u+WDdd9SqYzE1PRkb+WPZsYQ+VvOfUjFQOlQ1tXc7oDXY4Km7A==</Value>
+    </Setting>
+    <Setting Name="Sentry" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">jA9OAo1hWfHPOoMipHAAaFxFf2N7iP8zuBEI9LVQq5ET0vc8yqnLsO/oNMqCcki0rvD4CQrkMz7fWHQ4rWuHAyRfY+7nxGinxdbgIaceyVtKOJLsSnbBh4/NBq3OkBIAFG2GTxUhWqyJbxNhgzbu+0HM8jv43LY53bxhwIALt+A=</Value>
+    </Setting>
+    <Setting Name="Analytics" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="FirstRun" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>
