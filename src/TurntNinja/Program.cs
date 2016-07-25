@@ -112,7 +112,7 @@ namespace TurntNinja
 
             // Menu World font
             fontLibrary.AddFont(
-                                new GameFont(new QFont(menuFontPath, 70, new QFontBuilderConfiguration(true) { SuperSampleLevels = 2 }),
+                new GameFont(new QFont(menuFontPath, 70, new QFontBuilderConfiguration(true) { SuperSampleLevels = 2, PageMaxTextureSize =  8192, Characters = CharacterSet.BasicSet }),
                                 "menuworld",
                                 new Vector2(Width, Height)));
 
