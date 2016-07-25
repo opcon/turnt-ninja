@@ -21,6 +21,7 @@ nuget OpenTK.Next >= 1.2.2336.6514-pre framework: >= net45
 nuget QuickFont.Desktop >= 4.3.6020.17547 framework: >= net45
 nuget SharpFont >= 3.1.0 framework: >= net45
 nuget SharpFont.Dependencies >= 2.6 framework: >= net45
+nuget SharpRaven
 nuget Splat >= 1.6.2 framework: >= net45
 nuget squirrel.windows >= 1.4.0 framework: >= net45
 nuget TagLib.Portable >= 1.0.4 framework: >= net45
