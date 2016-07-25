@@ -175,8 +175,8 @@ Target "DeployMerged" (fun _ ->
     // NuGet.Squirrel.dll to the directory we're searching, but named the dlls we need to reference.
     CopyFile (tempDirName.Value + "Microsoft.Data.OData.dll") (tempDirName.Value + "NuGet.Squirrel.dll")
     CopyFile (tempDirName.Value + "Microsoft.Data.Services.Client.dll") (tempDirName.Value + "NuGet.Squirrel.dll")
-    let searchDir = [tempDirName.Value]
-//    let searchDir = [tempDirName.Value; "/usr/lib/mono/4.5/Facades/"]
+    //let searchDir = [tempDirName.Value]
+    let searchDir = [tempDirName.Value; "/usr/lib/mono/4.5/Facades/"]
     ILMerge (fun p ->
             {p with
                 ToolPath = findToolInSubPath ILMergeToolName ""
