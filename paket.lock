@@ -6,13 +6,15 @@ NUGET
     DeltaCompressionDotNet (1.0) - framework: >= net45
     HUSL (1.0.1) - framework: >= net45
     LiteDB (1.0.4) - framework: >= net45
-    MathNet.Numerics (3.11.1) - framework: >= net45
+    MathNet.Numerics (3.12) - framework: >= net45
     Mono.Cecil (0.9.6.1) - framework: >= net45
-    Newtonsoft.Json (9.0.1) - framework: >= net45
+    Newtonsoft.Json (9.0.1)
     NuGet.CommandLine (3.4.3)
+    SharpRaven (2.1)
+      Newtonsoft.Json (>= 6.0.6)
     Splat (1.6.2) - framework: >= net45
-    squirrel.windows (1.4) - framework: >= net45
-      DeltaCompressionDotNet (>= 1.0)
+    squirrel.windows (1.4.2) - framework: >= net45
+      DeltaCompressionDotNet (>= 1.0 < 2.0)
       Mono.Cecil (>= 0.9.6.1)
       Splat (>= 1.6.2)
     TagLib.Portable (1.0.4) - framework: >= net45
@@ -42,7 +44,7 @@ NUGET
 GROUP Build
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.29.2)
+    FAKE (4.31.1)
 
 GROUP Deploy
 NUGET
