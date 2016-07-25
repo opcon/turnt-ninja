@@ -207,6 +207,7 @@ namespace TurntNinja
 
         protected override void OnUnload(EventArgs e)
         {
+            ServiceLocator.Analytics.TrackApplicationShutdown();
             _gameSceneManager.Dispose();
             _gameSettings["Debug"] = DebugMode;
             _gameSettings.Save();
@@ -216,18 +217,71 @@ namespace TurntNinja
         [STAThread]
         public static void Main(string[] args)
         {
-            // Load game settings
-            IGameSettings gameSettings = new PropertySettings();
-            gameSettings.Load();
+            // Load services
+            ServiceLocator.Settings = new PropertySettings();
+            ServiceLocator.Settings.Load();
 
-            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
-            Console.WriteLine(Assembly.GetEntryAssembly().Location);
-            Console.WriteLine(Assembly.GetEntryAssembly().CodeBase);
-            Console.WriteLine(Assembly.GetExecutingAssembly().Location);
-            Console.WriteLine(Assembly.GetExecutingAssembly().CodeBase);
+            // DEBUG SETTINGS - Force first run
+            //ServiceLocator.Settings["Analytics"] = false;
+            //ServiceLocator.Settings["FirstRun"] = true;
 
-            //initialise directory handler
-            var directoryHandler = new DirectoryHandler();
+            string PiwikURL = AESEncryption.Decrypt((string)ServiceLocator.Settings["Piwik"]);
+            string SentryURL = AESEncryption.Decrypt((string)ServiceLocator.Settings["Sentry"]);
+
+#if DEBUG
+            string sentryEnvironment = "debug";
+#else
+            string sentryEnvironment = "release";
+#endif
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            string gameVersion = $"{version.Major}.{version.Minor}.{version.Build}";
+
+            // Generate or load user ID for Piwik
+            Guid userGUID;
+
+            var userID = (string)ServiceLocator.Settings["UserID"];
+            if (!Guid.TryParse(userID, out userGUID)) userGUID = Guid.NewGuid();
+
+            // Save user GUID
+            ServiceLocator.Settings["UserID"] = userGUID.ToString();
+
+            Platform runningPlatform = PlatformDetection.RunningPlatform();
+            string platformVersion = (runningPlatform == Platform.Windows) ? PlatformDetection.GetWindowsVersionFriendlyName() : Environment.OSVersion.Version.ToString();
+
+            // Load Sentry service
+            if ((bool)ServiceLocator.Settings["Analytics"] || (bool)ServiceLocator.Settings["FirstRun"])
+            {
+                ServiceLocator.ErrorReporting = new SentryErrorReporting(
+                    SentryURL,
+                    sentryEnvironment,
+                    gameVersion,
+                    userGUID.ToString(),
+                    runningPlatform,
+                    platformVersion);
+            }
+
+            int PiwikAppID = 3;
+
+            // Load Piwik service
+            if ((bool)ServiceLocator.Settings["Analytics"] || (bool)ServiceLocator.Settings["FirstRun"])
+            {
+                ServiceLocator.Analytics = new PiwikAnalytics(
+                    PiwikAppID,
+                    PiwikURL,
+                    runningPlatform,
+                    platformVersion,
+                    DisplayDevice.Default.Width,
+                    DisplayDevice.Default.Height,
+                    gameVersion,
+                    userGUID.ToString(),
+                    "http://turntninja");
+            }
+
+            ServiceLocator.Directories = new DirectoryHandler();
+
+            var directoryHandler = ServiceLocator.Directories;
+            var gameSettings = ServiceLocator.Settings;
+
             //set application path
             directoryHandler.AddPath("Application", AppDomain.CurrentDomain.BaseDirectory);
             //set base path
@@ -240,7 +294,7 @@ namespace TurntNinja
                 throw new Exception("Couldn't find resource folder location");
             }
 
-            directoryHandler.AddPath("AppData", 
+            directoryHandler.AddPath("AppData",
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), (string)gameSettings["AppDataFolderName"]));
 
             directoryHandler.AddPath("Resources", Path.Combine(directoryHandler["Base"].FullName, "Content"));
@@ -321,6 +375,8 @@ namespace TurntNinja
             //    s.Stop();
             //    var m = s.ElapsedMilliseconds;
             //}
+            if ((bool)ServiceLocator.Settings["Analytics"])
+                ServiceLocator.Analytics.TrackApplicationStartup();
 
             using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode, directoryHandler))
             {
@@ -334,11 +390,22 @@ namespace TurntNinja
             try
             {
                 Exception ex = (Exception)e.ExceptionObject;
-                _crashReporter.LogError(ex);
+
+                try
+                {
+                    ServiceLocator.ErrorReporting.ReportError(ex);
+                }
+                catch { }
+
+                try
+                {
+                    _crashReporter.LogError(ex);
+                }
+                catch { }
             }
             finally
             {
-                System.Environment.Exit(-1);
+                Environment.Exit(-1);
             }
         }
 
