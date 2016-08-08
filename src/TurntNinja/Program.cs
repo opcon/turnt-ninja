@@ -143,7 +143,7 @@ namespace TurntNinja
             _gameSceneManager = new SceneManager(this, gameCamera, fontLibrary, bodyFontPath, _directoryHandler, _gameSettings, DebugMode);
             _gameSceneManager.AddScene(new MenuScene(), null);
 
-            if ((bool)ServiceLocator.Settings["FirstRun"] || Debugger.IsAttached)
+            if ((bool)ServiceLocator.Settings["FirstRun"])
                 _gameSceneManager.AddScene(new FirstRunScene(), null);
 
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
