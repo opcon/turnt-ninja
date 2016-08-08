@@ -19,7 +19,8 @@ namespace TurntNinja.Generation
         private AudioFeatures _audioFeatures;
         private GeometryBuilderOptions _builderOptions;
 
-        private BeatCollection _beats;
+        private OnsetCollection _onsets;
+        private OnsetDrawing _onsetDrawing;
         private float[] _beatFrequencies;
         private Color4 _segmentStartColour;
         private Random _random;
@@ -34,15 +35,15 @@ namespace TurntNinja.Generation
             _builderOptions.RandomFunction = _random;
 
             BuildGoodBeatsList();
+            BuildBeatFrequencyList();
 
             BuildGeometry();
-            BuildBeatFrequencyList();
             SetStartColour();
 
             var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 50000, -20, 0);
             backgroundPolygon.ShaderProgram = _builderOptions.GeometryShaderProgram;
 
-            return new StageGeometry(_beats, _segmentStartColour, _random, _beatFrequencies) {BackgroundPolygon = backgroundPolygon};
+            return new StageGeometry(_onsets, _onsetDrawing, _segmentStartColour, _random) {BackgroundPolygon = backgroundPolygon};
         }
 
         private void BuildGoodBeatsList()
@@ -100,13 +101,15 @@ namespace TurntNinja.Generation
 
         private void BuildGeometry()
         {
-            _beats = new BeatCollection(_goodBeats.Count, _builderOptions.GeometryShaderProgram);
+            _onsets = new OnsetCollection(_goodBeats.Count);
+            _onsets.AddOnsets(_goodBeats.ToArray(), _beatFrequencies);
+            _onsetDrawing = new OnsetDrawing(_onsets, _builderOptions.GeometryShaderProgram);
 
             //intialise state variables for algorithim
             int prevStart = 0;
             int prevSkip = 0;
             //set initial previous time to -1 so that the first polygon generated is always unique and doesn't trigger 'beat too close to previous' case
-            float prevTime = -1.0f;
+            double prevTime = -1.0;
             float samePatternChance = 0.90f;
 
             var structureList = new List<List<int>>();
@@ -168,14 +171,15 @@ namespace TurntNinja.Generation
                     else sides[i] = false;
                 }
 
-                _beats.AddBeat(sides.ToList(), _builderOptions.PolygonVelocity, _builderOptions.PolygonWidth, _builderOptions.PolygonMinimumRadius, b);
+                _onsetDrawing.AddOnsetDrawing(sides.ToList(), _builderOptions.PolygonVelocity, _builderOptions.PolygonWidth, _builderOptions.PolygonMinimumRadius, b);
 
                 //update the variables holding the previous state of the algorithim.
                 prevTime = b;
                 prevStart = start;
                 prevSkip = skip;
             }
-            _beats.Initialise();
+            _onsetDrawing.Initialise();
+            _onsets.Initialise();
         }
 
         private void SetStartColour()

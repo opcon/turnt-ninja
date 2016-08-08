@@ -66,12 +66,12 @@ namespace TurntNinja.Game
 
         public int CurrentPolygon
         {
-            get {return StageGeometry.CurrentBeat;}
+            get {return StageGeometry.CurrentOnset;}
         }
 
         public int PolygonCount
         {
-            get { return StageGeometry.BeatCount; }
+            get { return StageGeometry.OnsetCount; }
         }
 
         public float ScoreMultiplier
@@ -108,6 +108,8 @@ namespace TurntNinja.Game
 
             if (!song.SongAudioLoaded)
                 song.LoadSongAudio();
+
+            song.SongAudio.Position = 0;
 
             var tempStream = new MemoryStream();
             song.SongAudio.WriteToStream(tempStream);
@@ -192,7 +194,7 @@ namespace TurntNinja.Game
 
                 if (Running)
                 {
-                    if (StageGeometry.CurrentBeat == StageGeometry.BeatCount && _stageAudio.IsStopped)
+                    if (StageGeometry.CurrentOnset == StageGeometry.OnsetCount && _stageAudio.IsStopped)
                     {
                         EndTime = TotalTime;
                         Ended = true;
@@ -213,15 +215,15 @@ namespace TurntNinja.Game
                 }
             }
 
-            if (StageGeometry.CurrentBeat < StageGeometry.BeatCount)
+            if (StageGeometry.CurrentOnset < StageGeometry.OnsetCount)
             {
                 SceneManager.ScreenCamera.TargetScale =
                     new Vector2(0.9f*
                                 (0.80f +
                                  Math.Min(1,
-                                     ((StageGeometry.BeatFrequencies[StageGeometry.CurrentBeat] - StageGeometry.MinBeatFrequency)/(StageGeometry.MaxBeatFrequency - StageGeometry.MinBeatFrequency))*
+                                     ((StageGeometry.Onsets.BeatFrequencies[StageGeometry.CurrentOnset] - StageGeometry.Onsets.MinBeatFrequency)/(StageGeometry.Onsets.MaxBeatFrequency - StageGeometry.Onsets.MinBeatFrequency))*
                                      0.5f)));
-                SceneManager.ScreenCamera.ScaleChangeMultiplier = Math.Min(StageGeometry.BeatFrequencies[StageGeometry.CurrentBeat], 2)*2;
+                SceneManager.ScreenCamera.ScaleChangeMultiplier = Math.Min(StageGeometry.Onsets.BeatFrequencies[StageGeometry.CurrentOnset], 2)*2;
             }
 
             if (!InputSystem.CurrentKeys.Contains(Key.F3))
@@ -260,13 +262,14 @@ namespace TurntNinja.Game
             MultiplierFontDrawing.Dispose();
             ScoreFontDrawing.Dispose();
             StageGeometry.Dispose();
-            _stageAudio.Dispose();
+            //_stageAudio.Dispose();
         }
 
-        public void Reset()
+        public void Reset(bool resetPlayerScore)
         {
             _stageAudio.FadeOut(1000, 0, 0.01f, 2);
             StageGeometry.CenterPolygon.Position.Azimuth = 0;
+            if (resetPlayerScore) StageGeometry.Player.Reset();
             //reset hit hexagons
             //StageGeometry.Player.Hits = 0;
         }

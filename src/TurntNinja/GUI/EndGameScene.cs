@@ -65,7 +65,7 @@ namespace TurntNinja.GUI
                 _newScore = new PlayerScore
                 {
                     Name = (string)SceneManager.GameSettings["PlayerName"],
-                    Accuracy = 100 - ((float)_stage.Hits / _stage.StageGeometry.BeatCount) * 100.0f,
+                    Accuracy = 100 - ((float)_stage.Hits / _stage.StageGeometry.OnsetCount) * 100.0f,
                     Score = (long)_stage.StageGeometry.Player.Score
                 };
 

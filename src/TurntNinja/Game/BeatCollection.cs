@@ -12,7 +12,7 @@ using Substructio.Graphics.OpenGL;
 
 namespace TurntNinja.Game
 {
-    class BeatCollection : IDisposable
+    class BeatCollectionOld : IDisposable
     {
         public readonly int Count;
         public int Index { get; private set; }
@@ -61,7 +61,7 @@ namespace TurntNinja.Game
         private int _evenCapOutlineCount = 0;
         private int _oddCapOutlineCount = 0;
 
-        public BeatCollection(int beatCount, ShaderProgram geometryShaderProgram)
+        public BeatCollectionOld(int beatCount, ShaderProgram geometryShaderProgram)
         {
             Count = beatCount;
             _shaderProgram = geometryShaderProgram;

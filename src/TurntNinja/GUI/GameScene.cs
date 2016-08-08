@@ -49,7 +49,7 @@ namespace TurntNinja.GUI
 
         private void Exit(bool GoToEndScene = false)
         {
-            _stage.Reset();
+            _stage.Reset(!GoToEndScene);
             SceneManager.ScreenCamera.ExtraScale = 0;
             SceneManager.ScreenCamera.Scale = SceneManager.ScreenCamera.TargetScale = new Vector2(1, 1);
             SceneManager.GameWindow.Cursor = MouseCursor.Default;
