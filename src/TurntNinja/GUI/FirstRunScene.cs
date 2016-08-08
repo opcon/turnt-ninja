@@ -82,8 +82,6 @@ namespace TurntNinja.GUI
         {
             _fontDrawing.RefreshBuffers();
             _fontDrawing.Draw();
-
-            SceneManager.DrawTextLine("hello", new Vector3(100, 100, 100), Color4.White);
         }
 
         public override void Resize(EventArgs e)
