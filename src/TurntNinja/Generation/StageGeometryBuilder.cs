@@ -19,7 +19,8 @@ namespace TurntNinja.Generation
         private AudioFeatures _audioFeatures;
         private GeometryBuilderOptions _builderOptions;
 
-        private BeatCollection _beats;
+        private OnsetCollection _onsets;
+        private OnsetDrawing _onsetDrawing;
         private float[] _beatFrequencies;
         private Color4 _segmentStartColour;
         private Random _random;
@@ -34,15 +35,15 @@ namespace TurntNinja.Generation
             _builderOptions.RandomFunction = _random;
 
             BuildGoodBeatsList();
+            BuildBeatFrequencyList();
 
             BuildGeometry();
-            BuildBeatFrequencyList();
             SetStartColour();
 
             var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 50000, -20, 0);
             backgroundPolygon.ShaderProgram = _builderOptions.GeometryShaderProgram;
 
-            return new StageGeometry(_beats, _segmentStartColour, _random, _beatFrequencies) {BackgroundPolygon = backgroundPolygon};
+            return new StageGeometry(_onsets, _onsetDrawing, _segmentStartColour, _random) {BackgroundPolygon = backgroundPolygon};
         }
 
         private void BuildGoodBeatsList()
@@ -100,45 +101,62 @@ namespace TurntNinja.Generation
 
         private void BuildGeometry()
         {
-            _beats = new BeatCollection(_goodBeats.Count, _builderOptions.GeometryShaderProgram);
+            _onsets = new OnsetCollection(_goodBeats.Count);
+            _onsets.AddOnsets(_goodBeats.ToArray(), _beatFrequencies);
+            _onsetDrawing = new OnsetDrawing(_onsets, _builderOptions.GeometryShaderProgram);
 
             //intialise state variables for algorithim
             int prevStart = 0;
             int prevSkip = 0;
             //set initial previous time to -1 so that the first polygon generated is always unique and doesn't trigger 'beat too close to previous' case
-            float prevTime = -1.0f;
+            double prevTime = -1.0;
             float samePatternChance = 0.90f;
+            float onsetStart = 0.0f;
+            float onsetEnd = 0.0f;
+
+            bool[] sides;
 
             var structureList = new List<List<int>>();
 
-            ////first pass to look for structures
-            //int structStart = -1;
-            //int structCount = 0;
-            //List<int> tempList = new List<int>();
-            //for (var i = 0; i < sorted.Count(); i++)
-            //{
-            //    var b = i.Current;
-            //    if (b - prevTime < _builderOptions.VeryCloseDistance)
-            //    {
-            //        if (structCount == 0) tempList = new List<int>();
-            //        tempList.Add()
-            //    }
-            //}
+            List<OnsetStructure> structures = new List<OnsetStructure>();
+
+            int currentStructureIndex = -1;
+            //first pass to look for structures
+            foreach (var b in _goodBeats)
+            {
+                // are we extending an existing structure?
+                if (b - prevTime < _builderOptions.VeryCloseDistance)
+                {
+                    structures[currentStructureIndex].End = b;
+                }
+
+                // else create new structure
+                else
+                {
+                    structures.Add(new OnsetStructure { Start = b, End = b });
+                    currentStructureIndex = structures.Count - 1;
+                }
+
+                // update previous onset time
+                prevTime = b;
+            }
+
+            prevTime = -1;
 
             //traverse sorted onset list and generate geometry for each onset
-            foreach (var b in _goodBeats)
+            foreach (var s in structures)
             {
                 int start;
 
                 //generate the skip pattern. Highest probablility is of obtaining a 1 skip pattern - no sides are skipped at all.
                 int skip = _builderOptions.SkipFunction();
-                if (b - prevTime < _builderOptions.VeryCloseDistance)
+                if (s.Start - prevTime < _builderOptions.VeryCloseDistance)
                 {
                     //this beat is very close to the previous one, use the same start orientation and skip pattern
                     start = prevStart;
                     skip = prevSkip;
                 }
-                else if (b - prevTime < _builderOptions.CloseDistance)
+                else if (s.Start - prevTime < _builderOptions.CloseDistance)
                 {
                     //randomly choose relative orientation difference compared to previous beat
                     var r = _random.Next(0, 2);
@@ -157,7 +175,7 @@ namespace TurntNinja.Generation
                         start = _random.Next(_builderOptions.MaxSides - 1);
                 }
 
-                bool[] sides = new bool[6];
+                sides = new bool[6];
                 for (int i = 0; i < 6; i++)
                 {
                     //ensure that if skip is set to 1, we still leave an opening
@@ -168,14 +186,15 @@ namespace TurntNinja.Generation
                     else sides[i] = false;
                 }
 
-                _beats.AddBeat(sides.ToList(), _builderOptions.PolygonVelocity, _builderOptions.PolygonWidth, _builderOptions.PolygonMinimumRadius, b);
+                _onsetDrawing.AddOnsetDrawing(sides.ToList(), _builderOptions.PolygonVelocity, _builderOptions.PolygonWidth + (s.End - s.Start) * _builderOptions.PolygonVelocity.Radius, _builderOptions.PolygonMinimumRadius, s.Start);
 
                 //update the variables holding the previous state of the algorithim.
-                prevTime = b;
+                prevTime = s.End;
                 prevStart = start;
                 prevSkip = skip;
             }
-            _beats.Initialise();
+            _onsetDrawing.Initialise();
+            _onsets.Initialise();
         }
 
         private void SetStartColour()
@@ -195,6 +214,12 @@ namespace TurntNinja.Generation
 
             _segmentStartColour = new Color4((byte)((rgb[0])*255), (byte)((rgb[1])*255), (byte)((rgb[2])*255), 255);
         }
+    }
+
+    class OnsetStructure
+    {
+        public double Start;
+        public double End;
     }
 
     class GeometryBuilderOptions

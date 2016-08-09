@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OnsetDetection;
 using CSCore;
+using System.Diagnostics;
 
 namespace TurntNinja.Audio
 {
@@ -61,6 +62,35 @@ namespace TurntNinja.Audio
 
             //force garbage collection
             GC.Collect(2, GCCollectionMode.Forced, true);
+
+            //audioSource.Position = 0;
+            //AcoustID.ChromaContext cm = new AcoustID.ChromaContext();
+            //AcoustIDCSCore decoder = new AcoustIDCSCore(audioSource);
+            //cm.Start(audioSource.WaveFormat.SampleRate, audioSource.WaveFormat.Channels);
+            //decoder.Decode(cm.Consumer, 60);
+            //cm.Finish();
+
+            //var f = cm.GetFingerprint();
+
+            //Debug.WriteLine(f);
+
+            //AcoustID.Configuration.ClientKey = "3jSfGwVIGZ";
+            //AcoustID.Web.LookupService lService = new AcoustID.Web.LookupService();
+            //var duration = audioSource.GetLength().TotalSeconds;
+            //var lookupTask = lService.GetAsync(f, (int)duration, new string[] { "recordings", "compress" });
+            //lookupTask.ContinueWith(t =>
+            //{
+            //    var resp = t.Result;
+            //    foreach (var res in resp.Results)
+            //    {
+            //        Debug.WriteLine($"Score: {res.Score}, ID: {res.Id}");
+            //        foreach (var rec in res.Recordings)
+            //        {
+            //            Debug.WriteLine($"{rec.Artists.First().Name} - {rec.Title}");
+            //        }
+            //    }
+            //});
+            //decoder.Dispose();
         }
 
 

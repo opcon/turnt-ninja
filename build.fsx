@@ -127,7 +127,7 @@ Target "CleanDeploy" (fun _ ->
 Target "DeployZip" (fun _ ->
     ensureDirectory deployDir
 
-    let mainFiles = !! (sprintf "%s*.dll" buildDir) ++ (sprintf "%s*.config" buildDir) ++ (sprintf "%s*.exe" buildDir)
+    let mainFiles = !! (sprintf "%s*.dll" buildDir) ++ (sprintf "%s*.config" buildDir) ++ (sprintf "%s*.exe" buildDir) -- (sprintf "%s*vshost*" buildDir)
 
     CopyFiles tempDirName.Value mainFiles
     CopyDir (tempDirName.Value + contentDirDeployName) "src/TurntNinja/Content/" (fun x -> true)

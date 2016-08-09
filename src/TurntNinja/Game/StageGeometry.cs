@@ -18,7 +18,8 @@ namespace TurntNinja.Game
     class StageGeometry : IDisposable
     {
         private StageColours _colours;
-        private BeatCollection _beats;
+        public OnsetCollection Onsets;
+        private OnsetDrawing _onsetDrawing;
         private Color4 _segmentStartColour;
         private double _initialHue;
         private double _extraHue = 0.0;
@@ -38,53 +39,53 @@ namespace TurntNinja.Game
         private float _extraRotation = 0;
 
         private int _collidedBeatIndex = -1;
-        public float[] BeatFrequencies;
-        public float MaxBeatFrequency;
-        public float MinBeatFrequency;
 
         private double _elapsedTime = 0;
         private int frameCount = 0;
 
         private int _previousBeat = -1000;
 
-        public int BeatCount {get { return _beats.Count; }}
+        public int OnsetCount {get { return Onsets.Count; }}
 
         public StageColourModifiers ColourModifiers = StageColourModifiers.Default;
 
         private bool Collided
         {
-            get { return _collidedBeatIndex == _beats.Index; }
+            get { return _collidedBeatIndex == _onsetDrawing.DrawingIndex; }
         }
 
         public float Amplitude
         {
-            get { return BeatFrequencies[_beats.Index]; }
+            get { return Onsets.BeatFrequencies[Onsets.OnsetIndex]; }
             //get { return ((BeatFrequencies[_beats.Index] - MinBeatFrequency) / (MaxBeatFrequency - MinBeatFrequency)); }
         }
 
-        public int CurrentBeat
+        public int CurrentOnset
         {
-            get { return _beats.Index; }
+            get { return Onsets.OnsetIndex; }
+        }
+
+        public int CurrentOnsetDrawing
+        {
+            get { return _onsetDrawing.DrawingIndex; }
         }
 
         public float CurrentBeatFrequency
         {
-            get { return OutOfBeats ? BeatFrequencies.Last() : BeatFrequencies[CurrentBeat]; }
+            get { return OutOfBeats ? Onsets.BeatFrequencies.Last() : Onsets.BeatFrequencies[CurrentOnset]; }
         }
 
         public bool OutOfBeats
         {
-            get { return _beats.Index == _beats.Count; }
+            get { return Onsets.OnsetIndex == Onsets.Count; }
         }
 
-        internal StageGeometry (BeatCollection beats, Color4 segmentStartColour, Random random, float[] beatFrequencies)
+        internal StageGeometry (OnsetCollection onsets, OnsetDrawing onsetDrawing, Color4 segmentStartColour, Random random)
         {
-            _beats = beats;
+            Onsets = onsets;
+            _onsetDrawing = onsetDrawing;
             _segmentStartColour = segmentStartColour;
             _random = random;
-            BeatFrequencies = beatFrequencies;
-            MaxBeatFrequency = BeatFrequencies.Max();
-            MinBeatFrequency = BeatFrequencies.Min();
             _baseColour = HUSLColor.FromColor4(_segmentStartColour);
             _initialHue = _baseColour.H;
             _p2 = new Player() { UseGamePad = true };
@@ -97,7 +98,7 @@ namespace TurntNinja.Game
             if (frameCount > 10) frameCount = 0;
 
             _elapsedTime += time;
-            _rotationMultiplier = 0.5*Math.Min(((!OutOfBeats ? BeatFrequencies[_beats.Index] : MaxBeatFrequency)/MaxBeatFrequency)*2, 1);
+            _rotationMultiplier = 0.5*Math.Min(((!OutOfBeats ? Onsets.BeatFrequencies[Onsets.OnsetIndex] : Onsets.MaxBeatFrequency)/Onsets.MaxBeatFrequency)*2, 1);
             var rotate = time * RotationSpeed * _rotationMultiplier + _extraRotation * (1+_rotationMultiplier/3.0f);
             rotate = Math.Abs(rotate) * _direction;
             _extraRotation = 0;
@@ -105,19 +106,20 @@ namespace TurntNinja.Game
 
             var azimuth = CenterPolygon.Position.Azimuth + rotate;
 
-            _beats.Update(time, ParentStage.Running, azimuth);
+            Onsets.Update(ParentStage.Running ? time : 0);
+            _onsetDrawing.Update(time, ParentStage.Running, azimuth);
 
             if (!OutOfBeats)
             {
-                CenterPolygon.PulseMultiplier = Math.Pow(BeatFrequencies[CurrentBeat] * 60,1) + 70;
-                ParentStage.SceneManager.ScreenCamera.ExtraScale = CenterPolygon.Pulsing ?  (float)Math.Pow(BeatFrequencies[CurrentBeat],3) * 0.2f : 0;
+                CenterPolygon.PulseMultiplier = Onsets.PulseDataCollection[CurrentOnset].PulseMultiplier;
+                ParentStage.SceneManager.ScreenCamera.ExtraScale = CenterPolygon.Pulsing ?  (float)Math.Pow(Onsets.BeatFrequencies[CurrentOnset],3) * 0.2f : 0;
 
-                if (_beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] < 60 && _beats.Positions[CurrentBeat].Radius - _beats.ImpactDistances[CurrentBeat] > 40)
+                if (Onsets.CloseToNextOnset(CurrentOnset, 0.01f))
                     _extraRotation = 0.005f;
 
                 if (ParentStage.AI)
                 {
-                    var t = _beats.CurrentOpeningAngle + rotate * _direction + CenterPolygon.Position.Azimuth;
+                    var t = _onsetDrawing.CurrentOpeningAngle + rotate * _direction + CenterPolygon.Position.Azimuth;
                     t += MathHelper.DegreesToRadians(30);
                     Player.DoAI(t);
                 }
@@ -127,16 +129,20 @@ namespace TurntNinja.Game
                 //_p2.DoAI(t1);
             }
 
-            if (_beats.BeginPulse)
+            if (Onsets.BeginPulsing)
                 CenterPolygon.BeginPulse();
  
             UpdatePlayerOverlap();
 
-            if (_beats.BeatsHit > 0)
+            if (Onsets.OnsetsReached > 0)
             {
-                var d = _random.NextDouble();
-                _direction = d > 0.95 ? -_direction : _direction;
-                ParentStage.Multiplier += _beats.BeatsHit;
+                for (int i = 0; i < Onsets.OnsetsReached; i++)
+                {
+                    var d = _random.NextDouble();
+                    _direction = d > 0.95 ? -_direction : _direction;
+                }
+
+                ParentStage.Multiplier += Onsets.OnsetsReached;
                 Player.Score += (ParentStage.Multiplier*ParentStage.ScoreMultiplier + 1)*10;
             }
 
@@ -157,7 +163,7 @@ namespace TurntNinja.Game
             CenterPolygon.Update(time, false);
             CenterPolygon.Position.Azimuth += rotate;
 
-            BackgroundPolygon.Position.Azimuth = CenterPolygon.Position.Azimuth + rotate;
+            BackgroundPolygon.Position.Azimuth = CenterPolygon.Position.Azimuth;
             BackgroundPolygon.Update(time, false);
 
             if (frameCount == 10)
@@ -173,28 +179,28 @@ namespace TurntNinja.Game
             BackgroundPolygon.Draw(time, 2);
 
             ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenOutlineColour);
-            _beats.DrawOutlines(time, 1);
+            _onsetDrawing.DrawOutlines(time, 1);
             ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddOutlineColour);
-            _beats.DrawOutlines(time, 2);
+            _onsetDrawing.DrawOutlines(time, 2);
 
             ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenOpposingColour);
 
-            _beats.Draw(time, 1);
+            _onsetDrawing.Draw(time, 1);
 
-            if (_beats.Index < _beats.Count && Collided)
+            if (_onsetDrawing.DrawingIndex < _onsetDrawing.DrawingCount && Collided)
             {
                 ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenCollisionColour);
-                _beats.DrawCurrentBeat(time, 1);
+                _onsetDrawing.DrawCurrentBeat(time, 1);
             }
             CenterPolygon.Draw(time, 1);
             ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddOpposingColour);
 
-            _beats.Draw(time, 2);
+            _onsetDrawing.Draw(time, 2);
 
-            if (_beats.Index < _beats.Count && Collided)
+            if (_onsetDrawing.DrawingIndex < _onsetDrawing.DrawingCount && Collided)
             {
                 ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddCollisionColour);
-                _beats.DrawCurrentBeat(time, 2);
+                _onsetDrawing.DrawCurrentBeat(time, 2);
             }
 
             CenterPolygon.Draw(time, 2);
@@ -212,15 +218,15 @@ namespace TurntNinja.Game
 
         private void UpdatePlayerOverlap()
         {
-            if (_beats.Index == _collidedBeatIndex || _beats.Index >= _beats.Count)
+            if (CurrentOnsetDrawing == _collidedBeatIndex || CurrentOnset >= Onsets.Count)
             {
                 ParentStage.Overlap = 0;
                 return;
             }
             var c = new Clipper();
-            c.AddPaths(_beats.GetPolygonBounds(_beats.Index), PolyType.ptSubject, true);
-            if (_beats.Index < _beats.Count - 1)
-                c.AddPaths(_beats.GetPolygonBounds(_beats.Index + 1), PolyType.ptSubject, true);
+            c.AddPaths(_onsetDrawing.GetPolygonBounds(CurrentOnsetDrawing), PolyType.ptSubject, true);
+            if (CurrentOnsetDrawing < _onsetDrawing.DrawingCount - 1)
+                c.AddPaths(_onsetDrawing.GetPolygonBounds(CurrentOnsetDrawing + 1), PolyType.ptSubject, true);
             c.AddPath(Player.GetBounds(), PolyType.ptClip, true);
 
             var soln = new List<List<IntPoint>>();
@@ -236,7 +242,7 @@ namespace TurntNinja.Game
             {
                 ParentStage.Multiplier = -1;
                 Player.Hits++;
-                _collidedBeatIndex = _beats.Index;
+                _collidedBeatIndex = CurrentOnsetDrawing;
                 //_polygons[_collidedBeatIndex].SetColour(_colours.EvenCollisionColour, _colours.EvenCollisionOutlineColour, _colours.OddCollisionColour, _colours.OddCollisionOutlienColour);
                 CenterPolygon.SetColour(_colours.EvenCollisionColour, _colours.EvenCollisionOutlineColour, _colours.OddCollisionColour, _colours.OddCollisionOutlienColour);
             }
@@ -288,13 +294,13 @@ namespace TurntNinja.Game
             }
 
             //_baseColour.H += time*50f*(!OutOfBeats ? BeatFrequencies[_beats.Index] : 1);
-            if (CurrentBeat - _previousBeat > 3)
+            if (CurrentOnset - _previousBeat > 3)
             {
-                _previousBeat = CurrentBeat;
+                _previousBeat = CurrentOnset;
                 _extraHue = ((_random.NextDouble() > 0.5) ? -1 : 1) * (90 + (_hueWobbleAmount * _random.NextDouble() - _hueWobbleAmount / 2));
 
             }
-            _baseColour.H = _initialHue + (CurrentBeat) * 5;
+            _baseColour.H = _initialHue + (CurrentOnset) * 5;
             _baseColour.L = ColourModifiers.baseLightness;
             _baseColour.S = ColourModifiers.baseSaturation;
 
@@ -351,7 +357,7 @@ namespace TurntNinja.Game
 
         public void Dispose()
         {
-            _beats.Dispose();
+            _onsetDrawing.Dispose();
         }
     }
 
