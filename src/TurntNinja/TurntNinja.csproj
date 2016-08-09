@@ -89,7 +89,6 @@
     <Compile Include="FileSystem\LocalFileSystem.cs" />
     <Compile Include="FileSystem\RecentFileSystem.cs" />
     <Compile Include="FileSystem\SoundCloudFileSystem.cs" />
-    <Compile Include="Game\BeatCollection.cs" />
     <Compile Include="Game\Difficulty.cs" />
     <Compile Include="Game\HighScore.cs" />
     <Compile Include="Game\OnsetCollection.cs" />
