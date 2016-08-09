@@ -534,6 +534,7 @@ namespace TurntNinja.Game
 
         public void Initialise()
         {
+            DrawingCount = DrawingIndex;
             DrawingIndex = 0;
         }
 

@@ -111,37 +111,52 @@ namespace TurntNinja.Generation
             //set initial previous time to -1 so that the first polygon generated is always unique and doesn't trigger 'beat too close to previous' case
             double prevTime = -1.0;
             float samePatternChance = 0.90f;
+            float onsetStart = 0.0f;
+            float onsetEnd = 0.0f;
+
+            bool[] sides;
 
             var structureList = new List<List<int>>();
 
-            ////first pass to look for structures
-            //int structStart = -1;
-            //int structCount = 0;
-            //List<int> tempList = new List<int>();
-            //for (var i = 0; i < sorted.Count(); i++)
-            //{
-            //    var b = i.Current;
-            //    if (b - prevTime < _builderOptions.VeryCloseDistance)
-            //    {
-            //        if (structCount == 0) tempList = new List<int>();
-            //        tempList.Add()
-            //    }
-            //}
+            List<OnsetStructure> structures = new List<OnsetStructure>();
+
+            int currentStructureIndex = -1;
+            //first pass to look for structures
+            foreach (var b in _goodBeats)
+            {
+                // are we extending an existing structure?
+                if (b - prevTime < _builderOptions.VeryCloseDistance)
+                {
+                    structures[currentStructureIndex].End = b;
+                }
+
+                // else create new structure
+                else
+                {
+                    structures.Add(new OnsetStructure { Start = b, End = b });
+                    currentStructureIndex = structures.Count - 1;
+                }
+
+                // update previous onset time
+                prevTime = b;
+            }
+
+            prevTime = -1;
 
             //traverse sorted onset list and generate geometry for each onset
-            foreach (var b in _goodBeats)
+            foreach (var s in structures)
             {
                 int start;
 
                 //generate the skip pattern. Highest probablility is of obtaining a 1 skip pattern - no sides are skipped at all.
                 int skip = _builderOptions.SkipFunction();
-                if (b - prevTime < _builderOptions.VeryCloseDistance)
+                if (s.Start - prevTime < _builderOptions.VeryCloseDistance)
                 {
                     //this beat is very close to the previous one, use the same start orientation and skip pattern
                     start = prevStart;
                     skip = prevSkip;
                 }
-                else if (b - prevTime < _builderOptions.CloseDistance)
+                else if (s.Start - prevTime < _builderOptions.CloseDistance)
                 {
                     //randomly choose relative orientation difference compared to previous beat
                     var r = _random.Next(0, 2);
@@ -160,7 +175,7 @@ namespace TurntNinja.Generation
                         start = _random.Next(_builderOptions.MaxSides - 1);
                 }
 
-                bool[] sides = new bool[6];
+                sides = new bool[6];
                 for (int i = 0; i < 6; i++)
                 {
                     //ensure that if skip is set to 1, we still leave an opening
@@ -171,10 +186,10 @@ namespace TurntNinja.Generation
                     else sides[i] = false;
                 }
 
-                _onsetDrawing.AddOnsetDrawing(sides.ToList(), _builderOptions.PolygonVelocity, _builderOptions.PolygonWidth, _builderOptions.PolygonMinimumRadius, b);
+                _onsetDrawing.AddOnsetDrawing(sides.ToList(), _builderOptions.PolygonVelocity, _builderOptions.PolygonWidth + (s.End - s.Start) * _builderOptions.PolygonVelocity.Radius, _builderOptions.PolygonMinimumRadius, s.Start);
 
                 //update the variables holding the previous state of the algorithim.
-                prevTime = b;
+                prevTime = s.End;
                 prevStart = start;
                 prevSkip = skip;
             }
@@ -199,6 +214,12 @@ namespace TurntNinja.Generation
 
             _segmentStartColour = new Color4((byte)((rgb[0])*255), (byte)((rgb[1])*255), (byte)((rgb[2])*255), 255);
         }
+    }
+
+    class OnsetStructure
+    {
+        public double Start;
+        public double End;
     }
 
     class GeometryBuilderOptions

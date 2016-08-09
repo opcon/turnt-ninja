@@ -218,7 +218,7 @@ namespace TurntNinja.Game
 
         private void UpdatePlayerOverlap()
         {
-            if (CurrentOnset == _collidedBeatIndex || CurrentOnset >= Onsets.Count)
+            if (CurrentOnsetDrawing == _collidedBeatIndex || CurrentOnset >= Onsets.Count)
             {
                 ParentStage.Overlap = 0;
                 return;
@@ -242,7 +242,7 @@ namespace TurntNinja.Game
             {
                 ParentStage.Multiplier = -1;
                 Player.Hits++;
-                _collidedBeatIndex = CurrentOnset;
+                _collidedBeatIndex = CurrentOnsetDrawing;
                 //_polygons[_collidedBeatIndex].SetColour(_colours.EvenCollisionColour, _colours.EvenCollisionOutlineColour, _colours.OddCollisionColour, _colours.OddCollisionOutlienColour);
                 CenterPolygon.SetColour(_colours.EvenCollisionColour, _colours.EvenCollisionOutlineColour, _colours.OddCollisionColour, _colours.OddCollisionOutlienColour);
             }
