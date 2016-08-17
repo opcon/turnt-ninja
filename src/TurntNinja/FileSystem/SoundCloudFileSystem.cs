@@ -175,5 +175,22 @@ namespace TurntNinja.FileSystem
                 new SCExploreCategory { Name = "World" },
             };
         }
+
+        internal void Search(string searchString)
+        {
+            _scTracks = _scclient.Tracks.BeginSearch(SoundCloud.API.Client.Objects.TrackPieces.SCFilter.All).Query(searchString).Exec().ToList();
+
+            ShowSongs();
+
+            //Add the category list entry
+            _soundcloudSongs.Insert(0, new FileBrowserEntry
+            {
+                EntryType = FileBrowserEntryType.Special,
+                Name = "Category List",
+                Path = ""
+            });
+
+            _soundcloudSongs.Insert(1, _entrySeparator);
+        }
     }
 }

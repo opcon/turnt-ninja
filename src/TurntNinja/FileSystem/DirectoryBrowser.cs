@@ -101,22 +101,30 @@ namespace TurntNinja.FileSystem
         {
             if (InputSystem.NewKeys.Contains(Key.Enter) && !_fileSystemEntries[_directoryBrowserEntryIndex].EntryType.HasFlag(FileBrowserEntryType.Separator))
             {
-                ResetSearch();
-
-                _fileSystemEntryIndex = _directoryBrowserEntryIndex - _fileSystemEntryIndexOffset;
-                if (_fileSystemEntryIndex >= 0)
+                SoundCloudFileSystem sfc;
+                if (!string.IsNullOrWhiteSpace(_searchString) && (sfc = _currentFileSystem as SoundCloudFileSystem) != null)
                 {
-                    var isSong = _currentFileSystem.EntrySelected(ref _fileSystemEntryIndex);
-                    if (isSong) _parentScene.SongChosen(_currentFileSystem.LoadSongInformation(_fileSystemEntryIndex));
-
-                    _directoryBrowserEntryIndex = _fileSystemEntryIndex + _fileSystemEntryIndexOffset;
+                    sfc.Search(_searchString);
+                    _fileSystemEntryIndex = 0;
                 }
                 else
                 {
-                    var entry = _fileSystemEntries[_directoryBrowserEntryIndex];
-                    if (entry.EntryType.HasFlag(FileBrowserEntryType.Plugin)) SwitchFileSystem(_fileSystemCollection[_directoryBrowserEntryIndex]);
+                    _fileSystemEntryIndex = _directoryBrowserEntryIndex - _fileSystemEntryIndexOffset;
+                    if (_fileSystemEntryIndex >= 0)
+                    {
+                        var isSong = _currentFileSystem.EntrySelected(ref _fileSystemEntryIndex);
+                        if (isSong) _parentScene.SongChosen(_currentFileSystem.LoadSongInformation(_fileSystemEntryIndex));
 
+                        _directoryBrowserEntryIndex = _fileSystemEntryIndex + _fileSystemEntryIndexOffset;
+                    }
+                    else
+                    {
+                        var entry = _fileSystemEntries[_directoryBrowserEntryIndex];
+                        if (entry.EntryType.HasFlag(FileBrowserEntryType.Plugin)) SwitchFileSystem(_fileSystemCollection[_directoryBrowserEntryIndex]);
+
+                    }
                 }
+                ResetSearch();
             }
 
             // Update the entry list
@@ -164,6 +172,11 @@ namespace TurntNinja.FileSystem
             {
                 _searchString = _searchString.Substring(0, _searchString.Length - 1);
                 _searchElapsedTime = _searchLastTime = 0.0f;
+            }
+
+            if (InputSystem.NewKeys.Contains(Key.Enter))
+            {
+
             }
 
             // Clamp the index
