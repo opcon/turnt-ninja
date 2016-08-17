@@ -3,10 +3,9 @@ NUGET
   remote: https://www.nuget.org/api/v2
     AcoustID.NET (1.3.1.16)
     ColorMine (1.1.3) - framework: >= net45
-    CSCore (1.1) - framework: >= net45
     DeltaCompressionDotNet (1.0) - framework: >= net45
     HUSL (1.0.1) - framework: >= net45
-    LiteDB (1.0.4) - framework: >= net45
+    LiteDB (2.0) - framework: >= net45
     MathNet.Numerics (3.12) - framework: >= net45
     Mono.Cecil (0.9.6.1) - framework: >= net45
     Newtonsoft.Json (9.0.1)
@@ -14,11 +13,15 @@ NUGET
     SharpRaven (2.1)
       Newtonsoft.Json (>= 6.0.6)
     Splat (1.6.2) - framework: >= net45
-    squirrel.windows (1.4.2) - framework: >= net45
+    squirrel.windows (1.4.4) - framework: >= net45
       DeltaCompressionDotNet (>= 1.0 < 2.0)
       Mono.Cecil (>= 0.9.6.1)
       Splat (>= 1.6.2)
     TagLib.Portable (1.0.4) - framework: >= net45
+  remote: https://ci.appveyor.com/nuget/cscore-lt381sf5ht3e
+    CSCore (1.1.15)
+    CSCore.OSX (1.1.15)
+      CSCore (>= 1.1.15)
   remote: https://ci.appveyor.com/nuget/gwen-nolegacy-opentk-renderer-y8bf4l8s9nxo
     Gwen (3.0.6026.7037) - framework: >= net45
       OpenTK.Next (>= 1.1.1616.8959)
@@ -29,8 +32,8 @@ NUGET
       SharpFont (>= 3.1)
       SharpFont.Dependencies (>= 2.6)
   remote: https://ci.appveyor.com/nuget/onset-detection-ce96cu4ph0k5
-    OnsetDetection (1.0.6020.16658) - framework: >= net45
-      CSCore (>= 1.1)
+    OnsetDetection (1.0.6071.24680) - framework: >= net45
+      CSCore (>= 1.1.15)
       MathNet.Numerics (>= 3.11.1)
   remote: https://ci.appveyor.com/nuget/quickfont-m6wdxb2yf1v5
     OpenTK.Next (1.2.2336.6514-pre) - framework: >= net45
@@ -45,7 +48,7 @@ NUGET
 GROUP Build
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.31.1)
+    FAKE (4.37.2)
 
 GROUP Deploy
 NUGET

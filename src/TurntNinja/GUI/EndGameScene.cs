@@ -74,9 +74,10 @@ namespace TurntNinja.GUI
 
                 // Save to DB
                 db.BeginTrans();
-                if (_highScoreEntry.Id == null || !highSccoreCollection.Update(_highScoreEntry)) highSccoreCollection.Insert(_highScoreEntry);
-                //end
-                db.Commit();
+                using (var trans = db.BeginTrans())
+                {
+                    if (_highScoreEntry.Id == null || !highSccoreCollection.Update(_highScoreEntry)) highSccoreCollection.Insert(_highScoreEntry);
+                }
 
                 if (_newScore.Score > _highestScore.Score)
                 {
