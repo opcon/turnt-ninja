@@ -183,7 +183,7 @@ Target "DeployMerged" (fun _ ->
                 Libraries = libraries
                 SearchDirectories = searchDir
             })
-        (tempMergedDirName.Value + deployName.Value + ".exe")
+        (tempMergedDirName.Value + appName + ".exe")
         (tempDirName.Value + appName + ".exe")
 
     CopyDir (tempMergedDirName.Value + contentDirDeployName) (tempDirName.Value + contentDirDeployName) (fun x -> true)
