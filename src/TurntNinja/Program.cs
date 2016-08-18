@@ -48,8 +48,10 @@ namespace TurntNinja
 
         public ValueWrapper<bool> DebugMode = new ValueWrapper<bool>();
 
-        public GameController(IGameSettings gameSettings, int rX, int rY, GraphicsMode graphicsMode, IDirectoryHandler directoryHandler)
-            : base(rX, rY, graphicsMode)
+        public GameController(IGameSettings gameSettings, int rX, int rY, GraphicsMode graphicsMode,
+                string title, int major, int minor, IDirectoryHandler directoryHandler)
+            : base(rX, rY, graphicsMode, title, GameWindowFlags.Default, DisplayDevice.Default,
+                    major, minor, GraphicsContextFlags.Default)
         {
             KeyDown += Keyboard_KeyDown;
             this.VSync = (bool)gameSettings["VSync"] ? VSyncMode.On : VSyncMode.Off;
@@ -329,10 +331,17 @@ namespace TurntNinja
             int FSAASamples = (int)gameSettings["AntiAliasingSamples"];
             GraphicsMode graphicsMode = new GraphicsMode(32, 24, 8, FSAASamples, GraphicsMode.Default.AccumulatorFormat, 3);
 
+            // Choose right OpenGL version for mac
+            int major = 3;
+            int minor = 0;
+            if (PlatformDetection.RunningPlatform() == Platform.MacOSX)
+                major = 4;
+
             if ((bool)ServiceLocator.Settings["Analytics"])
                 ServiceLocator.Analytics.TrackApplicationStartup();
 
-            using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode, directoryHandler))
+            using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode, "Turnt Ninja",
+                        major, minor, directoryHandler))
             {
                 game.Title = "Turnt Ninja";
                 game.Run();
