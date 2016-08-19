@@ -131,7 +131,7 @@ namespace TurntNinja.Game
             _stageAudio.Seek(WADSWORTH);
             _stageAudio.Play();
 
-            _stageAudio.FadeIn(1000, _stageAudio.MaxVolume * 0.5f, 0.01f, 0);
+            _stageAudio.FadeIn(1000, _stageAudio.MaxVolume * 0.5f, 0.01f, FadeEndAction.Nothing);
 
             LoadAudioFeatures(detectionSource, audioCorrection, progress, song);
 
@@ -152,7 +152,7 @@ namespace TurntNinja.Game
             Thread.Sleep(1000);
 
             _stageAudio.CancelAudioFades();
-            _stageAudio.FadeOut(500, 0.0f, 0.01f, 2);
+            _stageAudio.FadeOut(500, 0.0f, 0.01f, FadeEndAction.Stop);
 
             CurrentSong = song;
             CurrentDifficulty = difficultyLevel;
@@ -267,7 +267,7 @@ namespace TurntNinja.Game
 
         public void Reset(bool resetPlayerScore)
         {
-            _stageAudio.FadeOut(1000, 0, 0.01f, 2);
+            _stageAudio.FadeOut(500, 0, 0.01f, FadeEndAction.Stop).ContinueWith((t) => _stageAudio.Dispose());
             StageGeometry.CenterPolygon.Position.Azimuth = 0;
             if (resetPlayerScore) StageGeometry.Player.Reset();
             //reset hit hexagons

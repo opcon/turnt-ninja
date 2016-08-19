@@ -106,24 +106,25 @@ namespace TurntNinja.Game
         /// <param name="time"></param>
         /// <param name="minVolume"></param>
         /// <param name="dVolume"></param>
-        /// <param name="pauseOrStop">0 for nothing, 1 for pause, 2 for stop</param>
-        public void FadeOut(float time, float minVolume, float dVolume, int pauseOrStop)
+        /// <param name="fadeEndAction">What action to do at the end of the fade</param>
+        public Task FadeOut(float time, float minVolume, float dVolume, FadeEndAction fadeEndAction)
         {
             var ct = _tokenSource.Token;
-            Task.Run(async () =>
+            return Task.Run(async () =>
             {
+                if (this.IsStopped) return;
                 int dt = (int)(time / ((Volume - minVolume) / dVolume));
                 while (Volume > minVolume && !ct.IsCancellationRequested)
                 {
                     Volume -= dVolume;
                     await Task.Delay(dt, ct);
                 }
-                switch (pauseOrStop)
+                switch (fadeEndAction)
                 {
-                    case 1:
+                    case FadeEndAction.Pause:
                         Pause();
                         break;
-                    case 2:
+                    case FadeEndAction.Stop:
                         Stop();
                         break;
                 }
@@ -136,12 +137,12 @@ namespace TurntNinja.Game
         /// <param name="time">Time over which to fade the audio in</param>
         /// <param name="maxVolume">The maximum volume to reach</param>
         /// <param name="dVolume">The volume step size to use</param>
-        /// <param name="pauseOrStop">0 for nothing, 1 to pause after the fade in, 2 to stop after the fade in</param>
-        public void FadeIn(float time, float maxVolume, float dVolume, int pauseOrStop)
+        /// <param name="fadeEndAction">What action to do at the end of the fade</param>
+        public Task FadeIn(float time, float maxVolume, float dVolume, FadeEndAction fadeEndAction)
         {
             if (maxVolume > MaxVolume) throw new ArgumentOutOfRangeException("The maximum fade in volume " + maxVolume + " was greater than the maximum volume for this audio " + MaxVolume);
             var ct = _tokenSource.Token;
-            Task.Run(async () =>
+            return Task.Run(async () =>
             {
                 int dt = (int)(time / ((maxVolume - Volume) / dVolume));
                 while (Volume < maxVolume && !ct.IsCancellationRequested)
@@ -149,12 +150,12 @@ namespace TurntNinja.Game
                     Volume += dVolume;
                     await Task.Delay(dt, ct);
                 }
-                switch (pauseOrStop)
+                switch (fadeEndAction)
                 {
-                    case 1:
+                    case FadeEndAction.Pause:
                         Pause();
                         break;
-                    case 2:
+                    case FadeEndAction.Stop:
                         Stop();
                         break;
                 }
@@ -188,6 +189,13 @@ namespace TurntNinja.Game
         void Seek(float percent);
         void ConvertToWav(string wavFilePath);
         IWaveSource GetSource();
+    }
+
+    enum FadeEndAction
+    {
+        Nothing,
+        Pause,
+        Stop,
     }
 
     enum PlaybackState
