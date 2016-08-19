@@ -30,6 +30,14 @@ namespace TurntNinja.GUI
         const string LOCALPACKAGEHOST = @"D:\Patrick\Documents\Development\Game Related\turnt-ninja\Releases";
         const string GITHUBPACKAGEHOST = "https://github.com/opcon/turnt-ninja";
 
+        private bool _isSquirrel
+        {
+            get
+            {
+                return File.Exists(ServiceLocator.Directories.Locate("Application", Path.Combine("..", "Update.exe")));
+            }
+        }
+
         public UpdateScene()
         {
             Exclusive = true;
@@ -43,60 +51,67 @@ namespace TurntNinja.GUI
 
         public override void Load()
         {
-            _statusString = "Checking for updates...";
             _cancellationTokenSource = new CancellationTokenSource();
 
-            Task.Run(() =>
+            if (_isSquirrel)
             {
+                _statusString = "Checking for updates...";
+                Task.Run(() =>
+                {
                 //Check if local package host exists first - if so then update from that
                 string packageHost = (Directory.Exists(LOCALPACKAGEHOST)) ? LOCALPACKAGEHOST : GITHUBPACKAGEHOST;
-                using (var upmgr = Directory.Exists(LOCALPACKAGEHOST) ? new UpdateManager(packageHost) : UpdateManager.GitHubUpdateManager(packageHost).Result)
-                {
-                    UpdateInfo updateInfo = null;
-                    try
+                    using (var upmgr = Directory.Exists(LOCALPACKAGEHOST) ? new UpdateManager(packageHost) : UpdateManager.GitHubUpdateManager(packageHost).Result)
                     {
-                        updateInfo = upmgr.CheckForUpdate().Result;
-                    }
-                    catch (Exception ex)
-                    {
-                        _ex = ex;
-                    }
-                    var needToUpdate = (updateInfo.ReleasesToApply.Count > 0);
-                    Dictionary<ReleaseEntry, string> releaseNotes = null;
-
-                    //if we need to update
-                    if (needToUpdate)
-                    {
-                        releaseNotes = FetchReleaseNotes(updateInfo.ReleasesToApply, packageHost);
-                    }
-
-                    lock (_lock)
-                    {
-                        _updateManager = upmgr;
-                        _needToUpdate = needToUpdate;
-                        _updateInfo = updateInfo;
-                        _releaseNotes = releaseNotes;
-
+                        UpdateInfo updateInfo = null;
                         try
                         {
-                            if (needToUpdate)
-                            {
-                                //_statusString = "Update Available";
-                                var releaseNoteJoined = string.Join("\n\n", releaseNotes.Select(kvp => string.Format("{0}\n{1}", kvp.Key.Version.ToString(), kvp.Value)).Reverse());
-                                _statusString = string.Format("New version {0} found\nPress Enter to update or Escape to cancel\n\n{1}",
-                                    updateInfo.ReleasesToApply.Last().Version, releaseNoteJoined);
-                            }
-                            else
-                                _continue = true;
+                            updateInfo = upmgr.CheckForUpdate().Result;
                         }
                         catch (Exception ex)
                         {
                             _ex = ex;
                         }
-                    }
+                        var needToUpdate = (updateInfo.ReleasesToApply.Count > 0);
+                        Dictionary<ReleaseEntry, string> releaseNotes = null;
 
-                }
-            }, _cancellationTokenSource.Token);
+                    //if we need to update
+                    if (needToUpdate)
+                        {
+                            releaseNotes = FetchReleaseNotes(updateInfo.ReleasesToApply, packageHost);
+                        }
+
+                        lock (_lock)
+                        {
+                            _updateManager = upmgr;
+                            _needToUpdate = needToUpdate;
+                            _updateInfo = updateInfo;
+                            _releaseNotes = releaseNotes;
+
+                            try
+                            {
+                                if (needToUpdate)
+                                {
+                                //_statusString = "Update Available";
+                                var releaseNoteJoined = string.Join("\n\n", releaseNotes.Select(kvp => string.Format("{0}\n{1}", kvp.Key.Version.ToString(), kvp.Value)).Reverse());
+                                    _statusString = string.Format("New version {0} found\nPress Enter to update or Escape to cancel\n\n{1}",
+                                        updateInfo.ReleasesToApply.Last().Version, releaseNoteJoined);
+                                }
+                                else
+                                    _continue = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                _ex = ex;
+                            }
+                        }
+
+                    }
+                }, _cancellationTokenSource.Token);
+            }
+            else
+            {
+                _statusString = "This installation does not support automatic updates";
+            }
 
             Loaded = true;
         }
@@ -133,14 +148,13 @@ namespace TurntNinja.GUI
                         _updateManager = null;
                     }
                     UpdateManager.RestartApp();
-                    SceneManager.RemoveScene(this);
+                    SceneManager.RemoveScene(this, true);
                     SceneManager.GameWindow.Exit();
                 });
             }
             if (_continue || InputSystem.NewKeys.Contains(Key.Escape))
             {
-                //SceneManager.AddScene(new MenuScene(), null);
-                SceneManager.RemoveScene(this);
+                SceneManager.RemoveScene(this, true);
             }
         }
 
@@ -151,8 +165,14 @@ namespace TurntNinja.GUI
 
         public override void Dispose()
         {
-            _cancellationTokenSource.Cancel();
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
+            }
             if (_updateManager != null) _updateManager.Dispose();
+
+            _cancellationTokenSource = null;
             _updateManager = null;
         }
 
