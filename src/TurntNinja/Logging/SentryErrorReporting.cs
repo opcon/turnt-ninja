@@ -35,17 +35,17 @@ namespace TurntNinja.Logging
             _sentryClient = new RavenClient(_sentryDsn, null, null, new SentryUserGUIDFactory(_userGUID));
         }
 
-        public void ReportError(Exception ex)
+        public string ReportError(Exception ex)
         {
             var sentryEvent = new SentryEvent(ex);
-            _sentryClient.Capture(sentryEvent);
+            return _sentryClient.Capture(sentryEvent);
         }
 
-        public void ReportMessage(string message)
+        public string ReportMessage(string message)
         {
             var sentryMessage = new SentryMessage(message);
             var sentryEvent = new SentryEvent(sentryMessage);
-            _sentryClient.Capture(sentryEvent);
+            return _sentryClient.Capture(sentryEvent);
         }
     }
 

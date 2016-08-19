@@ -337,7 +337,7 @@ namespace TurntNinja
             if (PlatformDetection.RunningPlatform() == Platform.MacOSX)
                 major = 4;
 
-            if ((bool)ServiceLocator.Settings["Analytics"])
+            if ((bool)ServiceLocator.Settings["Analytics"] || (bool)ServiceLocator.Settings["FirstRun"])
                 ServiceLocator.Analytics.TrackApplicationStartup();
 
             using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode, "Turnt Ninja",
@@ -354,15 +354,31 @@ namespace TurntNinja
             {
                 Exception ex = (Exception)e.ExceptionObject;
 
+                // Try to report exception
                 try
                 {
-                    ServiceLocator.ErrorReporting.ReportError(ex);
+                    string eventID = ServiceLocator.ErrorReporting.ReportError(ex);
+                    
+                    // Try to log crash ID
+                    try
+                    {
+                        ServiceLocator.Analytics.TrackEvent("Crash", "Fatal Crash", eventID);
+                    }
+                    catch { }
                 }
                 catch { }
 
+                // Try to save crash report
                 try
                 {
                     _crashReporter.LogError(ex);
+                }
+                catch { }
+
+                // Try to report application shutdown
+                try
+                {
+                    ServiceLocator.Analytics.TrackApplicationShutdown();
                 }
                 catch { }
             }
