@@ -132,7 +132,7 @@ namespace TurntNinja.GUI
             if (InputSystem.NewKeys.Contains(Key.Enter) || InputSystem.NewKeys.Contains(Key.Escape) || InputSystem.NewKeys.Contains(Key.Space))
             {
                 _stage.StageGeometry.Player.Reset();
-                SceneManager.RemoveScene(this);
+                SceneManager.RemoveScene(this, true);
             }
         }
 
@@ -143,6 +143,7 @@ namespace TurntNinja.GUI
 
         public override void Dispose()
         {
+            _stage.Dispose();
             _font.Dispose();
             _fontDrawing.Dispose();
         }
