@@ -165,7 +165,7 @@ namespace TurntNinja.FileSystem
 
             if (TagLib.SupportedMimeType.AllExtensions.Any(s => entry.Path.EndsWith(s, StringComparison.OrdinalIgnoreCase)))
             {
-                using (var fs = File.Open(entry.Path, FileMode.Open))
+                using (var fs = File.Open(entry.Path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     try
                     {
