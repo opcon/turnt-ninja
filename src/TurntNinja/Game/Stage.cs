@@ -157,6 +157,8 @@ namespace TurntNinja.Game
             CurrentSong = song;
             CurrentDifficulty = difficultyLevel;
 
+            song.SongAudioLoaded = true;
+
             Loaded = true;
         }
 
