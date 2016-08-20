@@ -248,7 +248,7 @@ namespace TurntNinja
             ServiceLocator.Settings["UserID"] = userGUID.ToString();
 
             Platform runningPlatform = PlatformDetection.RunningPlatform();
-            string platformVersion = (runningPlatform == Platform.Windows) ? PlatformDetection.GetWindowsVersionFriendlyName() : Environment.OSVersion.Version.ToString();
+            string platformVersion = PlatformDetection.GetVersionName();
 
             // Load Sentry service
             if ((bool)ServiceLocator.Settings["Analytics"] || (bool)ServiceLocator.Settings["FirstRun"])
