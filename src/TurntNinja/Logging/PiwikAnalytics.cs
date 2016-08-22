@@ -78,29 +78,47 @@ namespace TurntNinja.Logging
 
         public void TrackEvent(string eventCategory, string eventAction, string eventSubjectName = "", string eventValue = "")
         {
-            // Set game version custom dimension for all tracking requests
-            _piwikTracker.setCustomTrackingParameter("dimension1", _gameVersion);
+            try
+            {
+                // Set game version custom dimension for all tracking requests
+                _piwikTracker.setCustomTrackingParameter("dimension1", _gameVersion);
 
-            // Track the event
-            _piwikTracker.doTrackEvent(eventCategory, eventAction, eventSubjectName, eventValue);
+                // Track the event
+                var response = _piwikTracker.doTrackEvent(eventCategory, eventAction, eventSubjectName, eventValue);
+                
+                // Close response
+                response.Close();
+            }
+            catch {}
         }
 
         public void TrackApplicationView(string relativeURL, string title="")
         {
-            // Set game version custom dimension for all tracking requests
-            _piwikTracker.setCustomTrackingParameter("dimension1", _gameVersion);
+            try
+            {
+                // Set game version custom dimension for all tracking requests
+                _piwikTracker.setCustomTrackingParameter("dimension1", _gameVersion);
 
-            // Set page "url"
-            _piwikTracker.setUrl(new Uri(_baseUri, relativeURL).ToString());
+                // Set page "url"
+                _piwikTracker.setUrl(new Uri(_baseUri, relativeURL).ToString());
 
-            // Track the page view
-            _piwikTracker.doTrackPageView(title);
+                // Track the page view
+                var response = _piwikTracker.doTrackPageView(title);
+                
+                // Close respone
+                response.Close();
+            }
+            catch {}
         }
 
         public void SetCustomVariable(int variableID, string variableName, string variableValue, CustomVariableScope variableScope)
         {
-            var scope = (variableScope == CustomVariableScope.ApplicationLaunch) ? CustomVar.Scopes.visit : CustomVar.Scopes.page;
-            _piwikTracker.setCustomVariable(variableID, variableName, variableValue, scope);
+            try
+            {
+                var scope = (variableScope == CustomVariableScope.ApplicationLaunch) ? CustomVar.Scopes.visit : CustomVar.Scopes.page;
+                _piwikTracker.setCustomVariable(variableID, variableName, variableValue, scope);
+            }
+            catch {}
         }
 
         private string BuildUserAgent()
