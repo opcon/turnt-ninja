@@ -92,6 +92,15 @@ namespace TurntNinja.FileSystem
             _searchString = "";
         }
 
+        public void RefreshRecentSongFilesystem()
+        {
+            foreach (var f in _fileSystemCollection)
+            {
+                if (f is RecentFileSystem)
+                    f.Focused();
+            }
+        }
+
         public void Resize(int wWidth, int wHeight)
         {
             _halfEntryDrawCount = (int) (wHeight / _unselectedFont.MaxLineHeight) / 2 - (int) (_selectedFont.MaxLineHeight / (float)_unselectedFont.MaxLineHeight) -1;
