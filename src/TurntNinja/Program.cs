@@ -222,8 +222,8 @@ namespace TurntNinja
         {
             ServiceLocator.Analytics.TrackApplicationShutdown();
             _gameSceneManager.Dispose();
-            _gameSettings["Debug"] = DebugMode;
-            _gameSettings.Save();
+            _gameSettings["Debug"] = DebugMode.Value;
+            ServiceLocator.Settings.Save();
             base.OnUnload(e);
         }
 
