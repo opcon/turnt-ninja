@@ -134,8 +134,7 @@ namespace TurntNinja.GUI
 
         public void Exit()
         {
-            SceneManager.RemoveScene(this, true);
-            SceneManager.GameWindow.Exit();
+            SceneManager.Exit();
         }
 
         private int GetSelectedSide()
