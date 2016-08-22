@@ -216,6 +216,10 @@ namespace TurntNinja.Game
             {
                 _soundOut.Stop();
                 _soundOut.Dispose();
+                if (_soundOut is ALSoundOut)
+                {
+                    CSCore.SoundOut.AL.ALDevice.DefaultDevice.Dispose();
+                }
                 _soundOut = null;
             }
             if (_soundSource != null)
@@ -257,7 +261,9 @@ namespace TurntNinja.Game
         public void Init(IWaveSource source)
         {
             _soundSource = source;
-			_soundOut = new WaveOut();
+            // Use ALSound out if we are running on Mac/Linux
+            _soundOut = (PlatformDetection.RunningPlatform() == Platform.Windows) ? 
+                (ISoundOut) new WaveOut() : new ALSoundOut();
             _soundOut.Initialize(_soundSource);
             _soundOut.Stopped += (sender, args) => { if (args.HasError) throw new Exception("exception thrown on stoping audio", args.Exception); };
         }
