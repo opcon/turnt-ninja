@@ -19,9 +19,9 @@ NUGET
       Splat (>= 1.6.2)
     TagLib.Portable (1.0.4) - framework: >= net45
   remote: https://ci.appveyor.com/nuget/cscore-lt381sf5ht3e
-    CSCore (1.1.21)
-    CSCore.OSX (1.1.21)
-      CSCore (>= 1.1.21)
+    CSCore (1.1.24)
+    CSCore.OSX (1.1.24)
+      CSCore (>= 1.1.24)
   remote: https://ci.appveyor.com/nuget/gwen-nolegacy-opentk-renderer-y8bf4l8s9nxo
     Gwen (3.0.6026.7037) - framework: >= net45
       OpenTK.Next (>= 1.1.1616.8959)
@@ -48,7 +48,7 @@ NUGET
 GROUP Build
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.37.2)
+    FAKE (4.38)
 
 GROUP Deploy
 NUGET
