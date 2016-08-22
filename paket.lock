@@ -6,7 +6,7 @@ NUGET
     DeltaCompressionDotNet (1.0) - framework: >= net45
     HUSL (1.0.1) - framework: >= net45
     LiteDB (2.0) - framework: >= net45
-    MathNet.Numerics (3.12) - framework: >= net45
+    MathNet.Numerics (3.13) - framework: >= net45
     Mono.Cecil (0.9.6.1) - framework: >= net45
     Newtonsoft.Json (9.0.1)
     NuGet.CommandLine (3.4.3)
@@ -19,9 +19,9 @@ NUGET
       Splat (>= 1.6.2)
     TagLib.Portable (1.0.4) - framework: >= net45
   remote: https://ci.appveyor.com/nuget/cscore-lt381sf5ht3e
-    CSCore (1.1.15)
-    CSCore.OSX (1.1.15)
-      CSCore (>= 1.1.15)
+    CSCore (1.1.21)
+    CSCore.OSX (1.1.21)
+      CSCore (>= 1.1.21)
   remote: https://ci.appveyor.com/nuget/gwen-nolegacy-opentk-renderer-y8bf4l8s9nxo
     Gwen (3.0.6026.7037) - framework: >= net45
       OpenTK.Next (>= 1.1.1616.8959)
@@ -32,7 +32,7 @@ NUGET
       SharpFont (>= 3.1)
       SharpFont.Dependencies (>= 2.6)
   remote: https://ci.appveyor.com/nuget/onset-detection-ce96cu4ph0k5
-    OnsetDetection (1.0.6071.24680) - framework: >= net45
+    OnsetDetection (1.0.6071.26192) - framework: >= net45
       CSCore (>= 1.1.15)
       MathNet.Numerics (>= 3.11.1)
   remote: https://ci.appveyor.com/nuget/quickfont-m6wdxb2yf1v5
@@ -54,3 +54,10 @@ GROUP Deploy
 NUGET
   remote: https://www.nuget.org/api/v2
     ILRepack (2.0.10)
+    Microsoft.Data.Edm (5.6.1)
+    Microsoft.Data.OData (5.6.1)
+      Microsoft.Data.Edm (5.6.1)
+      System.Spatial (5.6.1)
+    Microsoft.Data.Services.Client (5.6.1)
+      Microsoft.Data.OData (5.6.1)
+    System.Spatial (5.6.1)

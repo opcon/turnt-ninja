@@ -33,6 +33,7 @@ group Deploy
 
 	source https://www.nuget.org/api/v2/
 	nuget ILRepack
+nuget Microsoft.Data.Services.Client = 5.6.1
 
 group Build
 
