@@ -33,24 +33,16 @@ namespace TurntNinja.Core.Settings
 
         public void Load()
         {
-			try 
-			{
-	            if (Properties.Settings.Default.UpgradeRequired)
-	            {
-	                Properties.Settings.Default.Upgrade();
-	                Properties.Settings.Default.UpgradeRequired = false;
-	                Properties.Settings.Default.Save();
-	            }
-			}
-			catch 
-			{
-				Properties.Settings.Default.Reload();
-				// There was an error loading the settings, reset them ( :( )
-				Properties.Settings.Default.Reset();
-			}
+            if (_loaded) throw new Exception("Game settings already loaded, can't load again");
+            if (Properties.Settings.Default.UpgradeRequired)
+            {
+                Console.WriteLine("Upgrading settings");
+                Properties.Settings.Default.Upgrade();
+                Properties.Settings.Default.UpgradeRequired = false;
+                //Properties.Settings.Default.Save();
+            }
 
-
-            //Properties.Settings.Default.Reload();
+            Properties.Settings.Default.Reload();
             //load all the settings
             _settings = new Dictionary<string, SettingsPropertyValue>();
             SettingsPropertyValue[] values = new SettingsPropertyValue[Properties.Settings.Default.PropertyValues.Count];
