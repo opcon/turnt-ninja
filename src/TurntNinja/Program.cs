@@ -337,7 +337,7 @@ namespace TurntNinja
             if (PlatformDetection.RunningPlatform() == Platform.MacOSX)
                 major = 4;
 
-            if ((bool)ServiceLocator.Settings["Analytics"] || (bool)ServiceLocator.Settings["FirstRun"])
+            if ((bool)ServiceLocator.Settings["Analytics"])
                 ServiceLocator.Analytics.TrackApplicationStartup();
 
             using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode, "Turnt Ninja",
