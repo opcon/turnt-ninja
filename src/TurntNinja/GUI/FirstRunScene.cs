@@ -94,6 +94,7 @@ namespace TurntNinja.GUI
             if (InputSystem.NewKeys.Contains(OpenTK.Input.Key.Enter))
             {
                 ServiceLocator.Settings["Analytics"] = true;
+                ServiceLocator.Settings.Save();
 
                 // Track application startup
                 ServiceLocator.Analytics.TrackApplicationStartup();
