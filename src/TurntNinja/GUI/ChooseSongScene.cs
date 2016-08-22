@@ -14,6 +14,8 @@ using OpenTK;
 using OpenTK.Graphics;
 using TurntNinja.FileSystem;
 using TurntNinja.Audio;
+using System.Xml.Serialization;
+using Substructio;
 
 namespace TurntNinja.GUI
 {
@@ -24,6 +26,9 @@ namespace TurntNinja.GUI
         private readonly Player _player;
         private readonly ShaderProgram _shaderProgram;
         private List<SongBase> _recentSongs;
+        
+        private const string RECENT_SONGS_FILE = "recent-songs.xml";
+        private string _recentSongsFile = "";
 
         DirectoryBrowser _directoryBrowser;
 
@@ -47,10 +52,12 @@ namespace TurntNinja.GUI
             _directoryBrowser = new DirectoryBrowser(SceneManager, this);
             _directoryBrowser.AddFileSystem(new LocalFileSystem(SceneManager.Directories));
             _directoryBrowser.AddFileSystem(new SoundCloudFileSystem());
-
-            if (SceneManager.GameSettings["RecentSongs"] == null)
-                SceneManager.GameSettings["RecentSongs"] = _recentSongs = new List<SongBase>();
-            _recentSongs = (List<SongBase>)SceneManager.GameSettings["RecentSongs"];
+            
+            // Find recent songs file path
+            _recentSongsFile = ServiceLocator.Directories.Locate("AppData", RECENT_SONGS_FILE);
+            
+            // Load recent songs
+            LoadRecentSongs();
 
             // Make sure to add recent file system last!
             _directoryBrowser.AddFileSystem(new RecentFileSystem(_recentSongs));
@@ -58,18 +65,53 @@ namespace TurntNinja.GUI
             _directoryBrowser.Resize(WindowWidth, WindowHeight);
             Loaded = true;
         }
+        
+        private void LoadRecentSongs()
+        {
+            if (File.Exists(_recentSongsFile))
+            {
+                var serializer = new XmlSerializer(typeof(List<SongBase>));
+                using (TextReader f = new StreamReader(_recentSongsFile))
+                {
+                    _recentSongs = (List<SongBase>)serializer.Deserialize(f);
+                }
+            }
+            else
+                _recentSongs = new List<SongBase>();
+        }
+        
+        private void SaveRecentSongs()
+        {
+            var serializer = new XmlSerializer(typeof(List<SongBase>));
+            using (TextWriter f = new StreamWriter(_recentSongsFile))
+            {
+                serializer.Serialize(f, _recentSongs);
+            }
+        }
 
         public void SongChosen(Song song)
         {
+            // Track song play with analytics
             ServiceLocator.Analytics.SetCustomVariable(1, "File System", song.FileSystem.FriendlyName, Substructio.Logging.CustomVariableScope.ApplicationView);
             ServiceLocator.Analytics.TrackEvent("Song", "Play", song.FileSystem.FriendlyName);
+            
+            // Remove the currently selected song if it already exists in the recent songs list
+            // so that we can insert it again at the head, retaining the list order
+            _recentSongs.Remove(song.SongBase);
+            
+            // Remove the oldest song if we are over the maximum recent song count
             if (_recentSongs.Count >= (int)SceneManager.GameSettings["MaxRecentSongCount"])
                 _recentSongs.RemoveAt(_recentSongs.Count - 1);
-            _recentSongs.Remove(song.SongBase);
 
+            // Insert the new song at the head of the list
             _recentSongs.Insert(0, song.SongBase);
+            
+            // Save recent songs file
+            SaveRecentSongs();
+            
+            // Refresh recent songs filesystem
+            _directoryBrowser.RefreshRecentSongFilesystem();
 
-            SceneManager.GameSettings["RecentSongs"] = _recentSongs;
             //SceneManager.RemoveScene(this);
             this.Visible = false;
             SceneManager.AddScene(
