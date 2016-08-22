@@ -48,9 +48,14 @@ namespace TurntNinja.GUI
 
             _gameVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
-            //load shaders
-            var vert = new Shader(Path.Combine(SceneManager.Directories["Shaders"].FullName, "simple.vs"));
-            var frag = new Shader(Path.Combine(SceneManager.Directories["Shaders"].FullName, "simple.fs"));
+            // Choose correct version directive because OSX is dumb
+            string version = "#version 130";
+            if (PlatformDetection.RunningPlatform() == Platform.MacOSX)
+                version = "#version 150";
+
+            // Load shaders
+            var vert = new Shader(Path.Combine(SceneManager.Directories["Shaders"].FullName, "simple.vs"), version);
+            var frag = new Shader(Path.Combine(SceneManager.Directories["Shaders"].FullName, "simple.fs"), version);
             _shaderProgram = new ShaderProgram();
             _shaderProgram.Load(vert, frag);
 

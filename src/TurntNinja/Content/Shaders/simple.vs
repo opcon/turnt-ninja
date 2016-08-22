@@ -1,4 +1,3 @@
-#version 130
 
 uniform mat4 mvp;
 uniform vec4 in_color;
