@@ -99,6 +99,10 @@ namespace TurntNinja
             Console.WriteLine("Initializing");
             var gameCamera = new Camera(prefWidth, prefHeight, Width, Height, Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int)(prefHeight * 20));
+            
+            // Register OSX codecs if running on OSX
+            if (PlatformDetection.RunningPlatform() == Platform.MacOSX)
+                CSCore.OSXCoreAudio.OSXAudio.RegisterCodecs();
 
             var fontLibrary = new FontLibrary();
 
