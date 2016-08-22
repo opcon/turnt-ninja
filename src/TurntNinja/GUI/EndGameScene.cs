@@ -46,6 +46,26 @@ namespace TurntNinja.GUI
             //save song to db
             string dbFile = Path.Combine(SceneManager.Directories["AppData"].FullName, (string)SceneManager.GameSettings["DatabaseFile"]);
 
+            // Need to check for old version of database
+            try
+            {
+                SaveHighScore(dbFile);
+            }
+            catch (Exception ex)
+            {
+                // this is an old version of the database, delete the file and try again
+                File.Delete(dbFile);
+            }
+            
+            // This shouldn't fail, because we checked for old version of the database
+            SaveHighScore(dbFile);
+
+            UpdateText();
+            Loaded = true;
+        }
+        
+        private void SaveHighScore(string dbFile)
+        {
             using (var db = new LiteDatabase(dbFile))
             {
                 var highSccoreCollection = db.GetCollection<HighScoreEntry>("highscores");
@@ -73,7 +93,6 @@ namespace TurntNinja.GUI
                 _highScoreEntry.HighScores.OrderByDescending(ps => ps.Score);
 
                 // Save to DB
-                db.BeginTrans();
                 using (var trans = db.BeginTrans())
                 {
                     if (_highScoreEntry.Id == null || !highSccoreCollection.Update(_highScoreEntry)) highSccoreCollection.Insert(_highScoreEntry);
@@ -85,9 +104,6 @@ namespace TurntNinja.GUI
                     _newHighScore = true;
                 }
             }
-
-            UpdateText();
-            Loaded = true;
         }
 
         public override void CallBack(GUICallbackEventArgs e)
