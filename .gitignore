@@ -192,3 +192,6 @@ deploy/
 
 # Paket
 paket.exe
+
+# vim
+*.swp
