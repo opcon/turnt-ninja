@@ -179,6 +179,12 @@ namespace TurntNinja
         /// <remarks>There is no need to call the base implementation.</remarks>
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            if (_gameSceneManager.ExitRequested)
+            {
+                Exit();
+                return;
+            }
+
             _lag += e.Time;
             while (_lag >= _dt)
             {
