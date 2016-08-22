@@ -98,9 +98,9 @@ namespace TurntNinja.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
-        public global::OpenTK.WindowState WindowState {
+        public string WindowState {
             get {
-                return ((global::OpenTK.WindowState)(this["WindowState"]));
+                return ((string)(this["WindowState"]));
             }
             set {
                 this["WindowState"] = value;

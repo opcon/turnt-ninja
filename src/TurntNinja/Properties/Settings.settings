@@ -20,7 +20,7 @@
     <Setting Name="VSync" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="WindowState" Type="OpenTK.WindowState" Scope="User">
+    <Setting Name="WindowState" Type="System.String" Scope="User">
       <Value Profile="(Default)">Normal</Value>
     </Setting>
     <Setting Name="FileFilter" Type="System.String" Scope="Application">

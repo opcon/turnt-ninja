@@ -28,6 +28,7 @@ namespace TurntNinja.Core.Settings
         public void Save()
         {
             Properties.Settings.Default.Save();
+
         }
 
         public void Load()

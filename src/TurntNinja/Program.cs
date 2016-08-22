@@ -55,7 +55,7 @@ namespace TurntNinja
         {
             KeyDown += Keyboard_KeyDown;
             this.VSync = (bool)gameSettings["VSync"] ? VSyncMode.On : VSyncMode.Off;
-            this.WindowState = (WindowState)gameSettings["WindowState"];
+            this.WindowState = (WindowState)Enum.Parse(typeof(WindowState), (string)gameSettings["WindowState"]);
             DebugMode.Value = (bool)gameSettings["Debug"];
             _gameSettings = gameSettings;
             _directoryHandler = directoryHandler;
@@ -70,7 +70,8 @@ namespace TurntNinja
         {
             if (e.Key == Key.F11)
             {
-                _gameSettings["WindowState"] = WindowState = WindowState == WindowState.Fullscreen ? WindowState.Normal : WindowState.Fullscreen;
+                WindowState = WindowState == WindowState.Fullscreen ? WindowState.Normal : WindowState.Fullscreen;
+                _gameSettings["WindowState"] = WindowState.ToString();
             }
         }
 
