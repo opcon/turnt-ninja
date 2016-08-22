@@ -160,10 +160,13 @@
     <Content Include="OpenTK.dll.config">
       <Paket>True</Paket>
     </Content>
+    <Content Include="SharpFont.dll.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Substructio\src\Substructio.csproj">
-      <Project>{5b3f1066-88da-4f9c-8dfe-646c40b412c2}</Project>
+      <Project>{5B3F1066-88DA-4F9C-8DFE-646C40B412C2}</Project>
       <Name>Substructio</Name>
     </ProjectReference>
   </ItemGroup>
