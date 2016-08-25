@@ -51,6 +51,16 @@ namespace TurntNinja.Core.Settings
             }
             _loaded = true;
         }
+
+        public Dictionary<string, object> GetAllSettings()
+        {
+            var ret = new Dictionary<string, object>();
+            foreach (var kvp in _settings)
+            {
+                ret.Add(kvp.Key, kvp.Value.PropertyValue);
+            }
+            return ret;
+        }
     }
 
     public class GameSettingNotFoundException : Exception

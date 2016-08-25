@@ -82,6 +82,7 @@
     <Compile Include="Audio\AcoustIDCSCore.cs" />
     <Compile Include="Audio\AudioFeatures.cs" />
     <Compile Include="Audio\SongBase.cs" />
+    <Compile Include="Core\Settings\JsonSettings.cs" />
     <Compile Include="FileSystem\FileBrowserEntry.cs" />
     <Compile Include="Audio\PlaylistHelper.cs" />
     <Compile Include="Audio\Song.cs" />

@@ -231,8 +231,12 @@ namespace TurntNinja
         public static void Main(string[] args)
         {
             // Load services
-            ServiceLocator.Settings = new PropertySettings();
-            ServiceLocator.Settings.Load();
+            var initialSettingsProvider = new PropertySettings();
+            initialSettingsProvider.Load();
+
+            // Default settings provider is the Windows application settings implementation
+            ServiceLocator.Settings = initialSettingsProvider;
+
 
             // DEBUG SETTINGS - Force first run
             //ServiceLocator.Settings["Analytics"] = false;
@@ -327,6 +331,13 @@ namespace TurntNinja
 
                 //attach exception handlers
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            }
+
+            // If we are not running on a windows platform, use the JsonSettings backend
+            if (PlatformDetection.RunningPlatform() != Platform.Windows)
+            {
+                ServiceLocator.Settings = new JsonSettings(initialSettingsProvider, directoryHandler.Locate("AppData", "settings.json"));
+                ServiceLocator.Settings.Load();
             }
 
             //init logging
