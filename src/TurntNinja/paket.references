@@ -1,0 +1,21 @@
+ColorMine
+CSCore
+CSCore.OSX
+DeltaCompressionDotNet
+Gwen
+Gwen.Renderer.OpenTK
+HUSL
+LiteDB
+MathNet.Numerics
+Mono.Cecil
+Newtonsoft.Json
+OnsetDetection
+OpenTK.Next
+QuickFont.Desktop
+SharpFont import_targets: false
+SharpFont.Dependencies
+Splat
+squirrel.windows
+TagLib.Portable
+SharpRaven
+AcoustID.NET

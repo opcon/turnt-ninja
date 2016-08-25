@@ -1,0 +1,13 @@
+os:
+  - linux
+  - osx
+language: csharp
+env:
+  - CONFIGURATION=Release
+  - CONFIGURATION=Debug
+script: ./build.sh mode=$CONFIGURATION
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+    on_start: never

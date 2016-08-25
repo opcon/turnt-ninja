@@ -180,3 +180,18 @@ $RECYCLE.BIN/
 Releases/
 SquirrelReleases/
 *.rar
+
+# FAKE
+.fake/
+
+# Build artifacts
+tmp/
+
+# Deploy
+deploy/
+
+# Paket
+paket.exe
+
+# vim
+*.swp

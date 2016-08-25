@@ -1,0 +1,620 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Piwik.Tracker</name>
+    </assembly>
+    <members>
+        <!-- Badly formed XML comment ignored for member "T:Piwik.Tracker.AttributionInfo" -->
+        <member name="P:Piwik.Tracker.AttributionInfo.referrerTimestamp">
+            <summary>
+            Timestamp at which the referrer was set
+            </summary>  
+        </member>
+        <member name="T:Piwik.Tracker.BrowserPlugins">
+            <summary>
+            Supported browser plugins
+            </summary>
+        </member>
+        <member name="T:Piwik.Tracker.CustomVar">
+            <summary>
+            Visit Custom Variable
+            See http://piwik.org/docs/custom-variables/
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:Piwik.Tracker.PiwikTracker" -->
+        <member name="F:Piwik.Tracker.PiwikTracker.VERSION">
+            <summary>
+            API Version
+            </summary>
+        </member>
+        <member name="F:Piwik.Tracker.PiwikTracker.LENGTH_VISITOR_ID">
+            <summary>
+            Visitor ID length
+            </summary>
+        </member>
+        <member name="F:Piwik.Tracker.PiwikTracker.DEFAULT_CHARSET_PARAMETER_VALUES">
+            <summary>
+            Charset
+            <see cref="M:Piwik.Tracker.PiwikTracker.setPageCharset(System.String)"/>
+            </summary>
+        </member>
+        <member name="F:Piwik.Tracker.PiwikTracker.FIRST_PARTY_COOKIES_PREFIX">
+            <summary>
+            <see cref="!:piwik.js"/>
+            </summary>
+        </member>
+        <member name="F:Piwik.Tracker.PiwikTracker.CVAR_INDEX_ECOMMERCE_ITEM_PRICE">
+            <summary>
+            Ecommerce item page view tracking stores item's metadata in these Custom Variables slots.
+            </summary>
+        </member>
+        <member name="F:Piwik.Tracker.PiwikTracker.URL">
+            <summary>
+            Piwik base URL, for example http://example.org/piwik/
+            Must be set before using the class by calling PiwikTracker.URL = 'http://yourwebsite.org/piwik/'
+            </summary>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.#ctor(System.Int32,System.String)">
+            <summary>
+            Builds a PiwikTracker object, used to track visits, pages and Goal conversions
+            for a specific website, by using the Piwik Tracking API.
+            
+            If the tracker is used within a web page or web controller, the following information are pre-initialised : 
+            URL Referrer, current page URL, remote IP, Accept-Language HTTP header and User-Agent HTTP header.
+            </summary>       
+            <param name="idSite">Id site to be tracked</param>
+            <param name="apiUrl">"http://example.org/piwik/" or "http://piwik.example.org/". If set, will overwrite PiwikTracker.URL</param>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setPageCharset(System.String)">
+            <summary>
+            By default, Piwik expects utf-8 encoded values, for example
+            for the page URL parameter values, Page Title, etc.
+            It is recommended to only send UTF-8 data to Piwik.
+            If required though, you can also specify another charset using this function.
+            </summary>       
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setUrl(System.String)">
+            <summary>
+            Sets the current URL being tracked
+            </summary>       
+            <param name="url">Raw URL (not URL encoded)</param>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setUrlReferrer(System.String)">
+            <summary>
+            Sets the URL referrer used to track Referrers details for new visits.
+            </summary>       
+            <param name="url">Raw URL (not URL encoded)</param>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setGenerationTime(System.Int32)">
+            <summary>
+            Sets the time that generating the document on the server side took.
+            </summary>       
+            <param name="timeMs">Generation time in ms</param>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Piwik.Tracker.PiwikTracker.setAttributionInfo(Piwik.Tracker.AttributionInfo)" -->
+        <member name="M:Piwik.Tracker.PiwikTracker.setCustomVariable(System.Int32,System.String,System.String,Piwik.Tracker.CustomVar.Scopes)">
+            <summary>
+            Sets Visit Custom Variable.
+            See http://piwik.org/docs/custom-variables/
+            </summary>       
+            <param name="id">Custom variable slot ID from 1-5</param>
+            <param name="name">Custom variable name</param>
+            <param name="value">Custom variable value</param>
+            <param name="scope">Custom variable scope. Possible values: visit, page, event</param>
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setCustomTrackingParameter(System.String,System.String)">
+            <summary>
+            Sets a custom tracking parameter
+            <para></para>
+            To track custom dimensions use 'dimension{#}' as the value for
+            <paramref name="trackingApiParameter"/>, e.g. dimension1.
+            </summary>
+            <param name="trackingApiParameter">The name of the custom tracking parameter. Use dimension{#} for custom dimensions, e.g. dimension1 for dimension 1.</param>
+            <param name="value">The value of the custom parameter</param>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getCustomVariable(System.Int32,Piwik.Tracker.CustomVar.Scopes)">
+            <summary>
+            Returns the currently assigned Custom Variable.
+            
+            If scope is 'visit', it will attempt to read the value set in the first party cookie created by Piwik Tracker ($_COOKIE array).
+            </summary>       
+            <param name="id">Custom Variable integer index to fetch from cookie. Should be a value from 1 to 5</param>
+            <param name="scope">Custom variable scope. Possible values: visit, page, event</param> 
+            <exception cref="T:System.Exception"/>
+            <returns>The requested custom variable</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getCustomTrackingParameter(System.String)">
+            <summary>
+            Returns the currently assigned value for the given custom tracking parameter
+            </summary>
+            <param name="trackingApiParameter">The name of the custom tracking parameter</param>
+            <returns>The value of the custom tracking parameter</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.clearCustomVariables">
+            <summary>
+            Clears any Custom Variable that may be have been set.
+            
+            This can be useful when you have enabled bulk requests,
+            and you wish to clear Custom Variables of 'visit' scope.
+            </summary> 
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.clearCustomTrackingParameters">
+            <summary>
+            Clears any custom tracking parameters that have been set.
+            </summary>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setNewVisitorId">
+            <summary>
+            Sets the current visitor ID to a random new one.
+            </summary>       
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setIdSite(System.Int32)">
+            <summary>
+            Sets the current site ID.
+            </summary>       
+            <param name="idSite"/>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setBrowserLanguage(System.String)">
+            <summary>
+            Sets the Browser language. Used to guess visitor countries when GeoIP is not enabled
+            </summary>       
+            <param name="acceptLanguage">For example "fr-fr"</param>    
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setUserAgent(System.String)">
+            <summary>
+            Sets the user agent, used to detect OS and browser.
+            If this function is not called, the User Agent will default to the current user agent
+            if there is an active HttpContext
+            </summary>       
+            <param name="userAgent">HTTP User Agent</param>  
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setCountry(System.String)">
+            <summary>
+            Sets the country of the visitor. If not used, Piwik will try to find the country
+            using either the visitor's IP address or language.
+            
+            Allowed only for Admin/Super User, must be used along with setTokenAuth().
+            </summary>       
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setRegion(System.String)">
+            <summary>
+            Sets the region of the visitor. If not used, Piwik may try to find the region
+            using the visitor's IP address (if configured to do so).
+            
+            Allowed only for Admin/Super User, must be used along with setTokenAuth().
+            </summary>       
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setCity(System.String)">
+            <summary>
+            Sets the city of the visitor. If not used, Piwik may try to find the city
+            using the visitor's IP address (if configured to do so).
+            
+            Allowed only for Admin/Super User, must be used along with setTokenAuth().
+            </summary>       
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setLatitude(System.Single)">
+            <summary>
+            Sets the latitude of the visitor. If not used, Piwik may try to find the visitor's
+            latitude using the visitor's IP address (if configured to do so).
+            
+            Allowed only for Admin/Super User, must be used along with setTokenAuth().
+            </summary>  
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setLongitude(System.Single)">
+            <summary>
+            Sets the longitude of the visitor. If not used, Piwik may try to find the visitor's
+            longitude using the visitor's IP address (if configured to do so).
+            
+            Allowed only for Admin/Super User, must be used along with setTokenAuth().
+            </summary>  
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.enableBulkTracking">
+            <summary>
+            Enables the bulk request feature. When used, each tracking action is stored until the
+            doBulkTrack method is called. This method will send all tracking data at once.
+            </summary>     
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.enableCookies(System.String,System.String)">
+            <summary>
+            Enable Cookie Creation - this will cause a first party VisitorId cookie to be set when the VisitorId is set or reset
+            </summary>       
+            <param name="domain">(optional) Set first-party cookie domain. Accepted values: example.com, *.example.com (same as .example.com) or subdomain.example.com</param>    
+            <param name="path">(optional) Set first-party cookie path</param>    
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.domainFixup(System.String)">
+            <summary>
+            Fix-up domain
+            </summary>  
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Piwik.Tracker.PiwikTracker.getCookieName(System.String)" -->
+        <member name="M:Piwik.Tracker.PiwikTracker.doTrackPageView(System.String)">
+            <summary>
+            Tracks a page view
+            </summary>       
+            <param name="documentTitle">Page title as it will appear in the Actions > Page titles report</param> 
+            <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.doTrackEvent(System.String,System.String,System.String,System.String)">
+            <summary>
+            Tracks an event
+            </summary>       
+            <param name="category">The Event Category (Videos, Music, Games...)</param> 
+            <param name="action">The Event's Action (Play, Pause, Duration, Add Playlist, Downloaded, Clicked...)</param> 
+            <param name="name">(optional) The Event's object Name (a particular Movie name, or Song name, or File name...)</param> 
+            <param name="value">(optional) The Event's value</param> 
+            <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.doTrackContentImpression(System.String,System.String,System.String)">
+            <summary>
+            Tracks a content impression
+            </summary>       
+            <param name="contentName">The name of the content. For instance 'Ad Foo Bar'</param> 
+            <param name="contentPiece">The actual content. For instance the path to an image, video, audio, any text</param> 
+            <param name="contentTarget">(optional) The target of the content. For instance the URL of a landing page.</param> 
+            <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.doTrackContentInteraction(System.String,System.String,System.String,System.String)">
+            <summary>
+            Tracks a content interaction. Make sure you have tracked a content impression using the same content name and
+            content piece, otherwise it will not count. To do so you should call the method doTrackContentImpression();
+            </summary>       
+            <param name="interaction">The name of the interaction with the content. For instance a 'click'</param> 
+            <param name="contentName">The name of the content. For instance 'Ad Foo Bar'</param> 
+            <param name="contentPiece">The actual content. For instance the path to an image, video, audio, any text</param> 
+            <param name="contentTarget">(optional) The target the content leading to when an interaction occurs. For instance the URL of a landing page.</param> 
+            <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.doTrackSiteSearch(System.String,System.String,System.Nullable{System.Int32})">
+            <summary>
+            Tracks an internal Site Search query, and optionally tracks the Search Category, and Search results Count.
+            These are used to populate reports in Actions > Site Search.
+            </summary>       
+            <param name="keyword">Searched query on the site</param> 
+            <param name="category">(optional) Search engine category if applicable</param> 
+            <param name="countResults">(optional) results displayed on the search result page. Used to track "zero result" keywords.</param> 
+            <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.doTrackGoal(System.Int32,System.Single)">
+            <summary>
+            Records a Goal conversion
+            </summary>       
+            <param name="idGoal">Id Goal to record a conversion</param> 
+            <param name="revenue">Revenue for this conversion</param> 
+            <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.doTrackAction(System.String,Piwik.Tracker.PiwikTracker.ActionType)">
+            <summary>
+            Tracks a download or outlink
+            </summary>       
+            <param name="actionUrl">URL of the download or outlink</param> 
+            <param name="actionType">Type of the action: 'download' or 'link'</param> 
+            <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.addEcommerceItem(System.String,System.String,System.Collections.Generic.List{System.String},System.Double,System.UInt64)">
+            <summary>
+            Adds an item in the Ecommerce order.
+            
+            This should be called before doTrackEcommerceOrder(), or before doTrackEcommerceCartUpdate().
+            This function can be called for all individual products in the cart (or order).
+            SKU parameter is mandatory. Other parameters are optional (set to false if value not known).
+            Ecommerce items added via this function are automatically cleared when doTrackEcommerceOrder() or getUrlTrackEcommerceOrder() is called.
+            </summary>       
+            <param name="sku">SKU, Product identifier </param> 
+            <param name="name">Product name</param> 
+            <param name="categories">Array of product categories (up to 5 categories can be specified for a given product)</param> 
+            <param name="price"> Individual product price (supports integer and decimal prices)</param> 
+            <param name="quantity">Product quantity. If not specified, will default to 1 in the Reports</param> 
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.doTrackEcommerceCartUpdate(System.Double)">
+            <summary>
+            Tracks a Cart Update (add item, remove item, update item).
+            
+            On every Cart update, you must call addEcommerceItem() for each item (product) in the cart, 
+            including the items that haven't been updated since the last cart update.
+            Items which were in the previous cart and are not sent in later Cart updates will be deleted from the cart (in the database).
+            </summary>       
+            <param name="grandTotal">Cart grandTotal (typically the sum of all items' prices)</param> 
+            <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.doBulkTrack">
+            <summary>
+            Sends all stored tracking actions at once. Only has an effect if bulk tracking is enabled.
+            
+            To enable bulk tracking, call enableBulkTracking().
+            </summary>   
+            <exception cref="T:System.Exception"/>    
+            <returns>Response</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.doTrackEcommerceOrder(System.String,System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Tracks an Ecommerce order.
+            
+            If the Ecommerce order contains items (products), you must call first the addEcommerceItem() for each item in the order.
+            All revenues (grandTotal, subTotal, tax, shipping, discount) will be individually summed and reported in Piwik reports.
+            Only the parameters $orderId and $grandTotal are required. 
+            </summary>       
+            <param name="orderId">Unique Order ID. This will be used to count this order only once in the event the order page is reloaded several times. orderId must be unique for each transaction, even on different days, or the transaction will not be recorded by Piwik.</param> 
+            <param name="grandTotal">Grand Total revenue of the transaction (including tax, shipping, etc.)</param> 
+            <param name="subTotal">Sub total amount, typically the sum of items prices for all items in this order (before Tax and Shipping costs are applied)</param> 
+            <param name="tax">Tax amount for this order</param> 
+            <param name="shipping">Shipping amount for this order</param> 
+            <param name="discount">Discounted amount in this order</param> 
+            <returns>HTTP Response from the server or null if using bulk requests.</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Piwik.Tracker.PiwikTracker.setEcommerceView(System.String,System.String,System.Collections.Generic.List{System.String},System.Double)" -->
+        <member name="M:Piwik.Tracker.PiwikTracker.getUrlTrackEcommerceCartUpdate(System.Double)">
+            <summary>
+            Returns URL used to track Ecommerce Cart updates
+            Calling this function will reinitializes the property ecommerceItems to empty array 
+            so items will have to be added again via addEcommerceItem()  
+            </summary>        
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getUrlTrackEcommerceOrder(System.String,System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Returns URL used to track Ecommerce Orders
+            Calling this function will reinitializes the property ecommerceItems to empty array 
+            so items will have to be added again via addEcommerceItem()  
+            </summary>  
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getUrlTrackEcommerce(System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Returns URL used to track Ecommerce orders
+            Calling this function will reinitializes the property ecommerceItems to empty array 
+            so items will have to be added again via addEcommerceItem()  
+            </summary>  
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getUrlTrackPageView(System.String)">
+            <summary>
+            Builds URL to track a page view.
+            </summary>
+            <see cref="M:Piwik.Tracker.PiwikTracker.doTrackPageView(System.String)"/>
+            <param name="documentTitle">Page view name as it will appear in Piwik reports</param> 
+            <returns>URL to piwik.php with all parameters set to track the pageview</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getUrlTrackEvent(System.String,System.String,System.String,System.String)">
+            <summary>
+            Builds URL to track a custom event.
+            </summary>
+            <see cref="M:Piwik.Tracker.PiwikTracker.doTrackEvent(System.String,System.String,System.String,System.String)"/>
+            <param name="category">The Event Category (Videos, Music, Games...)</param> 
+            <param name="action">The Event's Action (Play, Pause, Duration, Add Playlist, Downloaded, Clicked...)</param> 
+            <param name="name">(optional) The Event's object Name (a particular Movie name, or Song name, or File name...)</param> 
+            <param name="value">(optional) The Event's value</param> 
+            <returns>URL to piwik.php with all parameters set to track the pageview</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getUrlTrackContentImpression(System.String,System.String,System.String)">
+            <summary>
+            Builds URL to track a content impression.
+            </summary>       
+            <see cref="M:Piwik.Tracker.PiwikTracker.doTrackContentImpression(System.String,System.String,System.String)"/>
+            <param name="contentName">The name of the content. For instance 'Ad Foo Bar'</param> 
+            <param name="contentPiece">The actual content. For instance the path to an image, video, audio, any text</param> 
+            <param name="contentTarget">(optional) The target of the content. For instance the URL of a landing page.</param> 
+            <exception cref="T:System.Exception">In case $contentName is empty</exception>
+            <returns>URL to piwik.php with all parameters set to track the pageview</returns>        
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getUrlTrackContentInteraction(System.String,System.String,System.String,System.String)">
+            <summary>
+            Builds URL to track a content impression.
+            </summary>       
+            <see cref="M:Piwik.Tracker.PiwikTracker.doTrackContentImpression(System.String,System.String,System.String)"/>
+            <param name="interaction">The name of the interaction with the content. For instance a 'click'</param> 
+            <param name="contentName">The name of the content. For instance 'Ad Foo Bar'</param> 
+            <param name="contentPiece">The actual content. For instance the path to an image, video, audio, any text</param> 
+            <param name="contentTarget">(optional) The target the content leading to when an interaction occurs. For instance the URL of a landing page.</param> 
+            <exception cref="T:System.Exception">In case $interaction or $contentName is empty</exception>
+            <returns>URL to piwik.php with all parameters set to track the pageview</returns>        
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getUrlTrackSiteSearch(System.String,System.String,System.Nullable{System.Int32})">
+            <summary>
+            Builds URL to track a site search.
+            </summary>
+            <see cref="M:Piwik.Tracker.PiwikTracker.doTrackSiteSearch(System.String,System.String,System.Nullable{System.Int32})"/>
+            <param name="keyword"/>
+            <param name="category"/>
+            <param name="countResults"/>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getUrlTrackGoal(System.Int32,System.Single)">
+            <summary>
+            Builds URL to track a goal with idGoal and revenue.
+            </summary>
+            <see cref="M:Piwik.Tracker.PiwikTracker.doTrackGoal(System.Int32,System.Single)"/>
+            <param name="idGoal">Id Goal to record a conversion</param> 
+            <param name="revenue">Revenue for this conversion</param> 
+            <returns>URL to piwik.php with all parameters set to track the goal conversion</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getUrlTrackAction(System.String,Piwik.Tracker.PiwikTracker.ActionType)">
+            <summary>
+            Builds URL to track a new action.
+            </summary>
+            <see cref="M:Piwik.Tracker.PiwikTracker.doTrackAction(System.String,Piwik.Tracker.PiwikTracker.ActionType)"/>
+            <param name="actionUrl">URL of the download or outlink</param> 
+            <param name="actionType">Type of the action: 'download' or 'link'</param> 
+            <returns>URL to piwik.php with all parameters set to track an action</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setForceVisitDateTime(System.DateTimeOffset)">
+            <summary>
+            Overrides server date and time for the tracking requests. 
+            By default Piwik will track requests for the "current datetime" but this function allows you 
+            to track visits in the past. All times are in UTC.
+            
+            Allowed only for Super User, must be used along with setTokenAuth()
+            </summary>
+            <param name="dateTime">Date to set</param>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setForceNewVisit">
+            <summary>
+            Forces Piwik to create a new visit for the tracking request.
+            
+            By default, Piwik will create a new visit if the last request by this user was more than 30 minutes ago.
+            If you call setForceNewVisit() before calling doTrack*, then a new visit will be created for this request.
+            
+            </summary>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setIp(System.String)">
+            <summary>
+            Overrides IP address
+            
+            Allowed only for Super User, must be used along with setTokenAuth()
+            </summary>
+            <param name="ip">IP string, eg. 130.54.2.1</param>  
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setUserId(System.String)">
+            <summary>
+            Force the action to be recorded for a specific User. The User ID is a string representing a given user in your system.
+            
+            A User ID can be a username, UUID or an email address, or any number or string that uniquely identifies a user or client.
+            </summary>
+            <param name="userId">Any user ID string (eg. email address, ID, username). Must be non empty. Set to false to de-assign a user id previously set.</param>
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getUserIdHashed(System.String)">
+            <summary>
+            Hash function used internally by Piwik to hash a User ID into the Visitor ID.
+            
+            Note: matches implementation of Tracker\Request->getUserIdHashed()
+            </summary>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setVisitorId(System.String)">
+             <summary>
+             Forces the requests to be recorded for the specified Visitor ID.
+             Note: it is recommended to use ->setUserId($userId); instead.
+             
+             Rather than letting Piwik attribute the user with a heuristic based on IP and other user fingeprinting attributes,
+             force the action to be recorded for a particular visitor.
+             
+             If you use both setVisitorId and setUserId, setUserId will take precedence.
+             If not set, the visitor ID will be fetched from the 1st party cookie, or will be set to a random UUID.
+            
+             </summary>       
+             <param name="visitorId">16 hexadecimal characters visitor ID, eg. "33c31e01394bdc63"</param>          
+             <exception cref="T:System.Exception"/>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getVisitorId">
+            <summary>
+            If the user initiating the request has the Piwik first party cookie, 
+            this function will try and return the ID parsed from this first party cookie.
+            
+            If you call this function from a server, where the call is triggered by a cron or script
+            not initiated by the actual visitor being tracked, then it will return 
+            the random Visitor ID that was assigned to this visit object.
+            
+            This can be used if you wish to record more visits, actions or goals for this visitor ID later on.
+            </summary>       
+            <returns>16 hex chars visitor ID string</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getUserId">
+            <summary>
+            Returns the User ID string, which may have been set via:
+                $v->setUserId('username@example.org');
+            </summary>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.loadVisitorIdCookie">
+            <summary>
+            Loads values from the VisitorId Cookie
+            </summary>       
+            <returns>True if cookie exists and is valid, False otherwise</returns>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.deleteCookies">
+            <summary>
+            Deletes all first party cookies from the client
+            </summary> 
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getAttributionInfo">
+            <summary>
+            Returns the currently assigned Attribution Information stored in a first party cookie.
+            
+            This function will only work if the user is initiating the current request, and his cookies
+            can be read from an active HttpContext.
+            </summary>       
+            <returns>Referrer information for Goal conversion attribution. Will return null if the cookie could not be found</returns>        
+            <see>Piwik.js getAttributionInfo()</see>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Piwik.Tracker.PiwikTracker.setTokenAuth(System.String)" -->
+        <member name="M:Piwik.Tracker.PiwikTracker.setLocalTime(System.DateTimeOffset)">
+            <summary>
+            Sets local visitor time
+            </summary>
+            <param name="localTime">Time to set</param>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setResolution(System.Int32,System.Int32)">
+            <summary>
+            Sets user resolution width and height.
+            </summary>       
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setBrowserHasCookies(System.Boolean)">
+            <summary>
+            Sets if the browser supports cookies 
+            This is reported in "List of plugins" report in Piwik.
+            </summary>  
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setDebugStringAppend(System.String)">
+            <summary>
+            Will append a custom string at the end of the Tracking request. 
+            </summary> 
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setPlugins(Piwik.Tracker.BrowserPlugins)">
+            <summary>
+            Sets visitor browser supported plugins
+            </summary>       
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.disableCookieSupport">
+            <summary>
+            By default, PiwikTracker will read first party cookies
+            from the request and write updated cookies in the response (using setrawcookie).
+            This can be disabled by calling this function.
+            </summary>      
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getRequestTimeout">
+            <summary>
+            Returns the maximum number of seconds the tracker will spend waiting for a response
+            from Piwik. Defaults to 600 seconds.
+            </summary>   
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setRequestTimeout(System.Int32)">
+            <summary>
+            Sets the maximum number of seconds that the tracker will spend waiting for a response
+            from Piwik.
+            </summary>
+            <param name="timeout"></param>
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="F:Piwik.Tracker.PiwikTracker.DEBUG_LAST_REQUESTED_URL">
+            <summary>
+            Used in tests to output useful error messages.
+            </summary>
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.getBaseUrl">
+            <summary>
+            Returns the base URL for the piwik server.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Piwik.Tracker.PiwikTracker.getCurrentScriptName" -->
+        <!-- Badly formed XML comment ignored for member "M:Piwik.Tracker.PiwikTracker.getCurrentScheme" -->
+        <!-- Badly formed XML comment ignored for member "M:Piwik.Tracker.PiwikTracker.getCurrentHost" -->
+        <!-- Badly formed XML comment ignored for member "M:Piwik.Tracker.PiwikTracker.getCurrentQueryString" -->
+        <member name="M:Piwik.Tracker.PiwikTracker.getCurrentUrl">
+            <summary>
+            Returns the current full URL (scheme, host, path and query string.
+            </summary>   
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setFirstPartyCookies">
+            <summary>
+            Sets the first party cookies as would the piwik.js
+            All cookies are supported: 'id' and 'ses' and 'ref' and 'cvar' cookies.
+            </summary>  
+        </member>
+        <member name="M:Piwik.Tracker.PiwikTracker.setCookie(System.String,System.String,System.Int64)">
+            <summary>
+            Sets a first party cookie to the client to improve dual JS-PHP tracking.
+            
+            This replicates the piwik.js tracker algorithms for consistency and better accuracy.
+            </summary>       
+            <param name="cookieName"/>
+            <param name="cookieValue"/>
+            <param name="cookieTTL"/>
+        </member>
+    </members>
+</doc>
