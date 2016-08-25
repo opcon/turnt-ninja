@@ -237,7 +237,6 @@ namespace TurntNinja
             // Default settings provider is the Windows application settings implementation
             ServiceLocator.Settings = initialSettingsProvider;
 
-
             // DEBUG SETTINGS - Force first run
             //ServiceLocator.Settings["Analytics"] = false;
             //ServiceLocator.Settings["FirstRun"] = true;
@@ -297,7 +296,6 @@ namespace TurntNinja
             ServiceLocator.Directories = new DirectoryHandler();
 
             var directoryHandler = ServiceLocator.Directories;
-            var gameSettings = ServiceLocator.Settings;
 
             //set application path
             directoryHandler.AddPath("Application", AppDomain.CurrentDomain.BaseDirectory);
@@ -312,7 +310,7 @@ namespace TurntNinja
             }
 
             directoryHandler.AddPath("AppData",
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), (string)gameSettings["AppDataFolderName"]));
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), (string)ServiceLocator.Settings["AppDataFolderName"]));
 
             directoryHandler.AddPath("Resources", Path.Combine(directoryHandler["Base"].FullName, "Content"));
             directoryHandler.AddPath("Fonts", Path.Combine(directoryHandler["Resources"].FullName, @"Fonts"));
@@ -348,9 +346,9 @@ namespace TurntNinja
                 },
                 typeof(Splat.ILogger));
 
-            int rX = (int)gameSettings["ResolutionX"];
-            int rY = (int)gameSettings["ResolutionY"];
-            int FSAASamples = (int)gameSettings["AntiAliasingSamples"];
+            int rX = (int)ServiceLocator.Settings["ResolutionX"];
+            int rY = (int)ServiceLocator.Settings["ResolutionY"];
+            int FSAASamples = (int)ServiceLocator.Settings["AntiAliasingSamples"];
             GraphicsMode graphicsMode = new GraphicsMode(32, 24, 8, FSAASamples, GraphicsMode.Default.AccumulatorFormat, 3);
 
             // Choose right OpenGL version for mac
@@ -362,7 +360,7 @@ namespace TurntNinja
             if ((bool)ServiceLocator.Settings["Analytics"])
                 ServiceLocator.Analytics.TrackApplicationStartup();
 
-            using (GameController game = new GameController(gameSettings, rX, rY, graphicsMode, "Turnt Ninja",
+            using (GameController game = new GameController(ServiceLocator.Settings, rX, rY, graphicsMode, "Turnt Ninja",
                         major, minor, directoryHandler))
             {
                 game.Title = "Turnt Ninja";
