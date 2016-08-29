@@ -165,6 +165,7 @@ namespace TurntNinja.Game
         private void LoadAudioFeatures(CSCore.IWaveSource audioSource, float correction, IProgress<string> progress, Song s)
         {
             var options = DetectorOptions.Default;
+            options.MinimumTimeDelta = 5f;
             options.ActivationThreshold = (float)SceneManager.GameSettings["OnsetActivationThreshold"];
             options.AdaptiveWhitening = (bool)SceneManager.GameSettings["OnsetAdaptiveWhitening"];
             options.Online = (bool)SceneManager.GameSettings["OnsetOnline"];
