@@ -113,6 +113,8 @@ namespace TurntNinja.Generation
             float samePatternChance = 0.90f;
             float onsetStart = 0.0f;
             float onsetEnd = 0.0f;
+            float veryCloseJoinChance = 0.5f;
+            float joinFunctionMultiplier = 20.0f;
 
             bool[] sides;
 
@@ -125,7 +127,9 @@ namespace TurntNinja.Generation
             foreach (var b in _goodBeats)
             {
                 // are we extending an existing structure?
-                if (b - prevTime < _builderOptions.VeryCloseDistance)
+                double t = Math.Exp(-joinFunctionMultiplier*(b - prevTime - _builderOptions.VeryCloseDistance) + Math.Log(veryCloseJoinChance));
+                Console.WriteLine(t);
+                if (_random.NextDouble() < t)
                 {
                     structures[currentStructureIndex].End = b;
                 }
