@@ -114,8 +114,8 @@ namespace TurntNinja.Game
                 CenterPolygon.PulseMultiplier = Onsets.PulseDataCollection[CurrentOnset].PulseMultiplier;
                 ParentStage.SceneManager.ScreenCamera.ExtraScale = CenterPolygon.Pulsing ?  (float)Math.Pow(Onsets.BeatFrequencies[CurrentOnset],3) * 0.2f : 0;
 
-                if (Onsets.CloseToNextOnset(CurrentOnset, 0.01f))
-                    _extraRotation = 0.005f;
+                //if (Onsets.CloseToNextOnset(CurrentOnset, 0.01f))
+                //    _extraRotation = 0.005f;
 
                 if (ParentStage.AI)
                 {
