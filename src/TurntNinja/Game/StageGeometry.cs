@@ -24,6 +24,7 @@ namespace TurntNinja.Game
         private double _initialHue;
         private double _extraHue = 0.0;
         private double _hueWobbleAmount = 30;
+        private bool _swapColours = false;
         private HUSLColor _baseColour;
         public Stage ParentStage;
 
@@ -166,8 +167,8 @@ namespace TurntNinja.Game
             BackgroundPolygon.Position.Azimuth = CenterPolygon.Position.Azimuth;
             BackgroundPolygon.Update(time, false);
 
-            if (frameCount == 10)
-                UpdateColours(time);
+            //if (frameCount == 2)
+            UpdateColours(time);
 
         }
 
@@ -294,12 +295,15 @@ namespace TurntNinja.Game
             }
 
             //_baseColour.H += time*50f*(!OutOfBeats ? BeatFrequencies[_beats.Index] : 1);
-            if (CurrentOnset - _previousBeat > 3)
-            {
-                _previousBeat = CurrentOnset;
-                _extraHue = ((_random.NextDouble() > 0.5) ? -1 : 1) * (90 + (_hueWobbleAmount * _random.NextDouble() - _hueWobbleAmount / 2));
+            bool swapColours = false;
 
-            }
+            // Only update colours if more than 3 beats have passed since last time
+            if (CurrentOnset - _previousBeat < 3) return;
+
+            _previousBeat = CurrentOnset;
+            _extraHue = ((_random.NextDouble() > 0.5) ? -1 : 1) * (90 + (_hueWobbleAmount * _random.NextDouble() - _hueWobbleAmount / 2));
+            _swapColours = (_random.NextDouble() > 0.95) ? !_swapColours : _swapColours;
+
             _baseColour.H = _initialHue + (CurrentOnset) * 5;
             _baseColour.L = ColourModifiers.baseLightness;
             _baseColour.S = ColourModifiers.baseSaturation;
@@ -345,6 +349,25 @@ namespace TurntNinja.Game
             _colours.EvenOutlineColour = HUSLColor.ToColor4(GetOutlineColour(fEven));
             _colours.OddOpposingColour = HUSLColor.ToColor4(fOdd);
             _colours.OddOutlineColour = HUSLColor.ToColor4(GetOutlineColour(fOdd));
+
+            // Black and White
+            //_colours.EvenOpposingColour = _colours.OddOpposingColour = Color4.Black;
+            //_colours.EvenBackgroundColour = _colours.OddBackgroundColour = Color4.White;
+            //_colours.OddOutlineColour = _colours.EvenOutlineColour = Color4.White;
+
+            // Swap colours if required
+            if (_swapColours)
+            {
+                // Handle outlines for black and white
+                // _colours.OddOutlineColour = _colours.EvenOutlineColour = Color4.Black;
+
+                var t1 = _colours.EvenBackgroundColour;
+                var t2 = _colours.OddBackgroundColour;
+                _colours.EvenBackgroundColour = _colours.OddOpposingColour;
+                _colours.OddBackgroundColour = _colours.EvenOpposingColour;
+                _colours.EvenOpposingColour = t2;
+                _colours.OddOpposingColour = t1;
+            }
         }
 
 
