@@ -33,7 +33,6 @@ namespace TurntNinja.FileSystem
         int _fileSystemEntryIndex = 0;
         int _directoryBrowserEntryIndex = 0;
 
-        int _fileSystemEntryIndexOffset { get { return _fileSystemCollection.Count + 1; } }
 
         int _halfEntryDrawCount = 10;
 
@@ -57,7 +56,8 @@ namespace TurntNinja.FileSystem
             _unselectedFont = _parentManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Body);
             _selectedFont = _parentManager.GameFontLibrary.GetFirstOrDefault("selected");
             _searchFont = _parentManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Heading);
-            _halfEntryDrawCount = (int)(_parentManager.Width / _unselectedFont.MaxLineHeight) / 2 - (int)(_selectedFont.MaxLineHeight / (float)_unselectedFont.MaxLineHeight) -1;
+
+            Resize(_parentManager.Width, _parentManager.Height);
 
             EntrySeparator = new FileBrowserEntry
             {
@@ -76,7 +76,7 @@ namespace TurntNinja.FileSystem
 
         private void LoadFileSystem(IFileSystem fileSystem)
         {
-            _directoryBrowserEntryIndex =  fileSystem.Initialise(EntrySeparator) + _fileSystemEntryIndexOffset;
+            _directoryBrowserEntryIndex = fileSystem.Initialise(EntrySeparator);
             SwitchFileSystem(fileSystem);
         }
 
@@ -103,11 +103,25 @@ namespace TurntNinja.FileSystem
 
         public void Resize(int wWidth, int wHeight)
         {
-            _halfEntryDrawCount = (int) (wHeight / _unselectedFont.MaxLineHeight) / 2 - (int) (_selectedFont.MaxLineHeight / (float)_unselectedFont.MaxLineHeight) -1;
+            // Account for file system chooser, selected song and search bar
+            float height = wHeight - 3*_selectedFont.MaxLineHeight;
+            _halfEntryDrawCount = (int) (height / _unselectedFont.MaxLineHeight) / 2;
         }
 
         public void Update(double time)
         {
+            // Check if we are switching file systems
+            if (InputSystem.NewKeys.Contains(Key.Left))
+            {
+                var index = _fileSystemCollection.IndexOf(_currentFileSystem);
+                SwitchFileSystem(_fileSystemCollection[(index - 1 + _fileSystemCollection.Count) % _fileSystemCollection.Count]);
+            }
+            if (InputSystem.NewKeys.Contains(Key.Right))
+            {
+                var index = _fileSystemCollection.IndexOf(_currentFileSystem);
+                SwitchFileSystem(_fileSystemCollection[(index + 1 + _fileSystemCollection.Count) % _fileSystemCollection.Count]);
+            }
+
             if (InputSystem.NewKeys.Contains(Key.Enter) && !_fileSystemEntries[_directoryBrowserEntryIndex].EntryType.HasFlag(FileBrowserEntryType.Separator))
             {
                 SoundCloudFileSystem sfc;
@@ -118,13 +132,13 @@ namespace TurntNinja.FileSystem
                 }
                 else
                 {
-                    _fileSystemEntryIndex = _directoryBrowserEntryIndex - _fileSystemEntryIndexOffset;
+                    _fileSystemEntryIndex = _directoryBrowserEntryIndex;
                     if (_fileSystemEntryIndex >= 0)
                     {
                         var isSong = _currentFileSystem.EntrySelected(ref _fileSystemEntryIndex);
                         if (isSong) _parentScene.SongChosen(_currentFileSystem.LoadSongInformation(_fileSystemEntryIndex));
 
-                        _directoryBrowserEntryIndex = _fileSystemEntryIndex + _fileSystemEntryIndexOffset;
+                        _directoryBrowserEntryIndex = _fileSystemEntryIndex;
                     }
                     else
                     {
@@ -139,15 +153,15 @@ namespace TurntNinja.FileSystem
             // Update the entry list
             _fileSystemEntries.Clear();
 
-            // Add the filesystem plugins
-            _fileSystemEntries.AddRange(_fileSystemCollection.Select(fs => new FileBrowserEntry
-            {
-                Name = fs.FriendlyName,
-                Path = "",
-                EntryType = FileBrowserEntryType.Plugin
-            }));
-
-            _fileSystemEntries.Add(EntrySeparator);
+//             // Add the filesystem plugins
+//             _fileSystemEntries.AddRange(_fileSystemCollection.Select(fs => new FileBrowserEntry
+//             {
+//                 Name = fs.FriendlyName,
+//                 Path = "",
+//                 EntryType = FileBrowserEntryType.Plugin
+//             }));
+// 
+//             _fileSystemEntries.Add(EntrySeparator);
 
             // Add the current filesystem's files
             _fileSystemEntries.AddRange(_currentFileSystem.FileSystemEntryCollection);
@@ -157,10 +171,10 @@ namespace TurntNinja.FileSystem
                 _directoryBrowserEntryIndex--;
             if (InputSystem.NewKeys.Contains(Key.Down))
                 _directoryBrowserEntryIndex++;
-            if (InputSystem.NewKeys.Contains(Key.Left))
-                _directoryBrowserEntryIndex -= 10;
-            if (InputSystem.NewKeys.Contains(Key.Right))
-                _directoryBrowserEntryIndex += 10;
+//             if (InputSystem.NewKeys.Contains(Key.Left))
+//                 _directoryBrowserEntryIndex -= 10;
+//             if (InputSystem.NewKeys.Contains(Key.Right))
+//                 _directoryBrowserEntryIndex += 10;
 
             _searchElapsedTime += time;
             if (_searchElapsedTime - _searchLastTime > _searchTimeout)
@@ -183,11 +197,6 @@ namespace TurntNinja.FileSystem
                 _searchElapsedTime = _searchLastTime = 0.0f;
             }
 
-            if (InputSystem.NewKeys.Contains(Key.Enter))
-            {
-
-            }
-
             // Clamp the index
             if (_directoryBrowserEntryIndex < 0) _directoryBrowserEntryIndex = 0;
             if (_directoryBrowserEntryIndex >= _fileSystemEntries.Count) _directoryBrowserEntryIndex = _fileSystemEntries.Count - 1;
@@ -195,20 +204,52 @@ namespace TurntNinja.FileSystem
 
         public void Draw(double time)
         {
-            float startY = _unselectedFont.MaxLineHeight * (_halfEntryDrawCount);
             var col = Color4.Black;
             col.A = 0.90f;
 
-            for (int i = _directoryBrowserEntryIndex - (_halfEntryDrawCount); i < _directoryBrowserEntryIndex + _halfEntryDrawCount; i++)
+            if (_fileSystemEntries.Count > 0)
             {
-                if (i >= 0 && i < _fileSystemEntries.Count && i != _directoryBrowserEntryIndex)
-                    _parentManager.DrawTextLine(_fileSystemEntries[i].Name, new Vector3(0, startY, 0), col, QuickFont.QFontAlignment.Centre, _unselectedFont.Font);
-                if (i == _directoryBrowserEntryIndex) startY -= _selectedFont.MaxLineHeight;
-                if (i != _directoryBrowserEntryIndex) startY -= _unselectedFont.MaxLineHeight;
-            }
-            _parentManager.DrawTextLine(_fileSystemEntries[_directoryBrowserEntryIndex].Name, new Vector3(0, 0, 0), Color4.White, QuickFont.QFontAlignment.Centre, _selectedFont.Font);
+                var s = _selectedFont.Font.Measure(_fileSystemEntries[_directoryBrowserEntryIndex].Name);
+                _parentManager.DrawTextLine(_fileSystemEntries[_directoryBrowserEntryIndex].Name, new Vector3(0, +s.Height / 2.0f, 0), Color4.White, QuickFont.QFontAlignment.Centre, _selectedFont.Font);
 
-            _parentManager.DrawTextLine(string.Format("Search: {0}", _searchString), new Vector3(0, (_parentManager.Height / 2), 0), Color4.White, QuickFont.QFontAlignment.Centre, _searchFont.Font);
+                float startY = _unselectedFont.MaxLineHeight * (_halfEntryDrawCount) + s.Height * 0.5f;
+                for (int i = _directoryBrowserEntryIndex - (_halfEntryDrawCount); i < _directoryBrowserEntryIndex + _halfEntryDrawCount; i++)
+                {
+                    if (i >= 0 && i < _fileSystemEntries.Count && i != _directoryBrowserEntryIndex)
+                        _parentManager.DrawTextLine(_fileSystemEntries[i].Name, new Vector3(0, startY, 0), col, QuickFont.QFontAlignment.Centre, _unselectedFont.Font);
+                    if (i == _directoryBrowserEntryIndex)
+                        startY -= _selectedFont.MaxLineHeight;
+                    if (i != _directoryBrowserEntryIndex)
+                        startY -= _unselectedFont.MaxLineHeight;
+                }
+            }
+
+            // Draw file systems
+            var size = _parentManager.DrawTextLine(_currentFileSystem.FriendlyName, new Vector3(0, (_parentManager.Height / 2), 0), Color4.White, QuickFont.QFontAlignment.Centre, _selectedFont.Font);
+
+            int currentFSIndex = _fileSystemCollection.IndexOf(_currentFileSystem);
+
+            // Draw two file systems on either side
+            
+            col.A = 0.4f;
+            // Draw next fs on right
+            _parentManager.DrawTextLine(
+                    _fileSystemCollection[(currentFSIndex + 1 + _fileSystemCollection.Count) % _fileSystemCollection.Count].FriendlyName,
+                    new Vector3(size.Width * 0.75f, _parentManager.Height / 2, 0), 
+                    col,
+                    QuickFont.QFontAlignment.Left,
+                    _selectedFont.Font);
+
+            // Draw previous fs on left
+            _parentManager.DrawTextLine(
+                    _fileSystemCollection[(currentFSIndex - 1 + _fileSystemCollection.Count) % _fileSystemCollection.Count].FriendlyName,
+                    new Vector3(-size.Width * 0.75f, _parentManager.Height / 2, 0), 
+                    col,
+                    QuickFont.QFontAlignment.Right,
+                    _selectedFont.Font);
+
+            var searchString = string.Format("Search: {0}", _searchString);
+            _parentManager.DrawTextLine(searchString, new Vector3(0, -(_parentManager.Height / 2) + _searchFont.MaxLineHeight, 0), Color4.White, QuickFont.QFontAlignment.Centre, _searchFont.Font);
         }
     }
 }
