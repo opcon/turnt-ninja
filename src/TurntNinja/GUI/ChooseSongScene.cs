@@ -46,8 +46,7 @@ namespace TurntNinja.GUI
 
             InputSystem.RepeatingKeys.Add(Key.Down, KeyRepeatSettings.Default);
             InputSystem.RepeatingKeys.Add(Key.Up, KeyRepeatSettings.Default);
-            InputSystem.RepeatingKeys.Add(Key.Left, KeyRepeatSettings.Default);
-            InputSystem.RepeatingKeys.Add(Key.Right, KeyRepeatSettings.Default);
+            InputSystem.RepeatingKeys.Add(Key.BackSpace, KeyRepeatSettings.Default);
 
             _directoryBrowser = new DirectoryBrowser(SceneManager, this);
             _directoryBrowser.AddFileSystem(new LocalFileSystem(SceneManager.Directories));
@@ -148,8 +147,7 @@ namespace TurntNinja.GUI
         {
             InputSystem.RepeatingKeys.Remove(Key.Down);
             InputSystem.RepeatingKeys.Remove(Key.Up);
-            InputSystem.RepeatingKeys.Remove(Key.Left);
-            InputSystem.RepeatingKeys.Remove(Key.Right);
+            InputSystem.RepeatingKeys.Remove(Key.BackSpace);
         }
     }
 }
