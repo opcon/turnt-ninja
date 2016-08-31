@@ -22,7 +22,7 @@ namespace TurntNinja.FileSystem
 
         public ReadOnlyCollection<FileBrowserEntry> FileSystemEntryCollection { get { return _localFileSystemEntries.AsReadOnly(); } }
         public List<IFileSystem> FileSystemCollection { get; set; }
-        public string FriendlyName { get { return "Local File System"; } }
+        public string FriendlyName { get { return "Local Songs"; } }
 
         public LocalFileSystem(IDirectoryHandler directoryHandler)
         {
@@ -118,8 +118,10 @@ namespace TurntNinja.FileSystem
             {
                 Path = Path.Combine(directoryPath, "../"),
                 EntryType = FileBrowserEntryType.Directory | FileBrowserEntryType.Special,
-                Name = "Up a Directory"
+                Name = "Back"
             });
+
+            _localFileSystemEntries.Add(_entrySeparator);
 
             int desiredIndex = _localFileSystemEntries.Count;
 
