@@ -35,7 +35,7 @@ namespace TurntNinja.GUI
         private ProcessedText _loadingText;
         private ProcessedText _songText;
         private Vector3 _loadingTextPosition;
-        private QFont _loadingFont;
+        private GameFont _loadingFont;
         private QFontDrawing _loadingFontDrawing;
         private QFontRenderOptions _loadingFontRenderOptions;
         private ShaderProgram _shaderProgram;
@@ -67,13 +67,13 @@ namespace TurntNinja.GUI
 
             _loadingFontRenderOptions = new QFontRenderOptions();
             _loadingFontRenderOptions.DropShadowActive = true;
-            _loadingFont = new QFont(SceneManager.FontPath, 30, new QFontBuilderConfiguration(true), FontStyle.Regular);
+            _loadingFont = SceneManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Heading);
             _loadingFontDrawing = new QFontDrawing();
             _loadingFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
-            _loadingText = QFontDrawingPrimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, "Loading", new SizeF(200, -1), QFontAlignment.Centre);
+            _loadingText = QFontDrawingPrimitive.ProcessText(_loadingFont.Font, _loadingFontRenderOptions, "Loading", new SizeF(200, -1), QFontAlignment.Centre);
             _loadingTextPosition = CalculateTextPosition(new Vector3((float)SceneManager.GameWindow.Width/ 2, SceneManager.GameWindow.Height/ 2, 0f), _loadingText);
 
-            _songText = QFontDrawingPrimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, _song.SongBase.Identifier, new SizeF(SceneManager.GameWindow.Width - 40, -1), QFontAlignment.Centre);
+            _songText = QFontDrawingPrimitive.ProcessText(_loadingFont.Font, _loadingFontRenderOptions, _song.SongBase.Identifier, new SizeF(SceneManager.GameWindow.Width - 40, -1), QFontAlignment.Centre);
 
             //Get difficulty options
             DifficultyOptions dOptions;
@@ -115,7 +115,7 @@ namespace TurntNinja.GUI
 
         public override void Resize(EventArgs e)
         {
-            _loadingText = QFontDrawingPrimitive.ProcessText(_loadingFont, _loadingFontRenderOptions, "Loading", new SizeF(1000, -1), QFontAlignment.Centre);
+            _loadingText = QFontDrawingPrimitive.ProcessText(_loadingFont.Font, _loadingFontRenderOptions, "Loading", new SizeF(1000, -1), QFontAlignment.Centre);
             _loadingFontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
             _loadingTextPosition = CalculateTextPosition(new Vector3(SceneManager.ScreenCamera.PreferredWidth / 2, SceneManager.ScreenCamera.PreferredHeight / 2, 0f), _loadingText);
         }
@@ -159,11 +159,11 @@ namespace TurntNinja.GUI
 
             _loadingFontDrawing.DrawingPrimitives.Clear();
             float yOffset = 0;
-            yOffset += _loadingFontDrawing.Print(_loadingFont, _loadingText, _loadingTextPosition).Height;
+            yOffset += _loadingFontDrawing.Print(_loadingFont.Font, _loadingText, _loadingTextPosition).Height;
             yOffset = MathHelper.Clamp(yOffset + 200 - 50*SceneManager.ScreenCamera.Scale.Y, yOffset, SceneManager.GameWindow.Height*0.5f); 
             var pos = new Vector3(0, -yOffset, 0);
-            yOffset += _loadingFontDrawing.Print(_loadingFont, _songText, pos).Height;
-            yOffset += _loadingFontDrawing.Print(_loadingFont, _loadingStatus, new Vector3(0, -yOffset, 0), QFontAlignment.Centre).Height;
+            yOffset += _loadingFontDrawing.Print(_loadingFont.Font, _songText, pos).Height;
+            yOffset += _loadingFontDrawing.Print(_loadingFont.Font, _loadingStatus, new Vector3(0, -yOffset, 0), QFontAlignment.Centre).Height;
             _loadingFontDrawing.RefreshBuffers();
             _loadingFontDrawing.Draw();
         }
@@ -179,7 +179,7 @@ namespace TurntNinja.GUI
 
         private Vector3 CalculateTextPosition(Vector3 center, ProcessedText text)
         {
-            var size = _loadingFont.Measure(text);
+            var size = _loadingFont.Font.Measure(text);
             return new Vector3(0, size.Height/2, 0f);
         }
     }
