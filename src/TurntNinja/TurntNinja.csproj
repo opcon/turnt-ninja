@@ -132,6 +132,10 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </None>
+    <None Include="..\..\packages\SharpFont\config\SharpFont.dll.config">
+      <Link>SharpFont.dll.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">
@@ -160,9 +164,6 @@
     </Content>
     <Content Include="OpenTK.dll.config">
       <Paket>True</Paket>
-    </Content>
-    <Content Include="SharpFont.dll.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
@@ -440,7 +441,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
       <ItemGroup>
         <Reference Include="SharpFont">
-          <HintPath>..\..\packages\SharpFont\lib\net20\SharpFont.dll</HintPath>
+          <HintPath>..\..\packages\SharpFont\lib\net45\SharpFont.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
