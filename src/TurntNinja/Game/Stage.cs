@@ -265,7 +265,6 @@ namespace TurntNinja.Game
             MultiplierFontDrawing.Dispose();
             ScoreFontDrawing.Dispose();
             StageGeometry.Dispose();
-            //_stageAudio.Dispose();
         }
 
         public void Reset(bool resetPlayerScore)
@@ -273,8 +272,6 @@ namespace TurntNinja.Game
             _stageAudio.FadeOut(500, 0, 0.01f, FadeEndAction.Stop).ContinueWith((t) => _stageAudio.Dispose());
             StageGeometry.CenterPolygon.Position.Azimuth = 0;
             if (resetPlayerScore) StageGeometry.Player.Reset();
-            //reset hit hexagons
-            //StageGeometry.Player.Hits = 0;
         }
     }
 }
