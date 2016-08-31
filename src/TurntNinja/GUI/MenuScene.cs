@@ -60,6 +60,7 @@ namespace TurntNinja.GUI
             _shaderProgram.Load(vert, frag);
 
             _player = new Player();
+            _player.Position = new PolarVector(1.5 * (Math.PI / 3) - _player.Length * 0.5f, _player.Position.Radius);
             _player.ShaderProgram = _shaderProgram;
             _centerPolygon = new PolarPolygon(Enumerable.Repeat(true, 6).ToList(), new PolarVector(0.5, 0), 50, 80, 0);
             _centerPolygon.ShaderProgram = _shaderProgram;
