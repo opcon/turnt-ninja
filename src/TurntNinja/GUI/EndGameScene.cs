@@ -19,7 +19,7 @@ namespace TurntNinja.GUI
 {
     class EndGameScene : Scene
     {
-        private QFont _font;
+        private GameFont _font;
         private QFontDrawing _fontDrawing;
         private SizeF _endGameTextSize;
         private string _endGameText = "Press Enter to Continue";
@@ -37,7 +37,7 @@ namespace TurntNinja.GUI
 
         public override void Load()
         {
-            _font = new QFont(SceneManager.FontPath, 50, new QFontBuilderConfiguration(true), FontStyle.Regular);
+            _font = SceneManager.GameFontLibrary.GetFirstOrDefault("selected");
             _fontDrawing = new QFontDrawing();
             SceneManager.RemoveScene(ParentScene);
             SceneManager.ScreenCamera.ExtraScale = 0;
@@ -119,27 +119,28 @@ namespace TurntNinja.GUI
         {
             _fontDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
             _fontDrawing.DrawingPrimitives.Clear();
-            _endGameTextSize = _font.Measure(_endGameText);
+            _endGameTextSize = _font.Font.Measure(_endGameText);
 
             float fontOffset = 0;
             float endOffset = 0;
 
             if (_newHighScore)
             {
-                fontOffset += _fontDrawing.Print(_font, "New High Score", new Vector3(0, 2.0f * _endGameTextSize.Height, 0), QFontAlignment.Centre, Color.White).Height;
-                fontOffset += _fontDrawing.Print(_font, string.Format("Score: {0}", _highestScore.Score.ToString("N0", CultureInfo.CurrentCulture)), new Vector3(0, 0, 0), QFontAlignment.Centre, Color.White).Height;
-                fontOffset += _fontDrawing.Print(_font, string.Format("Accuracy: {0}%", _highestScore.Accuracy.ToString("#.##")), new Vector3(0, - _endGameTextSize.Height, 0), QFontAlignment.Centre, Color.White).Height;
+                fontOffset += _fontDrawing.Print(_font.Font, "New High Score", new Vector3(0, 2.0f * _endGameTextSize.Height, 0), QFontAlignment.Centre, Color.White).Height;
+                fontOffset += _fontDrawing.Print(_font.Font, string.Format("Score: {0}", _highestScore.Score.ToString("N0", CultureInfo.CurrentCulture)), new Vector3(0, 0, 0), QFontAlignment.Centre, Color.White).Height;
+                fontOffset += _fontDrawing.Print(_font.Font, string.Format("Accuracy: {0}%", _highestScore.Accuracy.ToString("#.##")), new Vector3(0, - _endGameTextSize.Height, 0), QFontAlignment.Centre, Color.White).Height;
                 endOffset = -3.0f * _endGameTextSize.Height;
             }
             else
             {
-                fontOffset += _fontDrawing.Print(_font, string.Format("High Score: {0}", _highestScore.Score), new Vector3(0, 2.0f * _endGameTextSize.Height, 0), QFontAlignment.Centre, Color.White).Height;
-                fontOffset += _fontDrawing.Print(_font, string.Format("Score: {0}", _newScore.Score.ToString("N0", CultureInfo.CurrentCulture)), new Vector3(0, 0, 0), QFontAlignment.Centre, Color.White).Height;
-                fontOffset += _fontDrawing.Print(_font, string.Format("Accuracy: {0}%", _newScore.Accuracy.ToString("#.##")), new Vector3(0, -_endGameTextSize.Height, 0), QFontAlignment.Centre, Color.White).Height;
+                fontOffset += _fontDrawing.Print(_font.Font, string.Format("High Score: {0}", _highestScore.Score), new Vector3(0, 2.0f * _endGameTextSize.Height, 0), QFontAlignment.Centre, Color.White).Height;
+                fontOffset += _fontDrawing.Print(_font.Font, string.Format("Score: {0}", _newScore.Score.ToString("N0", CultureInfo.CurrentCulture)), new Vector3(0, 0, 0), QFontAlignment.Centre, Color.White).Height;
+                fontOffset += _fontDrawing.Print(_font.Font, string.Format("Accuracy: {0}%", _newScore.Accuracy.ToString("#.##")), new Vector3(0, -_endGameTextSize.Height, 0), QFontAlignment.Centre, Color.White).Height;
                 endOffset = -3.0f * _endGameTextSize.Height;
             }
-            _fontDrawing.Print(_font, _endGameText, new Vector3(0, -(WindowHeight)/2.0f + _endGameTextSize.Height + 20, 0), QFontAlignment.Centre, Color.White);
-            _fontDrawing.Print(_font, string.Format("{0} - {1}", _stage.CurrentSong.SongBase.Identifier, _stage.CurrentDifficulty), new Vector3(0, (WindowHeight)/2.0f - 20, 0), QFontAlignment.Centre, Color.White);
+            _fontDrawing.Print(_font.Font, _endGameText, new Vector3(0, -(WindowHeight)/2.0f + _endGameTextSize.Height + 20, 0), QFontAlignment.Centre, Color.White);
+            _fontDrawing.Print(_font.Font, string.Format("{0} - {1}", _stage.CurrentSong.SongBase.Identifier, _stage.CurrentDifficulty), new Vector3(0, (WindowHeight) / 2.0f - 20, 0),
+                new SizeF(WindowWidth * 0.75f, -1), QFontAlignment.Centre, new QFontRenderOptions { Colour = Color.White });
             _fontDrawing.RefreshBuffers();
         }
 
