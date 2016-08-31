@@ -46,6 +46,9 @@ namespace TurntNinja.GUI
         {
             SceneManager.GameWindow.Cursor = MouseCursor.Default;
 
+            // Remap keypad enter to normal enter
+            InputSystem.KeyRemappings.Add(Key.KeypadEnter, Key.Enter);
+
             _gameVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             // Choose correct version directive because OSX is dumb
@@ -231,6 +234,9 @@ namespace TurntNinja.GUI
 
         public override void Dispose()
         {
+            // Remove key remapping
+            InputSystem.KeyRemappings.Remove(Key.KeypadEnter);
+
             _GUIComponents.Dispose();
             if (_shaderProgram != null)
             {
