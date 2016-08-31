@@ -77,9 +77,6 @@ namespace TurntNinja.GUI
             skin.DefaultFont = new Gwen.Font(guiRenderer, SceneManager.FontPath, 30);
             _GUIComponents = new GUIComponentContainer(guiRenderer, skin);
 
-            var desiredCoords = SceneManager.GameWindow.PointToScreen(new Point(WindowWidth/2, WindowHeight/8));
-            Mouse.SetPosition(desiredCoords.X, desiredCoords.Y);
-
             Loaded = true;
         }
 
@@ -151,12 +148,6 @@ namespace TurntNinja.GUI
 
         private void DoGUI()
         {
-            //are we using the mouse to navigate?
-            if (InputSystem.HasMouseMoved)
-            {
-                _player.Position = new PolarVector(Math.Atan2(-InputSystem.MouseXY.Y + SceneManager.Height/2.0f, InputSystem.MouseXY.X - SceneManager.Width / 2.0f) - _player.Length*0.5f, _player.Position.Radius);
-            }
-
             int selectedSide = GetSelectedSide();
             if (_selectedMenuItem != (MainMenuOptions) selectedSide) _selectedItemChanged = true;
             _selectedMenuItem = (MainMenuOptions) selectedSide;
@@ -181,7 +172,6 @@ namespace TurntNinja.GUI
                 case MainMenuOptions.ComingSoon:
                     _selectedMenuItemText = "Coming Soon";
                     break;
-                case MainMenuOptions.None:
                 default:
                     _selectedMenuItem = MainMenuOptions.None;
                     _selectedMenuItemText = "";
@@ -189,7 +179,7 @@ namespace TurntNinja.GUI
             }
 
             // we have selected the current menu item
-            if (InputSystem.NewKeys.Contains(Key.Enter) || InputSystem.ReleasedButtons.Contains(MouseButton.Left))
+            if (InputSystem.NewKeys.Contains(Key.Enter))
             {
                 switch (_selectedMenuItem)
                 {
@@ -210,9 +200,6 @@ namespace TurntNinja.GUI
                         break;
                     case MainMenuOptions.Update:
                         SceneManager.AddScene(new UpdateScene(), this);
-                        break;
-                    case MainMenuOptions.None:
-                    default:
                         break;
                 }
             }
