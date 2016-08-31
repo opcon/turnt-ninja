@@ -128,7 +128,6 @@ namespace TurntNinja.Generation
             {
                 // are we extending an existing structure?
                 double t = Math.Exp(-joinFunctionMultiplier*(b - prevTime - _builderOptions.VeryCloseDistance) + Math.Log(veryCloseJoinChance));
-                Console.WriteLine(t);
                 if (_random.NextDouble() < t)
                 {
                     structures[currentStructureIndex].End = b;
