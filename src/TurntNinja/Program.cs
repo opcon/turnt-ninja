@@ -140,7 +140,7 @@ namespace TurntNinja
             int rX = (int)ServiceLocator.Settings["ResolutionX"];
             int rY = (int)ServiceLocator.Settings["ResolutionY"];
             int FSAASamples = (int)ServiceLocator.Settings["AntiAliasingSamples"];
-            GraphicsMode graphicsMode = new GraphicsMode(32, 24, 8, FSAASamples, GraphicsMode.Default.AccumulatorFormat, 3);
+            GraphicsMode graphicsMode = new GraphicsMode(32, 32, 8, FSAASamples, GraphicsMode.Default.AccumulatorFormat, 3);
 
             // Choose right OpenGL version for mac
             int major = 3;
