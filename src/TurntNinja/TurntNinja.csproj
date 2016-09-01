@@ -122,6 +122,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="GameController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -135,6 +136,9 @@
     <None Include="..\..\packages\SharpFont\config\SharpFont.dll.config">
       <Link>SharpFont.dll.config</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\build.fsx">
+      <Link>build.fsx</Link>
     </None>
   </ItemGroup>
   <ItemGroup>
