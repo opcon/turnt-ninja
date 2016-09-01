@@ -159,14 +159,21 @@ namespace TurntNinja.Generation
                 }
                 else if (s.Start - prevTime < _builderOptions.CloseDistance)
                 {
-                    //randomly choose relative orientation difference compared to previous beat
-                    var r = _random.Next(0, 2);
-                    if (r == 0) r = -1;
+                    if (_random.NextDouble() < 0.5)
+                    {
+                        //randomly choose relative orientation difference compared to previous beat
+                        var r = _random.Next(0, 2);
+                        if (r == 0) r = -1;
 
-                    //this beat is reasonably close to the previous one, use the same skip pattern but a different (+/- 1) orientation
-                    start = (prevStart + 6) + r;
-                    if (_random.NextDouble() < samePatternChance)
-                        skip = prevSkip;
+                        //this beat is reasonably close to the previous one, use the same skip pattern but a different (+/- 1) orientation
+                        start = (prevStart + 6) + r;
+                        if (_random.NextDouble() < samePatternChance)
+                            skip = prevSkip;
+                    }
+                    else
+                    {
+                        start = prevStart;
+                    }
                 }
                 else
                 {
