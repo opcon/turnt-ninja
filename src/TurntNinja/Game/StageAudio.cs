@@ -263,7 +263,7 @@ namespace TurntNinja.Game
             _soundSource = source;
             // Use ALSound out if we are running on Mac/Linux
             _soundOut = (PlatformDetection.RunningPlatform() == Platform.Windows) ? 
-                (ISoundOut) new WaveOut() : new ALSoundOut();
+                (ISoundOut) new WasapiOut() : new ALSoundOut();
             _soundOut.Initialize(_soundSource);
             _soundOut.Stopped += (sender, args) => { if (args.HasError) throw new Exception("exception thrown on stoping audio", args.Exception); };
         }
