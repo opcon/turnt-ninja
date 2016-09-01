@@ -246,6 +246,14 @@ namespace TurntNinja.GUI
             _menuFontDrawing.Dispose();
             _menuFont.Dispose();
         }
+
+        public override void EnterFocus()
+        {
+        }
+
+        public override void ExitFocus()
+        {
+        }
     }
 
     enum MainMenuOptions

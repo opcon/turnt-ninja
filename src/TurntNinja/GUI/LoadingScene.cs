@@ -182,5 +182,13 @@ namespace TurntNinja.GUI
             var size = _loadingFont.Font.Measure(text);
             return new Vector3(0, size.Height/2, 0f);
         }
+
+        public override void EnterFocus()
+        {
+        }
+
+        public override void ExitFocus()
+        {
+        }
     }
 }

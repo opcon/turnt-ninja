@@ -43,11 +43,6 @@ namespace TurntNinja.GUI
 
         public override void Load()
         {
-
-            InputSystem.RepeatingKeys.Add(Key.Down, KeyRepeatSettings.Default);
-            InputSystem.RepeatingKeys.Add(Key.Up, KeyRepeatSettings.Default);
-            InputSystem.RepeatingKeys.Add(Key.BackSpace, KeyRepeatSettings.Default);
-
             _directoryBrowser = new DirectoryBrowser(SceneManager, this);
             _directoryBrowser.AddFileSystem(new LocalFileSystem(SceneManager.Directories));
             _directoryBrowser.AddFileSystem(new SoundCloudFileSystem());
@@ -144,6 +139,17 @@ namespace TurntNinja.GUI
         }
 
         public override void Dispose()
+        {
+        }
+
+        public override void EnterFocus()
+        {
+            InputSystem.RepeatingKeys.Add(Key.Down, KeyRepeatSettings.Default);
+            InputSystem.RepeatingKeys.Add(Key.Up, KeyRepeatSettings.Default);
+            InputSystem.RepeatingKeys.Add(Key.BackSpace, KeyRepeatSettings.Default);
+        }
+
+        public override void ExitFocus()
         {
             InputSystem.RepeatingKeys.Remove(Key.Down);
             InputSystem.RepeatingKeys.Remove(Key.Up);

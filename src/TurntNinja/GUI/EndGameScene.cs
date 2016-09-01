@@ -161,8 +161,15 @@ namespace TurntNinja.GUI
         public override void Dispose()
         {
             _stage.Dispose();
-            _font.Dispose();
             _fontDrawing.Dispose();
+        }
+
+        public override void EnterFocus()
+        {
+        }
+
+        public override void ExitFocus()
+        {
         }
     }
 }

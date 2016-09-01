@@ -120,5 +120,13 @@ namespace TurntNinja.GUI
             _fontDrawing.Print(_bodyFont.Font, _bodyList, new Vector3(-WindowWidth*0.25f, (headerOffset - (_headerSize.Height)) - _bodyText1Size.Height, 0), new SizeF(WindowWidth * _bodyTextWidth, -1), QFontAlignment.Left);
             _fontDrawing.Print(_bodyFont.Font, _bodyText2, new Vector3(0, (headerOffset - (_headerSize.Height)) - _bodyText1Size.Height - _bodyListSize.Height, 0), new SizeF(WindowWidth * _bodyTextWidth, -1), QFontAlignment.Centre);
         }
+
+        public override void EnterFocus()
+        {
+        }
+
+        public override void ExitFocus()
+        {
+        }
     }
 }

@@ -209,5 +209,12 @@ namespace TurntNinja.GUI
             return Regex.Replace(html, "<.+?>", string.Empty);
         }
 
+        public override void EnterFocus()
+        {
+        }
+
+        public override void ExitFocus()
+        {
+        }
     }
 }

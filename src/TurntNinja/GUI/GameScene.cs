@@ -121,5 +121,13 @@ namespace TurntNinja.GUI
             _stage.Dispose(); 
             _stage = null;
         }
+
+        public override void EnterFocus()
+        {
+        }
+
+        public override void ExitFocus()
+        {
+        }
     }
 }
