@@ -22,6 +22,7 @@ let substructioDir = parentDir + substructioFolder + "/"
 let substructioBuildDir = substructioDir + buildDirBase + mode + "/"
 let contentDirDeployName = "Content"
 let licenseDirDeployName = "Licenses"
+let dllDirDeployName = "Dependencies"
 
 // MonoKickStart properties
 let monoKickStartRepo = @"https://github.com/MonoGame/MonoKickstart"
@@ -47,6 +48,9 @@ let deployName =
 let tempDirName = lazy 
                     tempDirBase + deployName.Value + "/"
 
+let tempDirZipName = lazy 
+                    tempDirBase + deployName.Value + "-zip/"
+
 let tempMergedDirName = lazy
                            tempDirBase + deployName.Value + "-merged/"
 
@@ -60,7 +64,7 @@ let deployZipMergedPath = lazy
                              deployDir + deployZipMergedName.Value
 
 // Tool names
-let squirrelToolName = "squirrel.exe"
+let squirrelToolName = "Squirrel.exe"
 let ILMergeToolName = "ILRepack.exe"
 
 // Targets
@@ -124,7 +128,7 @@ Target "CleanDeploy" (fun _ ->
     CleanDir deployDir
 )
 
-Target "DeployZip" (fun _ ->
+Target "CopyToTemp" (fun _ ->
     ensureDirectory deployDir
 
     let mainFiles = !! (sprintf "%s*.dll" buildDir) ++ (sprintf "%s*.config" buildDir) ++ (sprintf "%s*.exe" buildDir) -- (sprintf "%s*vshost*" buildDir)
@@ -132,7 +136,9 @@ Target "DeployZip" (fun _ ->
     CopyFiles tempDirName.Value mainFiles
     CopyDir (tempDirName.Value + contentDirDeployName) "src/TurntNinja/Content/" (fun x -> true)
     CopyDir (tempDirName.Value + licenseDirDeployName) "docs/licenses" (fun x-> true)
+)
 
+Target "DeployZip" (fun _ ->
     let dInfo = new System.IO.DirectoryInfo(tempDirName.Value)
     Zip tempDirName.Value deployZipPath.Value [ for f in dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories) do yield f.FullName]
     //ArchiveHelper.Tar.GZip.CompressWithDefaults (directoryInfo artifactTempDir) (fileInfo (deployDir + deployName + ".tar.gz")) (dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories)) 
@@ -156,13 +162,14 @@ Target "DeploySquirrel" (fun _ ->
                     OutputPath = deployDir
                     WorkingDir = tempDirName.Value
             })
-            "src\TurntNinja\TurntNinja.nuspec"
+            "src/TurntNinja/TurntNinja.nuspec"
 
+    let squirrelPath = findToolInSubPath squirrelToolName ""
     // Create squirrel package
     Squirrel.SquirrelPack (fun p -> 
         {p with
             ReleaseDir = squirrelDeployDir
-            ToolPath = findToolInSubPath squirrelToolName ""
+            ToolPath = squirrelPath
         })
         packagePath
 )
@@ -248,7 +255,7 @@ Target "Default" (fun _ ->
 "DeployZip"
     ==> "DeploySquirrel"
 
-"DeploySquirrel"
+"DeployZip"
     ==> "Deploy"
 
 // Deploy zip conditional target to ensure that we are built
