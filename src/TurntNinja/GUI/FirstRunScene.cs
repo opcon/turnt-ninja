@@ -31,7 +31,7 @@ namespace TurntNinja.GUI
         string _headerText = "WELCOME TO TURNT NINJA";
 
         string _bodyList =
-            "* Your operating system\n" +
+            "* Operating system version\n" +
             "* Game resolution\n" +
             "* Number of songs played\n" +
             "* Crash reports\n";
@@ -42,7 +42,7 @@ namespace TurntNinja.GUI
             "data is collected if you opt in:\n";
 
         string _bodyText2 = 
-            "\nPlease press Enter to opt in, or any other key to opt out.\n\nThank you,\nPatrick";
+            "\nPlease press Enter to opt in, or Escape to opt out.\n\nThank you,\nPatrick";
 
         public FirstRunScene()
         {
@@ -101,7 +101,7 @@ namespace TurntNinja.GUI
 
                 SceneManager.RemoveScene(this, true);
             }
-            else if (InputSystem.NewKeys.Any())
+            else if (InputSystem.NewKeys.Contains(OpenTK.Input.Key.Escape))
             {
                 ServiceLocator.Settings["Analytics"] = false;
 
