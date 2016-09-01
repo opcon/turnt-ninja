@@ -40,7 +40,7 @@ namespace TurntNinja.Generation
             BuildGeometry();
             SetStartColour();
 
-            var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 50000, -20, 0);
+            var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 500000, -20, 0);
             backgroundPolygon.ShaderProgram = _builderOptions.GeometryShaderProgram;
 
             return new StageGeometry(_onsets, _onsetDrawing, _segmentStartColour, _random) {BackgroundPolygon = backgroundPolygon};
