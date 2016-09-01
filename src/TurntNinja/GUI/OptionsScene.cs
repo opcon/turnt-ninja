@@ -266,5 +266,13 @@ namespace TurntNinja.GUI
             InputSystem.RemoveGUIInput(_input);
             _canvas.Dispose();
         }
+
+        public override void EnterFocus()
+        {
+        }
+
+        public override void ExitFocus()
+        {
+        }
     }
 }
