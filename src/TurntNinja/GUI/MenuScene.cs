@@ -196,7 +196,7 @@ namespace TurntNinja.GUI
                         cs.Visible = true;
                         break;
                     case MainMenuOptions.Options:
-                        SceneManager.AddScene(new OptionsScene(_GUIComponents), this);
+                        SceneManager.AddScene(new OptionsScene(), this);
                         break;
                     case MainMenuOptions.Exit:
                         Exit();
