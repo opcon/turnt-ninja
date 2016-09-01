@@ -261,7 +261,7 @@ namespace TurntNinja.Generation
         public GeometryBuilderOptions(ShaderProgram geometryShaderProgram)
         {
             GeometryShaderProgram = geometryShaderProgram;
-            SkipFunction = () => (int) (3*Math.Pow(RandomFunction.NextDouble(), 4)) + 1;
+            SkipFunction = () => (int) (3*Math.Pow(RandomFunction.NextDouble(), 2)) + 1;
         }
 
         public void ApplyDifficulty(DifficultyOptions options)
