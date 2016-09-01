@@ -111,8 +111,6 @@ namespace TurntNinja.Generation
             //set initial previous time to -1 so that the first polygon generated is always unique and doesn't trigger 'beat too close to previous' case
             double prevTime = -1.0;
             float samePatternChance = 0.90f;
-            float onsetStart = 0.0f;
-            float onsetEnd = 0.0f;
             float veryCloseJoinChance = 0.5f;
             float joinFunctionMultiplier = 20.0f;
 
