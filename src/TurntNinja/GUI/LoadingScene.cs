@@ -170,9 +170,8 @@ namespace TurntNinja.GUI
 
         public override void Dispose()
         {
-            if (_loadingFont != null)
+            if (_loadingFontDrawing != null)
             {
-                _loadingFont.Dispose();
                 _loadingFontDrawing.Dispose();
             }
         }
