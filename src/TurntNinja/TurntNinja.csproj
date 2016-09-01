@@ -168,6 +168,7 @@
     </Content>
     <Content Include="OpenTK.dll.config">
       <Paket>True</Paket>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
