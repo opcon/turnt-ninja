@@ -91,7 +91,7 @@ namespace TurntNinja.Generation
                     //weight--;
                 }
 
-                _beatFrequencies[i] = 1/(differenceSum/total);
+                _beatFrequencies[i] = 1 / (differenceSum / total);
             }
 
             _beatFrequencies[_beatFrequencies.Length - 1] = _beatFrequencies[_beatFrequencies.Length - 2];
