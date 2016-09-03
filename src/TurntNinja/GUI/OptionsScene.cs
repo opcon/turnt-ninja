@@ -61,7 +61,7 @@ namespace TurntNinja.GUI
 
             _options.Add(new NumericOption
             {
-                FriendlyName = "Audio Correction",
+                FriendlyName = "Audio Correction (ms)",
                 SettingName = "AudioCorrection",
                 Minimum = -1000.0f,
                 Maximum = 1000.0f,
@@ -158,6 +158,7 @@ namespace TurntNinja.GUI
             float height = lineStep * _options.Count;
 
             float currentY = height / 2.0f;
+            float unselectedValueScale = 0.8f;
 
             foreach (var op in _options)
             {
@@ -184,18 +185,16 @@ namespace TurntNinja.GUI
                 {
                     dp = new QFontDrawingPrimitive(_valueFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
                     dp.Print(op.GetNextValue(), Vector3.Zero, QFontAlignment.Left);
-                    dp.ModelViewMatrix = Matrix4.CreateTranslation(0, _valueFont.MaxLineHeight * 0.5f, 0)
-                                            * Matrix4.CreateScale(0.80f)
-                                            * Matrix4.CreateTranslation(WindowWidth * 0.15f + valueSize.Width * 1.25f, currentY, 0);
+                    dp.ModelViewMatrix = Matrix4.CreateScale(unselectedValueScale)
+                                            * Matrix4.CreateTranslation(WindowWidth * 0.15f + valueSize.Width * 1.25f, currentY + _valueFont.Font.MaxLineHeight * 0.5f * unselectedValueScale, 0);
                     _optionsDrawing.DrawingPrimitives.Add(dp);
                 }
                 if (op.CanMoveBackward())
                 {
                     dp = new QFontDrawingPrimitive(_valueFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
                     dp.Print(op.GetPrevValue(), Vector3.Zero, QFontAlignment.Right);
-                    dp.ModelViewMatrix = Matrix4.CreateTranslation(0, _valueFont.MaxLineHeight * 0.5f, 0)
-                                            * Matrix4.CreateScale(0.80f)
-                                            * Matrix4.CreateTranslation(WindowWidth * 0.15f - valueSize.Width * 1.25f, currentY, 0);
+                    dp.ModelViewMatrix = Matrix4.CreateScale(unselectedValueScale)
+                                            * Matrix4.CreateTranslation(WindowWidth * 0.15f - valueSize.Width * 1.25f, currentY + _valueFont.Font.MaxLineHeight * 0.5f * unselectedValueScale, 0);
                     _optionsDrawing.DrawingPrimitives.Add(dp);
                 }
 
