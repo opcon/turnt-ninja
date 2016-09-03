@@ -97,6 +97,12 @@ namespace TurntNinja.FileSystem
             _searchString = "";
         }
 
+        public void SwitchCurrentFileSystemIfEmpty()
+        {
+            if (_currentFileSystem.FileSystemEntryCollection.Count == 0)
+                SwitchFileSystem(_fileSystemCollection.Find(f => f is LocalFileSystem));
+        }
+
         public void RefreshRecentSongFilesystem()
         {
             foreach (var f in _fileSystemCollection)
@@ -238,6 +244,7 @@ namespace TurntNinja.FileSystem
             int currentFSIndex = _fileSystemCollection.IndexOf(_currentFileSystem);
 
             // Draw two file systems on either side
+            float unselectedFsScale = 0.9f;
 
             col = Color4.White;
             col.A = 0.70f;
@@ -249,7 +256,7 @@ namespace TurntNinja.FileSystem
                     Vector3.Zero,
                     QFontAlignment.Left);
             dp.ModelViewMatrix = Matrix4.CreateTranslation(new Vector3(0, size.Height * 2.0f, 0))
-                                    * Matrix4.CreateScale(0.9f)
+                                    * Matrix4.CreateScale(unselectedFsScale)
                                     * Matrix4.CreateTranslation(new Vector3(size.Width * 0.75f, _parentManager.Height / 2 - size.Height * 2.0f, 0));
 
             _qfontDrawing.DrawingPrimitives.Add(dp);
@@ -261,7 +268,7 @@ namespace TurntNinja.FileSystem
                     Vector3.Zero,
                     QFontAlignment.Right);
             dp.ModelViewMatrix = Matrix4.CreateTranslation(new Vector3(0, size.Height * 2.0f, 0))
-                                    * Matrix4.CreateScale(0.9f)
+                                    * Matrix4.CreateScale(unselectedFsScale)
                                     * Matrix4.CreateTranslation(new Vector3(-size.Width * 0.75f, _parentManager.Height / 2 - size.Height * 2.0f, 0));
             _qfontDrawing.DrawingPrimitives.Add(dp);
 

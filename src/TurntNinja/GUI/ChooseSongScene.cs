@@ -56,6 +56,8 @@ namespace TurntNinja.GUI
             // Make sure to add recent file system last!
             _directoryBrowser.AddFileSystem(new RecentFileSystem(_recentSongs));
 
+            _directoryBrowser.SwitchCurrentFileSystemIfEmpty();
+
             _directoryBrowser.Resize(WindowWidth, WindowHeight);
             Loaded = true;
         }
