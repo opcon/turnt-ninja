@@ -30,7 +30,7 @@
       <Value Profile="(Default)">turnt-ninja</Value>
     </Setting>
     <Setting Name="OnsetActivationThreshold" Type="System.Single" Scope="User">
-      <Value Profile="(Default)">9</Value>
+      <Value Profile="(Default)">2.5</Value>
     </Setting>
     <Setting Name="OnsetAdaptiveWhitening" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
