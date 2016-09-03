@@ -375,7 +375,7 @@ namespace TurntNinja.GUI
     {
         public override void SaveSettings()
         {
-            ServiceLocator.Settings[SettingName] = Enum.Parse(typeof(T), CurrentValue);
+            ServiceLocator.Settings[SettingName] = (int)Enum.Parse(typeof(T), CurrentValue);
         }
     }
 
