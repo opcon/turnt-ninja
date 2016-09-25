@@ -111,6 +111,7 @@
     <Compile Include="Game\Player.cs" />
     <Compile Include="GUI\OptionsScene.cs" />
     <Compile Include="GUI\UpdateScene.cs" />
+    <Compile Include="Logging\GameAnalytics.cs" />
     <Compile Include="Logging\PiwikAnalytics.cs" />
     <Compile Include="Logging\SentryErrorReporting.cs" />
     <Compile Include="Program.cs" />
