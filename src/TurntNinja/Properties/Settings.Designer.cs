@@ -313,5 +313,17 @@ namespace TurntNinja.Properties {
                 this["FirstRun"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ColourMode {
+            get {
+                return ((int)(this["ColourMode"]));
+            }
+            set {
+                this["ColourMode"] = value;
+            }
+        }
     }
 }
