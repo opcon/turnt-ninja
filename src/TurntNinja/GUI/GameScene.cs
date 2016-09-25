@@ -86,7 +86,7 @@ namespace TurntNinja.GUI
         public override void Draw(double time)
         {
             _elapsedTime += time;
-            var rot = Matrix4.CreateRotationX((float)((MathHelper.PiOver4 / 1.5)*Math.Sin((_elapsedTime*0.18))));
+            var rot = Matrix4.CreateRotationX((float)((MathHelper.PiOver4 / 1.25)*Math.Sin((_elapsedTime*0.20))));
             ShaderProgram.Bind();
             ShaderProgram.SetUniform("mvp", Matrix4.Mult(rot, SceneManager.ScreenCamera.WorldModelViewProjection));
             _stage.Draw(time);

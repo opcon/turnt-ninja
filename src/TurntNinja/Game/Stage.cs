@@ -147,6 +147,7 @@ namespace TurntNinja.Game
             StageGeometry.Player = player;
             StageGeometry.CenterPolygon = centerPolygon;
             StageGeometry.RotationSpeed = _difficultyOptions.RotationSpeed;
+            StageGeometry.CurrentColourMode = (ColourMode)ServiceLocator.Settings["ColourMode"];
 
             progress.Report("Load complete");
             Thread.Sleep(1000);
@@ -244,12 +245,13 @@ namespace TurntNinja.Game
 
             MultiplierFontDrawing.DrawingPrimitives.Clear();
             MultiplierFontDrawing.Print(MultiplierFont.Font, _centerText, new Vector3(0, MultiplierFont.Font.Measure("0", QFontAlignment.Centre).Height * 0.5f, 0),
-                QFontAlignment.Centre);
+                QFontAlignment.Centre, (Color?)StageGeometry.TextColour);
             MultiplierFontDrawing.RefreshBuffers();
             MultiplierFontDrawing.Draw();
 
             ScoreFontDrawing.DrawingPrimitives.Clear();
-            ScoreFontDrawing.Print(MultiplierFont.Font, StageGeometry.Player.Score.ToString("N0", CultureInfo.CurrentCulture), new Vector3(-SceneManager.Width / 2 + 20, SceneManager.Height/2 - 10, 0), QFontAlignment.Left, Color.White);
+            ScoreFontDrawing.Print(MultiplierFont.Font, StageGeometry.Player.Score.ToString("N0", CultureInfo.CurrentCulture), new Vector3(-SceneManager.Width / 2 + 20, SceneManager.Height / 2 - 10, 0),
+                QFontAlignment.Left, (Color?)StageGeometry.TextColour);
             ScoreFontDrawing.RefreshBuffers();
             ScoreFontDrawing.Draw();
         }

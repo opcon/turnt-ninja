@@ -46,6 +46,7 @@ namespace TurntNinja.GUI
             var currentDifficulty = (DifficultyLevels)SceneManager.GameSettings["DifficultyLevel"];
             var analytics = (bool)ServiceLocator.Settings["Analytics"];
             var windowMode = (string)ServiceLocator.Settings["WindowState"];
+            var colourMode = (ColourMode)ServiceLocator.Settings["ColourMode"];
 
             _options.Add(new NumericOption
             {
@@ -86,7 +87,7 @@ namespace TurntNinja.GUI
                 Value = analytics
             });
 
-            var windowModes = new List <string> { WindowState.Fullscreen.ToString(), WindowState.Normal.ToString() };
+            var windowModes = new List<string> { WindowState.Fullscreen.ToString(), WindowState.Normal.ToString() };
             _options.Add(new StringOption
             {
                 FriendlyName = "Window Mode",
@@ -94,6 +95,14 @@ namespace TurntNinja.GUI
                 Values = windowModes,
                 CurrentIndex = windowModes.IndexOf(windowMode),
                 CallbackFunction = (s) => SceneManager.GameWindow.WindowState = (WindowState)Enum.Parse(typeof(WindowState), s)
+            });
+
+            _options.Add(new EnumOption<ColourMode>
+            {
+                FriendlyName = "Colour Mode",
+                SettingName = "ColourMode",
+                Values = Enum.GetNames(typeof(ColourMode)).ToList(),
+                CurrentIndex = Enum.GetNames(typeof(ColourMode)).ToList().IndexOf(colourMode.ToString())
             });
 
             foreach (var op in _options)

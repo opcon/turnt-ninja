@@ -12,6 +12,7 @@ using Substructio.Core;
 using Substructio.Core.Math;
 using HUSL;
 using OpenTK.Input;
+using System.Drawing;
 
 namespace TurntNinja.Game
 {
@@ -80,6 +81,9 @@ namespace TurntNinja.Game
         {
             get { return Onsets.OnsetIndex == Onsets.Count; }
         }
+
+        public Color4 TextColour { get; internal set; } = Color.White;
+        public ColourMode CurrentColourMode { get; set; } = ColourMode.Regular;
 
         internal StageGeometry (OnsetCollection onsets, OnsetDrawing onsetDrawing, Color4 segmentStartColour, Random random)
         {
@@ -211,7 +215,10 @@ namespace TurntNinja.Game
             ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddOutlineColour);
             CenterPolygon.DrawOutline(time, 2);
 
-            ParentStage.ShaderProgram.SetUniform("in_color", Color4.White);
+            if (CurrentColourMode == ColourMode.BlackAndWhite)
+                ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenOpposingColour);
+            else if (CurrentColourMode == ColourMode.Regular)
+                ParentStage.ShaderProgram.SetUniform("in_color", Color4.White);
             Player.Draw(time);
             ParentStage.ShaderProgram.SetUniform("in_color", Color4.SkyBlue);
             //_p2.Draw(time);
@@ -351,15 +358,19 @@ namespace TurntNinja.Game
             _colours.OddOutlineColour = HUSLColor.ToColor4(GetOutlineColour(fOdd));
 
             // Black and White
-            //_colours.EvenOpposingColour = _colours.OddOpposingColour = Color4.Black;
-            //_colours.EvenBackgroundColour = _colours.OddBackgroundColour = Color4.White;
-            //_colours.OddOutlineColour = _colours.EvenOutlineColour = Color4.White;
+            if (CurrentColourMode == ColourMode.BlackAndWhite)
+            {
+                _colours.EvenOpposingColour = _colours.OddOpposingColour = Color4.Black;
+                _colours.EvenBackgroundColour = _colours.OddBackgroundColour = Color4.White;
+                _colours.OddOutlineColour = _colours.EvenOutlineColour = Color4.White;
+            }
 
             // Swap colours if required
             if (_swapColours)
             {
                 // Handle outlines for black and white
-                // _colours.OddOutlineColour = _colours.EvenOutlineColour = Color4.Black;
+                if (CurrentColourMode == ColourMode.BlackAndWhite)
+                    _colours.OddOutlineColour = _colours.EvenOutlineColour = Color4.Black;
 
                 var t1 = _colours.EvenBackgroundColour;
                 var t2 = _colours.OddBackgroundColour;
@@ -368,6 +379,8 @@ namespace TurntNinja.Game
                 _colours.EvenOpposingColour = t2;
                 _colours.OddOpposingColour = t1;
             }
+            if (CurrentColourMode == ColourMode.BlackAndWhite)
+                TextColour = _colours.OddOpposingColour;
         }
 
 
@@ -422,5 +435,11 @@ namespace TurntNinja.Game
                 baseLightness, baseSaturation, foregroundLightnessDelta, foregroundSaturationDelta, outlineLightness, outlineSaturation);
         }
 
+    }
+
+    enum ColourMode
+    {
+        BlackAndWhite = 1,
+        Regular = 0
     }
 }
