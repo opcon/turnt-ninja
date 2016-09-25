@@ -6,7 +6,7 @@ NUGET
     DeltaCompressionDotNet (1.0) - framework: >= net45
     HUSL (1.0.1) - framework: >= net45
     LiteDB (2.0.2) - framework: >= net45
-    MathNet.Numerics (3.13) - framework: >= net45
+    MathNet.Numerics (3.13.1) - framework: >= net45
     Mono.Cecil (0.9.6.1) - framework: >= net45
     Newtonsoft.Json (9.0.1)
     NuGet.CommandLine (3.4.3)
