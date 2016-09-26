@@ -26,6 +26,8 @@ namespace TurntNinja.Game
         private double _extraHue = 0.0;
         private double _hueWobbleAmount = 30;
         private bool _swapColours = false;
+        private double _lastSwapTime = -10.0f;
+        const double MIN_COLOUR_SWAP_TIME = 0.3f;
         private HUSLColor _baseColour;
         public Stage ParentStage;
 
@@ -302,14 +304,18 @@ namespace TurntNinja.Game
             }
 
             //_baseColour.H += time*50f*(!OutOfBeats ? BeatFrequencies[_beats.Index] : 1);
-            bool swapColours = false;
 
             // Only update colours if more than 3 beats have passed since last time
             if (CurrentOnset - _previousBeat < 3) return;
 
             _previousBeat = CurrentOnset;
             _extraHue = ((_random.NextDouble() > 0.5) ? -1 : 1) * (90 + (_hueWobbleAmount * _random.NextDouble() - _hueWobbleAmount / 2));
-            _swapColours = (_random.NextDouble() > 0.95) ? !_swapColours : _swapColours;
+            double swapChance = CurrentColourMode == ColourMode.BlackAndWhite ? 0.9 : 0.95;
+            if ((_elapsedTime - _lastSwapTime) > MIN_COLOUR_SWAP_TIME && _random.NextDouble() > swapChance)
+            {
+                _swapColours = !_swapColours;
+                _lastSwapTime = _elapsedTime;
+            }
 
             _baseColour.H = _initialHue + (CurrentOnset) * 5;
             _baseColour.L = ColourModifiers.baseLightness;
