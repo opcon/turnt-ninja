@@ -222,6 +222,7 @@ namespace TurntNinja.GUI
 
         public override void EnterFocus()
         {
+            OpenTK.Graphics.OpenGL4.GL.ClearColor(Color.White);
             InputSystem.RepeatingKeys.Add(Key.Left, KeyRepeatSettings.Default);
             InputSystem.RepeatingKeys.Add(Key.Right, KeyRepeatSettings.Default);
             InputSystem.RepeatingKeys.Add(Key.Up, KeyRepeatSettings.Default);
@@ -230,6 +231,7 @@ namespace TurntNinja.GUI
 
         public override void ExitFocus()
         {
+            OpenTK.Graphics.OpenGL4.GL.ClearColor(Color.Black);
             InputSystem.RepeatingKeys.Remove(Key.Left);
             InputSystem.RepeatingKeys.Remove(Key.Right);
             InputSystem.RepeatingKeys.Remove(Key.Up);

@@ -218,8 +218,7 @@ namespace TurntNinja.FileSystem
         public void Draw(double time)
         {
             _qfontDrawing.DrawingPrimitives.Clear();
-            var col = Color4.Black;
-            col.A = 0.90f;
+            var col = Color4.White;
 
             if (_fileSystemEntries.Count > 0)
             {
@@ -247,7 +246,7 @@ namespace TurntNinja.FileSystem
             float unselectedFsScale = 0.9f;
 
             col = Color4.White;
-            col.A = 0.70f;
+            col.A = 1.0f;
 
             var dp = new QFontDrawingPrimitive(_selectedFont.Font, new QFontRenderOptions { Colour = (System.Drawing.Color)col });
             // Draw next fs on right

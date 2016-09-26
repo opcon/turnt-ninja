@@ -150,7 +150,7 @@ namespace TurntNinja
             Mouse.WheelChanged += (o, args) => InputSystem.MouseWheelChanged(args);
             Mouse.Move += (o, args) => InputSystem.MouseMoved(args);
 
-            GL.ClearColor(Color.CornflowerBlue);
+            GL.ClearColor(Color.Black);
 
             _watch = new Stopwatch();
         }
