@@ -171,11 +171,11 @@ namespace TurntNinja.GUI
 
             foreach (var op in _options)
             {
-                var settingColour = Color4.White;
+                var settingColour = Color4.Black;
                 if (_options[_currentlySelectedOption] != op)
                 {
                     settingColour = Color.Black;
-                    settingColour.A = 0.90f;
+                    settingColour.A = 0.50f;
                 }
 
                 var dp = new QFontDrawingPrimitive(_optionsFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
