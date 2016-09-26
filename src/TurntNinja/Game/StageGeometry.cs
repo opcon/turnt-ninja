@@ -12,6 +12,7 @@ using Substructio.Core;
 using Substructio.Core.Math;
 using HUSL;
 using OpenTK.Input;
+using System.Drawing;
 
 namespace TurntNinja.Game
 {
@@ -24,6 +25,9 @@ namespace TurntNinja.Game
         private double _initialHue;
         private double _extraHue = 0.0;
         private double _hueWobbleAmount = 30;
+        private bool _swapColours = false;
+        private double _lastSwapTime = -10.0f;
+        const double MIN_COLOUR_SWAP_TIME = 0.3f;
         private HUSLColor _baseColour;
         public Stage ParentStage;
 
@@ -80,6 +84,9 @@ namespace TurntNinja.Game
             get { return Onsets.OnsetIndex == Onsets.Count; }
         }
 
+        public Color4 TextColour { get; internal set; } = Color.White;
+        public ColourMode CurrentColourMode { get; set; } = ColourMode.Regular;
+
         internal StageGeometry (OnsetCollection onsets, OnsetDrawing onsetDrawing, Color4 segmentStartColour, Random random)
         {
             Onsets = onsets;
@@ -114,8 +121,8 @@ namespace TurntNinja.Game
                 CenterPolygon.PulseMultiplier = Onsets.PulseDataCollection[CurrentOnset].PulseMultiplier;
                 ParentStage.SceneManager.ScreenCamera.ExtraScale = CenterPolygon.Pulsing ?  (float)Math.Pow(Onsets.BeatFrequencies[CurrentOnset],3) * 0.2f : 0;
 
-                if (Onsets.CloseToNextOnset(CurrentOnset, 0.01f))
-                    _extraRotation = 0.005f;
+                //if (Onsets.CloseToNextOnset(CurrentOnset, 0.01f))
+                //    _extraRotation = 0.005f;
 
                 if (ParentStage.AI)
                 {
@@ -166,8 +173,8 @@ namespace TurntNinja.Game
             BackgroundPolygon.Position.Azimuth = CenterPolygon.Position.Azimuth;
             BackgroundPolygon.Update(time, false);
 
-            if (frameCount == 10)
-                UpdateColours(time);
+            //if (frameCount == 2)
+            UpdateColours(time);
 
         }
 
@@ -210,7 +217,10 @@ namespace TurntNinja.Game
             ParentStage.ShaderProgram.SetUniform("in_color", _colours.OddOutlineColour);
             CenterPolygon.DrawOutline(time, 2);
 
-            ParentStage.ShaderProgram.SetUniform("in_color", Color4.White);
+            if (CurrentColourMode == ColourMode.BlackAndWhite)
+                ParentStage.ShaderProgram.SetUniform("in_color", _colours.EvenOpposingColour);
+            else if (CurrentColourMode == ColourMode.Regular)
+                ParentStage.ShaderProgram.SetUniform("in_color", Color4.White);
             Player.Draw(time);
             ParentStage.ShaderProgram.SetUniform("in_color", Color4.SkyBlue);
             //_p2.Draw(time);
@@ -294,12 +304,19 @@ namespace TurntNinja.Game
             }
 
             //_baseColour.H += time*50f*(!OutOfBeats ? BeatFrequencies[_beats.Index] : 1);
-            if (CurrentOnset - _previousBeat > 3)
-            {
-                _previousBeat = CurrentOnset;
-                _extraHue = ((_random.NextDouble() > 0.5) ? -1 : 1) * (90 + (_hueWobbleAmount * _random.NextDouble() - _hueWobbleAmount / 2));
 
+            // Only update colours if more than 3 beats have passed since last time
+            if (CurrentOnset - _previousBeat < 3) return;
+
+            _previousBeat = CurrentOnset;
+            _extraHue = ((_random.NextDouble() > 0.5) ? -1 : 1) * (90 + (_hueWobbleAmount * _random.NextDouble() - _hueWobbleAmount / 2));
+            double swapChance = CurrentColourMode == ColourMode.BlackAndWhite ? 0.9 : 0.95;
+            if ((_elapsedTime - _lastSwapTime) > MIN_COLOUR_SWAP_TIME && _random.NextDouble() > swapChance)
+            {
+                _swapColours = !_swapColours;
+                _lastSwapTime = _elapsedTime;
             }
+
             _baseColour.H = _initialHue + (CurrentOnset) * 5;
             _baseColour.L = ColourModifiers.baseLightness;
             _baseColour.S = ColourModifiers.baseSaturation;
@@ -345,6 +362,31 @@ namespace TurntNinja.Game
             _colours.EvenOutlineColour = HUSLColor.ToColor4(GetOutlineColour(fEven));
             _colours.OddOpposingColour = HUSLColor.ToColor4(fOdd);
             _colours.OddOutlineColour = HUSLColor.ToColor4(GetOutlineColour(fOdd));
+
+            // Black and White
+            if (CurrentColourMode == ColourMode.BlackAndWhite)
+            {
+                _colours.EvenOpposingColour = _colours.OddOpposingColour = Color4.Black;
+                _colours.EvenBackgroundColour = _colours.OddBackgroundColour = Color4.White;
+                _colours.OddOutlineColour = _colours.EvenOutlineColour = Color4.White;
+            }
+
+            // Swap colours if required
+            if (_swapColours)
+            {
+                // Handle outlines for black and white
+                if (CurrentColourMode == ColourMode.BlackAndWhite)
+                    _colours.OddOutlineColour = _colours.EvenOutlineColour = Color4.Black;
+
+                var t1 = _colours.EvenBackgroundColour;
+                var t2 = _colours.OddBackgroundColour;
+                _colours.EvenBackgroundColour = _colours.OddOpposingColour;
+                _colours.OddBackgroundColour = _colours.EvenOpposingColour;
+                _colours.EvenOpposingColour = t2;
+                _colours.OddOpposingColour = t1;
+            }
+            if (CurrentColourMode == ColourMode.BlackAndWhite)
+                TextColour = _colours.OddOpposingColour;
         }
 
 
@@ -399,5 +441,11 @@ namespace TurntNinja.Game
                 baseLightness, baseSaturation, foregroundLightnessDelta, foregroundSaturationDelta, outlineLightness, outlineSaturation);
         }
 
+    }
+
+    enum ColourMode
+    {
+        BlackAndWhite = 1,
+        Regular = 0
     }
 }

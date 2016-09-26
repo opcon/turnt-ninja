@@ -40,7 +40,7 @@ namespace TurntNinja.Generation
             BuildGeometry();
             SetStartColour();
 
-            var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 50000, -20, 0);
+            var backgroundPolygon = new PolarPolygon(6, new PolarVector(0.5, 0), 500000, -20, 0);
             backgroundPolygon.ShaderProgram = _builderOptions.GeometryShaderProgram;
 
             return new StageGeometry(_onsets, _onsetDrawing, _segmentStartColour, _random) {BackgroundPolygon = backgroundPolygon};
@@ -91,7 +91,7 @@ namespace TurntNinja.Generation
                     //weight--;
                 }
 
-                _beatFrequencies[i] = 1/(differenceSum/total);
+                _beatFrequencies[i] = 1 / (differenceSum / total);
             }
 
             _beatFrequencies[_beatFrequencies.Length - 1] = _beatFrequencies[_beatFrequencies.Length - 2];
@@ -111,8 +111,8 @@ namespace TurntNinja.Generation
             //set initial previous time to -1 so that the first polygon generated is always unique and doesn't trigger 'beat too close to previous' case
             double prevTime = -1.0;
             float samePatternChance = 0.90f;
-            float onsetStart = 0.0f;
-            float onsetEnd = 0.0f;
+            float veryCloseJoinChance = 0.5f;
+            float joinFunctionMultiplier = 20.0f;
 
             bool[] sides;
 
@@ -125,7 +125,8 @@ namespace TurntNinja.Generation
             foreach (var b in _goodBeats)
             {
                 // are we extending an existing structure?
-                if (b - prevTime < _builderOptions.VeryCloseDistance)
+                double t = Math.Exp(-joinFunctionMultiplier*(b - prevTime - _builderOptions.VeryCloseDistance) + Math.Log(veryCloseJoinChance));
+                if (_random.NextDouble() < t)
                 {
                     structures[currentStructureIndex].End = b;
                 }
@@ -158,14 +159,21 @@ namespace TurntNinja.Generation
                 }
                 else if (s.Start - prevTime < _builderOptions.CloseDistance)
                 {
-                    //randomly choose relative orientation difference compared to previous beat
-                    var r = _random.Next(0, 2);
-                    if (r == 0) r = -1;
+                    if (_random.NextDouble() < 0.5)
+                    {
+                        //randomly choose relative orientation difference compared to previous beat
+                        var r = _random.Next(0, 2);
+                        if (r == 0) r = -1;
 
-                    //this beat is reasonably close to the previous one, use the same skip pattern but a different (+/- 1) orientation
-                    start = (prevStart + 6) + r;
-                    if (_random.NextDouble() < samePatternChance)
-                        skip = prevSkip;
+                        //this beat is reasonably close to the previous one, use the same skip pattern but a different (+/- 1) orientation
+                        start = (prevStart + 6) + r;
+                        if (_random.NextDouble() < samePatternChance)
+                            skip = prevSkip;
+                    }
+                    else
+                    {
+                        start = prevStart;
+                    }
                 }
                 else
                 {
@@ -253,7 +261,7 @@ namespace TurntNinja.Generation
         public GeometryBuilderOptions(ShaderProgram geometryShaderProgram)
         {
             GeometryShaderProgram = geometryShaderProgram;
-            SkipFunction = () => (int) (3*Math.Pow(RandomFunction.NextDouble(), 4)) + 1;
+            SkipFunction = () => (int) (3*Math.Pow(RandomFunction.NextDouble(), 2)) + 1;
         }
 
         public void ApplyDifficulty(DifficultyOptions options)

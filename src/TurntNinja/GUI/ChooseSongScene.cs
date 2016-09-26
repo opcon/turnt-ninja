@@ -43,12 +43,6 @@ namespace TurntNinja.GUI
 
         public override void Load()
         {
-
-            InputSystem.RepeatingKeys.Add(Key.Down, KeyRepeatSettings.Default);
-            InputSystem.RepeatingKeys.Add(Key.Up, KeyRepeatSettings.Default);
-            InputSystem.RepeatingKeys.Add(Key.Left, KeyRepeatSettings.Default);
-            InputSystem.RepeatingKeys.Add(Key.Right, KeyRepeatSettings.Default);
-
             _directoryBrowser = new DirectoryBrowser(SceneManager, this);
             _directoryBrowser.AddFileSystem(new LocalFileSystem(SceneManager.Directories));
             _directoryBrowser.AddFileSystem(new SoundCloudFileSystem());
@@ -61,6 +55,8 @@ namespace TurntNinja.GUI
 
             // Make sure to add recent file system last!
             _directoryBrowser.AddFileSystem(new RecentFileSystem(_recentSongs));
+
+            _directoryBrowser.SwitchCurrentFileSystemIfEmpty();
 
             _directoryBrowser.Resize(WindowWidth, WindowHeight);
             Loaded = true;
@@ -146,10 +142,20 @@ namespace TurntNinja.GUI
 
         public override void Dispose()
         {
+        }
+
+        public override void EnterFocus()
+        {
+            InputSystem.RepeatingKeys.Add(Key.Down, KeyRepeatSettings.Default);
+            InputSystem.RepeatingKeys.Add(Key.Up, KeyRepeatSettings.Default);
+            InputSystem.RepeatingKeys.Add(Key.BackSpace, KeyRepeatSettings.Default);
+        }
+
+        public override void ExitFocus()
+        {
             InputSystem.RepeatingKeys.Remove(Key.Down);
             InputSystem.RepeatingKeys.Remove(Key.Up);
-            InputSystem.RepeatingKeys.Remove(Key.Left);
-            InputSystem.RepeatingKeys.Remove(Key.Right);
+            InputSystem.RepeatingKeys.Remove(Key.BackSpace);
         }
     }
 }

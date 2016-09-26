@@ -67,12 +67,16 @@ namespace TurntNinja
         private Input _currentFramesInput;
         private ShaderProgram _shaderProgram;
 
+        const float PLAYER_RADIUS = 180f;
+        const float PLAYER_WIDTH = 20;
+        const float PLAYER_LENGTH_DEGREES = 10;
+
         public Player()
         {
-            _position = new PolarVector(0, 180);
+            _length = MathHelper.DegreesToRadians(PLAYER_LENGTH_DEGREES);
+            _width = PLAYER_WIDTH;
+            _position = new PolarVector(1.5 * (Math.PI / 3) - _length * 0.5f,  PLAYER_RADIUS);
             _velocity = new PolarVector(-9, 0);
-            _length = (10) * (0.0174533);
-            _width = 20;
             Direction = 1;
             UseGamePad = false;
         }
@@ -131,6 +135,7 @@ namespace TurntNinja
         {
             Score = 0;
             Hits = 0;
+            _position = new PolarVector(1.5 * (Math.PI / 3) - _length * 0.5f,  PLAYER_RADIUS);
         }
 
         public List<IntPoint> GetBounds()

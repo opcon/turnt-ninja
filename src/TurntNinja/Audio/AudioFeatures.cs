@@ -46,7 +46,7 @@ namespace TurntNinja.Audio
 
         public void Extract(CSCore.IWaveSource audioSource, Song s)
         {
-            _currentTask = "Extracting Onsets";
+            _currentTask = "Analysing Song";
 
             List<Onset> onsets;
             if (SongAnalysed(s.SongBase.InternalName))

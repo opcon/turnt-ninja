@@ -127,7 +127,7 @@ namespace TurntNinja.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("9")]
+        [global::System.Configuration.DefaultSettingValueAttribute("2.5")]
         public float OnsetActivationThreshold {
             get {
                 return ((float)(this["OnsetActivationThreshold"]));
@@ -175,7 +175,7 @@ namespace TurntNinja.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool OnsetOnline {
             get {
                 return ((bool)(this["OnsetOnline"]));
@@ -311,6 +311,18 @@ namespace TurntNinja.Properties {
             }
             set {
                 this["FirstRun"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ColourMode {
+            get {
+                return ((int)(this["ColourMode"]));
+            }
+            set {
+                this["ColourMode"] = value;
             }
         }
     }

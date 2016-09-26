@@ -6,226 +6,110 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Substructio.GUI;
-using Gwen;
-using Gwen.Control;
-using Gwen.Control.Layout;
-using Gwen.Input;
 using Substructio.Core;
-using Key = OpenTK.Input.Key;
 using TurntNinja.Game;
+using OpenTK.Input;
+using QuickFont;
+using OpenTK;
+using OpenTK.Graphics;
 
 namespace TurntNinja.GUI
 {
     class OptionsScene : Scene
-    {
-        private GUIComponentContainer _GUIComponents;
-        private Canvas _canvas;
-        private OpenTKAlternative _input;
-        private HorizontalSlider _correctionSlider;
-        private HorizontalSlider _volumeSlider;
-        private HorizontalSlider _difficultySlider;
-        private NumericUpDown _numericCorrection;
-        private NumericUpDown _numericVolume;
-        private Label _correctionLabel;
-        private Label _volumeLabel;
-        private Label _difficultyLabel;
-        private Label _currentDifficultyLabel;
-        private Base _correctionOptionsContainer;
-        private Base _volumeOptionsContainer;
-        private Base _difficultyOptionsContainer;
+    {     
 
         private float _audioCorrection;
-        private float _maxAudioVolume;
         private DifficultyLevels _currentDifficulty;
+        private QFontDrawing _optionsDrawing;
+        private GameFont _optionsFont;
+        private GameFont _valueFont;
 
-        public OptionsScene(GUIComponentContainer guiComponents)
+        List<OptionBase> _options;
+        int _currentlySelectedOption = 0;
+
+        public OptionsScene()
         {
-            _GUIComponents = guiComponents;
             Exclusive = true;
         }
 
         public override void Load()
         {
-            _audioCorrection = (float)SceneManager.GameSettings["AudioCorrection"] * 1000f;
-            var vol = (float)SceneManager.GameSettings["MaxAudioVolume"];
-            _maxAudioVolume = vol * 100f;
-            _currentDifficulty = (DifficultyLevels)SceneManager.GameSettings["DifficultyLevel"];
+            _optionsFont = SceneManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Heading);
+            _valueFont = SceneManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Heading);
+            _optionsDrawing = new QFontDrawing();
+            _optionsDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
 
-            _GUIComponents.Resize(SceneManager.ScreenCamera.ScreenProjectionMatrix, WindowWidth, WindowHeight);
-            _canvas = new Canvas(_GUIComponents.Skin);
-            _canvas.SetSize(WindowWidth, WindowHeight);
-            _input = new OpenTKAlternative(_canvas);
-            InputSystem.AddGUIInput(_input);
+            _options = new List<OptionBase>();
 
-            _difficultyOptionsContainer = new Base(_canvas);
+            var audioCorrection = (float)SceneManager.GameSettings["AudioCorrection"] * 1000f;
+            var vol = (float)Math.Round((float)SceneManager.GameSettings["MaxAudioVolume"] * 100);
+            var currentDifficulty = (DifficultyLevels)SceneManager.GameSettings["DifficultyLevel"];
+            var analytics = (bool)ServiceLocator.Settings["Analytics"];
+            var windowMode = (string)ServiceLocator.Settings["WindowState"];
+            var colourMode = (ColourMode)ServiceLocator.Settings["ColourMode"];
 
-            _difficultyLabel = new Label(_difficultyOptionsContainer)
+            _options.Add(new NumericOption
             {
-                Text = "Difficulty Level",
-                AutoSizeToContents = true,
-                TextColor = Color.White
-            };
+                FriendlyName = "Volume",
+                SettingName = "MaxAudioVolume",
+                Minimum = 0.0f,
+                Maximum = 100.0f,
+                Scale = 100.0f,
+                Round = true,
+                Step = 1.0f,
+                Value = vol
+            });
 
-            _currentDifficultyLabel = new Label(_difficultyOptionsContainer)
+            _options.Add(new NumericOption
             {
-                Text = _currentDifficulty.ToString(),
-                AutoSizeToContents = true,
-                TextColor = Color.White
-            };
+                FriendlyName = "Audio Correction (ms)",
+                SettingName = "AudioCorrection",
+                Minimum = -1000.0f,
+                Maximum = 1000.0f,
+                Scale = 1000.0f,
+                Round = true,
+                Step = 2.0f,
+                Value = audioCorrection
+            });
 
-            _difficultySlider = new HorizontalSlider(_difficultyOptionsContainer);
-            _difficultySlider.SetRange(0, Enum.GetValues(typeof(DifficultyLevels)).Length - 1);
-            _difficultySlider.SetNotchSpacing(1);
-            _difficultySlider.SetSize(200, 20);
-            _difficultySlider.SnapToNotches = true;
-
-            _difficultySlider.ValueChanged += (sender, arguments) =>
+            _options.Add(new EnumOption<DifficultyLevels>
             {
-                _currentDifficultyLabel.Text = ((DifficultyLevels)((int)_difficultySlider.Value)).ToString();
-                _currentDifficulty = ((DifficultyLevels)((int)_difficultySlider.Value));
-            };
+                FriendlyName = "Difficulty",
+                SettingName = "DifficultyLevel",
+                Values = Enum.GetNames(typeof(DifficultyLevels)).ToList(),
+                CurrentIndex = Enum.GetNames(typeof(DifficultyLevels)).ToList().IndexOf(currentDifficulty.ToString())
+            });
 
-            _correctionOptionsContainer = new Base(_canvas);
-
-            _correctionLabel = new Label(_correctionOptionsContainer)
+            _options.Add(new BoolOption
             {
-                Text = "Audio Correction in Milliseconds",
-                AutoSizeToContents = true,
-                TextColor = Color.White
-            };
+                FriendlyName = "Analytics",
+                SettingName = "Analytics",
+                Value = analytics
+            });
 
-            var range = 2000;
-            var notchSpacing = 200;
-            _correctionSlider = new HorizontalSlider(_correctionOptionsContainer);
-            _correctionSlider.SetRange(-range, range);
-            _correctionSlider.SetSize(200, 20);
-            _correctionSlider.SetNotchSpacing(notchSpacing);
-            _correctionSlider.SnapToNotches = false;
-
-            _numericCorrection = new NumericUpDown(_correctionOptionsContainer)
+            var windowModes = new List<string> { WindowState.Fullscreen.ToString(), WindowState.Normal.ToString() };
+            _options.Add(new StringOption
             {
-                Min = -2000,
-                Max = 2000,
-                IsTabable = false
+                FriendlyName = "Window Mode",
+                SettingName = "WindowState",
+                Values = windowModes,
+                CurrentIndex = windowModes.IndexOf(windowMode),
+                CallbackFunction = (s) => SceneManager.GameWindow.WindowState = (WindowState)Enum.Parse(typeof(WindowState), s)
+            });
 
-            };
-            _numericCorrection.SetSize(130, _correctionLabel.Height + 10);
-            _numericCorrection.Margin = Margin.Two;
-
-            _correctionSlider.ValueChanged += (sender, arguments) =>
+            _options.Add(new EnumOption<ColourMode>
             {
-                if (_correctionSlider.Value != (int) Math.Round(_correctionSlider.Value))
-                    _correctionSlider.Value = (int) Math.Round(_correctionSlider.Value);
-                if (_numericCorrection.Value != _correctionSlider.Value)
-                    _numericCorrection.Value = _correctionSlider.Value; 
-                Debug.Print("Correction slider changed, value is " + _correctionSlider.Value);
-            };
+                FriendlyName = "Colour Mode",
+                SettingName = "ColourMode",
+                Values = Enum.GetNames(typeof(ColourMode)).ToList(),
+                CurrentIndex = Enum.GetNames(typeof(ColourMode)).ToList().IndexOf(colourMode.ToString())
+            });
 
-            _numericCorrection.ValueChanged += (sender, arguments) =>
+            foreach (var op in _options)
             {
-                if (_numericCorrection.Value != (int) Math.Round(_numericCorrection.Value))
-                    _numericCorrection.Value = (int) Math.Round(_numericCorrection.Value);
-                if (_correctionSlider.Value != _numericCorrection.Value)
-                    _correctionSlider.Value = _numericCorrection.Value;
-                Debug.Print("Numeric Correction changed, value is " + _numericCorrection.Value);
-            };
-
-            _volumeOptionsContainer = new Base(_canvas);
-
-            _volumeLabel = new Label(_volumeOptionsContainer)
-            {
-                Text = "Audio Volume",
-                AutoSizeToContents = true,
-                TextColor = Color.White
-            };
-
-            _volumeSlider = new HorizontalSlider(_volumeOptionsContainer);
-            _volumeSlider.SetSize(200, 20);
-            _volumeSlider.SetRange(0,100);
-            _volumeSlider.SetNotchSpacing(10);
-            _volumeSlider.SnapToNotches = false;
-
-            _numericVolume = new NumericUpDown(_volumeOptionsContainer)
-            {
-                Min = 0,
-                Max = 100,
-                IsTabable = false
-            };
-            _numericVolume.SetSize(100, _correctionLabel.Height + 10);
-            _numericVolume.Margin = Margin.Two;
-
-            _volumeSlider.ValueChanged += (sender, arguments) =>
-            {
-                if (_volumeSlider.Value != (int)Math.Round(_volumeSlider.Value))
-                    _volumeSlider.Value = (int)Math.Round(_volumeSlider.Value);
-                if (_numericVolume.Value != _volumeSlider.Value)
-                    _numericVolume.Value = _volumeSlider.Value;
-                Debug.Print("Volume slider changed, value is " + _volumeSlider.Value);
-            };
-
-            _numericVolume.ValueChanged += (sender, arguments) =>
-            {
-                if (_numericVolume.Value != (int)Math.Round(_numericVolume.Value))
-                    _numericVolume.Value = (int)Math.Round(_numericVolume.Value);
-                if (_volumeSlider.Value != _numericVolume.Value)
-                    _volumeSlider.Value = _numericVolume.Value;
-                Debug.Print("Numeric volume changed, value is " + _numericVolume.Value);
-            };
-
-            _difficultySlider.Value = (int)_currentDifficulty;
-            _correctionSlider.Value = _numericCorrection.Value = _audioCorrection;
-            _volumeSlider.Value = _numericVolume.Value = _maxAudioVolume;
-
-            LayoutGUI();
-
-            _difficultySlider.Focus();
-
+                op.Sanitise();
+            }
             Loaded = true;
-        }
-
-        private void LayoutGUI()
-        {
-            //layout difficulty slider so that it's centered in the container
-            _difficultySlider.SetPosition((_difficultyLabel.Width - _difficultySlider.Width)/2, _difficultyLabel.Height);
-
-            //layout difficulty label
-            _difficultyLabel.SetPosition(0, 0);
-
-            //layout current difficulty label
-            _currentDifficultyLabel.SetPosition((_difficultyLabel.Width - _currentDifficultyLabel.Width)/2, _difficultyLabel.Height + _difficultySlider.Height);
-
-            //layout correction slider
-            _correctionSlider.SetPosition(-(_correctionSlider.Width + _numericCorrection.Width + 10) / 2 + _correctionLabel.TextWidth / 2, _correctionLabel.Height * 2);
-
-            //layout numeric correction
-            Align.PlaceRightBottom(_numericCorrection, _correctionSlider, 10);
-
-            //layout volume slider
-            _volumeSlider.SetPosition(0, _volumeLabel.Height * 2);
-
-            //layout volume label
-            _volumeLabel.SetPosition((_volumeSlider.Width + _numericVolume.Width + 10)/2 - _volumeLabel.Width/2, 0);
-
-            //layout numeric volume
-            Align.PlaceRightBottom(_numericVolume, _volumeSlider, 10);
-
-            //size containers to their children
-            _correctionOptionsContainer.SizeToChildren();
-            _volumeOptionsContainer.SizeToChildren();
-            _difficultyOptionsContainer.SizeToChildren();
-
-            //find max width
-            var maxWidth = Math.Max(_correctionOptionsContainer.Width, _volumeOptionsContainer.Width);
-
-            var h = _difficultyOptionsContainer.Height;
-            _difficultyOptionsContainer.SetPosition((WindowWidth / 2 - _difficultyOptionsContainer.Width / 2), WindowHeight / 2 - h);
-
-            //layout correction options container
-            _correctionOptionsContainer.SetPosition((int)(WindowWidth / 2 - maxWidth + (maxWidth - _correctionOptionsContainer.Width)/2), WindowHeight / 2 - _correctionOptionsContainer.Height / 2 + h);
-
-            //layout volume options container
-            _volumeOptionsContainer.SetPosition((int) (WindowWidth / 2 + (maxWidth - _volumeOptionsContainer.Width)/2), WindowHeight / 2 - _volumeOptionsContainer.Height / 2 + h);
-
         }
 
         public override void CallBack(GUICallbackEventArgs e)
@@ -235,36 +119,352 @@ namespace TurntNinja.GUI
 
         public override void Resize(EventArgs e)
         {
-            _GUIComponents.Resize(SceneManager.ScreenCamera.ScreenProjectionMatrix, WindowWidth, WindowHeight);
-            _canvas.SetSize(WindowWidth, WindowHeight);
-            LayoutGUI();
+            _optionsDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
         }
 
         public override void Update(double time, bool focused = false)
         {
-            if (InputSystem.NewKeys.Contains(Key.Escape))
+            if (InputSystem.NewKeys.Contains(Key.Down))
             {
-                _audioCorrection = _correctionSlider.Value*0.001f;
-                _maxAudioVolume = _volumeSlider.Value*0.01f;
-                SceneManager.GameSettings["AudioCorrection"] = _audioCorrection;
-                SceneManager.GameSettings["MaxAudioVolume"] = _maxAudioVolume;
-                SceneManager.GameSettings["DifficultyLevel"] = (int)_currentDifficulty;
-                SceneManager.RemoveScene(this);
+                _currentlySelectedOption += 1;
+                if (_currentlySelectedOption >= _options.Count) _currentlySelectedOption = 0;
+            }
+            if (InputSystem.NewKeys.Contains(Key.Up))
+            {
+                _currentlySelectedOption -= 1;
+                if (_currentlySelectedOption < 0) _currentlySelectedOption = _options.Count - 1;
             }
 
-            if (InputSystem.NewKeys.Contains(Key.Tab) && _volumeSlider.HasFocus)
-                _difficultySlider.Focus();
+            var currentOption = _options[_currentlySelectedOption];
+            if (InputSystem.NewKeys.Contains(Key.Left) && currentOption.CanMoveBackward())
+            {
+                currentOption.MovePrevious();
+                currentOption.RaiseOptionChanged();
+            }
+
+            if (InputSystem.NewKeys.Contains(Key.Right) && currentOption.CanMoveForward())
+            {
+                currentOption.MoveNext();
+                currentOption.RaiseOptionChanged();
+            }
+
+            if (InputSystem.NewKeys.Contains(Key.Escape))
+            {
+                foreach (var op in _options)
+                {
+                    op.Sanitise();
+                    op.SaveSettings();
+                }
+                SceneManager.RemoveScene(this, true);
+            }
         }
 
         public override void Draw(double time)
         {
-            _canvas.RenderCanvas();
+            _optionsDrawing.DrawingPrimitives.Clear();
+
+            float lineStep = Math.Max(_optionsFont.MaxLineHeight, _valueFont.MaxLineHeight);
+            float height = lineStep * _options.Count;
+
+            float currentY = height / 2.0f;
+            float unselectedValueScale = 0.8f;
+
+            foreach (var op in _options)
+            {
+                var settingColour = Color4.White;
+                if (_options[_currentlySelectedOption] != op)
+                {
+                    settingColour = Color.Black;
+                    settingColour.A = 0.90f;
+                }
+
+                var dp = new QFontDrawingPrimitive(_optionsFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
+                dp.Print(op.FriendlyName + ":", Vector3.Zero, QFontAlignment.Centre);
+                dp.ModelViewMatrix = Matrix4.CreateTranslation(0, _optionsFont.MaxLineHeight * 0.5f, 0)
+                                        * Matrix4.CreateTranslation(-WindowWidth * 0.15f, currentY, 0);
+                _optionsDrawing.DrawingPrimitives.Add(dp);
+
+                dp = new QFontDrawingPrimitive(_valueFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
+                var valueSize = dp.Print(op.GetValue(), Vector3.Zero, QFontAlignment.Centre);
+                dp.ModelViewMatrix = Matrix4.CreateTranslation(0, _valueFont.MaxLineHeight * 0.5f, 0)
+                                        * Matrix4.CreateTranslation(WindowWidth * 0.15f, currentY, 0);
+                _optionsDrawing.DrawingPrimitives.Add(dp);
+
+                if (op.CanMoveForward())
+                {
+                    dp = new QFontDrawingPrimitive(_valueFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
+                    dp.Print(op.GetNextValue(), Vector3.Zero, QFontAlignment.Left);
+                    dp.ModelViewMatrix = Matrix4.CreateScale(unselectedValueScale)
+                                            * Matrix4.CreateTranslation(WindowWidth * 0.15f + valueSize.Width * 1.25f, currentY + _valueFont.Font.MaxLineHeight * 0.5f * unselectedValueScale, 0);
+                    _optionsDrawing.DrawingPrimitives.Add(dp);
+                }
+                if (op.CanMoveBackward())
+                {
+                    dp = new QFontDrawingPrimitive(_valueFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
+                    dp.Print(op.GetPrevValue(), Vector3.Zero, QFontAlignment.Right);
+                    dp.ModelViewMatrix = Matrix4.CreateScale(unselectedValueScale)
+                                            * Matrix4.CreateTranslation(WindowWidth * 0.15f - valueSize.Width * 1.25f, currentY + _valueFont.Font.MaxLineHeight * 0.5f * unselectedValueScale, 0);
+                    _optionsDrawing.DrawingPrimitives.Add(dp);
+                }
+
+                currentY -= lineStep;
+            }
+
+
+            _optionsDrawing.RefreshBuffers();
+            _optionsDrawing.Draw();
         }
 
         public override void Dispose()
         {
-            InputSystem.RemoveGUIInput(_input);
-            _canvas.Dispose();
+            _optionsDrawing.Dispose();
         }
+
+        public override void EnterFocus()
+        {
+            OpenTK.Graphics.OpenGL4.GL.ClearColor(Color.White);
+            InputSystem.RepeatingKeys.Add(Key.Left, KeyRepeatSettings.Default);
+            InputSystem.RepeatingKeys.Add(Key.Right, KeyRepeatSettings.Default);
+            InputSystem.RepeatingKeys.Add(Key.Up, KeyRepeatSettings.Default);
+            InputSystem.RepeatingKeys.Add(Key.Down, KeyRepeatSettings.Default);
+        }
+
+        public override void ExitFocus()
+        {
+            OpenTK.Graphics.OpenGL4.GL.ClearColor(Color.Black);
+            InputSystem.RepeatingKeys.Remove(Key.Left);
+            InputSystem.RepeatingKeys.Remove(Key.Right);
+            InputSystem.RepeatingKeys.Remove(Key.Up);
+            InputSystem.RepeatingKeys.Remove(Key.Down);
+        }
+    }
+
+    public abstract class OptionBase
+    {
+        public string FriendlyName { get; set; }
+        public string SettingName { get; set; }
+
+        public abstract string GetValue();
+        public abstract string GetNextValue();
+        public abstract string GetPrevValue();
+
+        public abstract bool CanMoveForward();
+        public abstract bool CanMoveBackward();
+
+        public abstract void SaveSettings();
+
+        public abstract void MoveNext();
+        public abstract void MovePrevious();
+        public abstract void Sanitise();
+
+        public void RaiseOptionChanged()
+        {
+            OptionCallback.Invoke(this);
+        }
+
+        public delegate void OptionCallbackEvent(OptionBase sender);
+
+        public event OptionCallbackEvent OptionCallback;
+    }
+
+    public class BoolOption : OptionBase
+    {
+        public bool Value { get; set; }
+
+        public BoolOption()
+        {
+            OptionCallback += (s) => CallbackFunction(Value);
+        }
+
+        public override bool CanMoveBackward()
+        {
+            return Value;
+        }
+
+        public override bool CanMoveForward()
+        {
+            return !Value;
+        }
+
+        public override string GetNextValue()
+        {
+            return (!Value).ToString();
+        }
+
+        public override string GetPrevValue()
+        {
+            return (!Value).ToString();
+        }
+
+        public override string GetValue()
+        {
+            return Value.ToString();
+        }
+
+        public override void MoveNext()
+        {
+            Value = !Value;
+        }
+
+        public override void MovePrevious()
+        {
+            Value = !Value;
+        }
+
+        public override void Sanitise()
+        {
+        }
+
+        public override void SaveSettings()
+        {
+            ServiceLocator.Settings[SettingName] = Value;
+        }
+
+        public Action<bool> CallbackFunction { get; set; } = (_) => { };
+    }
+
+    public class StringOption : OptionBase
+    {
+        public string CurrentValue { get { return Values[CurrentIndex]; } }
+        public int CurrentIndex { get; set; } = 0;
+        public List<string> Values { get; set; }
+
+        public StringOption()
+        {
+            OptionCallback += (_) => CallbackFunction(CurrentValue);
+        }
+
+        public override bool CanMoveBackward()
+        {
+            return CurrentIndex > 0;
+        }
+
+        public override bool CanMoveForward()
+        {
+            return CurrentIndex < Values.Count - 1;
+        }
+
+        public override string GetNextValue()
+        {
+            return Values[CurrentIndex + 1];
+        }
+
+        public override string GetPrevValue()
+        {
+            return Values[CurrentIndex - 1];
+        }
+
+        public override string GetValue()
+        {
+            return CurrentValue;
+        }
+
+        public override void MoveNext()
+        {
+            CurrentIndex += 1;
+        }
+
+        public override void MovePrevious()
+        {
+            CurrentIndex -= 1;
+        }
+
+        public override void Sanitise()
+        {
+            MathHelper.Clamp(CurrentIndex, 0, Values.Count - 1);
+        }
+
+        public override void SaveSettings()
+        {
+            ServiceLocator.Settings[SettingName] = CurrentValue;
+        }
+
+        public Action<string> CallbackFunction { get; set; } = (_) => { };
+    }
+
+    public class EnumOption<T> : StringOption
+    {
+        public override void SaveSettings()
+        {
+            ServiceLocator.Settings[SettingName] = (int)Enum.Parse(typeof(T), CurrentValue);
+        }
+    }
+
+    public class NumericOption : OptionBase
+    {
+        public float Value { get; set; }
+        public float Step { get; set; }
+        public float Maximum { get; set; }
+        public float Minimum { get; set; }
+        public bool Round { get; set; }
+        public float Scale { get; set; } = 0.0f;
+
+        public NumericOption()
+        {
+            OptionCallback += (_) => CallbackFunction(Value);
+        }
+
+        public override bool CanMoveBackward()
+        {
+            return Value >= (Minimum + Step);
+        }
+
+        public override bool CanMoveForward()
+        {
+            return Value <= (Maximum - Step);
+        }
+
+        public override string GetNextValue()
+        {
+            return GetNext().ToString();
+        }
+
+        public override string GetPrevValue()
+        {
+            return GetPrevious().ToString();
+        }
+
+        public override string GetValue()
+        {
+            return Value.ToString();
+        }
+
+        public override void MoveNext()
+        {
+            Value = GetNext();
+        }
+
+        public override void MovePrevious()
+        {
+            Value = GetPrevious();
+        }
+
+        public override void Sanitise()
+        {
+            Value = MathHelper.Clamp(Value, Minimum, Maximum);
+        }
+
+        public override void SaveSettings()
+        {
+            ServiceLocator.Settings[SettingName] = Value / Scale;
+        }
+
+        private float GetNext()
+        {
+            var n = Value + Step;
+            n = MathHelper.Clamp(n, Minimum, Maximum);
+            if (Round) n = (float)Math.Round(n);
+            return n;
+        }
+
+        private float GetPrevious()
+        {
+            var n = Value - Step;
+            n = MathHelper.Clamp(n, Minimum, Maximum);
+            if (Round) n = (float)Math.Round(n);
+            return n;
+        }
+
+        public Action<float> CallbackFunction { get; set; } = (_) => { };
     }
 }

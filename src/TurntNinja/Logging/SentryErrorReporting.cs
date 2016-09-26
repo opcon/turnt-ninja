@@ -32,20 +32,40 @@ namespace TurntNinja.Logging
 
         private void InitialiseSentryClient()
         {
-            _sentryClient = new RavenClient(_sentryDsn, null, null, new SentryUserGUIDFactory(_userGUID));
+            _sentryClient = new RavenClient(_sentryDsn, new CustomJsonPacketFactory(), null, new SentryUserGUIDFactory(_userGUID));
         }
 
         public string ReportError(Exception ex)
         {
-            var sentryEvent = new SentryEvent(ex);
-            return _sentryClient.Capture(sentryEvent);
+            return ReportErrorAsync(ex).Result;
         }
 
         public string ReportMessage(string message)
         {
+            return ReportMessageAsync(message).Result;
+        }
+
+        public Task<string> ReportErrorAsync(Exception ex)
+        {
+            var sentryEvent = new SentryEvent(ex);
+            return _sentryClient.CaptureAsync(sentryEvent);
+        }
+
+        public Task<string> ReportMessageAsync(string message)
+        {
             var sentryMessage = new SentryMessage(message);
             var sentryEvent = new SentryEvent(sentryMessage);
-            return _sentryClient.Capture(sentryEvent);
+            return _sentryClient.CaptureAsync(sentryEvent);
+        }
+    }
+
+    class CustomJsonPacketFactory : JsonPacketFactory
+    {
+        protected override JsonPacket OnCreate(JsonPacket jsonPacket)
+        {
+            // Scrub servername from the json packet since we don't need it
+            jsonPacket.ServerName = "";
+            return jsonPacket;
         }
     }
 

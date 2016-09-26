@@ -26,6 +26,7 @@ namespace TurntNinja.GUI
         private Dictionary<ReleaseEntry, string> _releaseNotes;
         Exception _ex = null;
         CancellationTokenSource _cancellationTokenSource;
+        GameFont _updateFont;
 
         const string LOCALPACKAGEHOST = @"D:\Patrick\Documents\Development\Game Related\turnt-ninja\Releases";
         const string GITHUBPACKAGEHOST = "https://github.com/opcon/turnt-ninja";
@@ -45,12 +46,13 @@ namespace TurntNinja.GUI
 
         public override void Draw(double time)
         {
-            var tSize = SceneManager.DefaultFont.Font.Measure(_statusString);
-            SceneManager.DrawTextLine(_statusString, new OpenTK.Vector3(0, tSize.Height/2, 0), Color4.White);
+            var tSize = _updateFont.Font.Measure(_statusString);
+            SceneManager.DrawTextLine(_statusString, new OpenTK.Vector3(0, tSize.Height/2, 0), Color4.White, font: _updateFont.Font);
         }
 
         public override void Load()
         {
+            _updateFont = SceneManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Heading);
             _cancellationTokenSource = new CancellationTokenSource();
 
             if (_isSquirrel)
@@ -209,5 +211,12 @@ namespace TurntNinja.GUI
             return Regex.Replace(html, "<.+?>", string.Empty);
         }
 
+        public override void EnterFocus()
+        {
+        }
+
+        public override void ExitFocus()
+        {
+        }
     }
 }

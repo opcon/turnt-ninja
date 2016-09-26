@@ -31,7 +31,7 @@ namespace TurntNinja.GUI
         string _headerText = "WELCOME TO TURNT NINJA";
 
         string _bodyList =
-            "* Your operating system\n" +
+            "* Operating system version\n" +
             "* Game resolution\n" +
             "* Number of songs played\n" +
             "* Crash reports\n";
@@ -42,7 +42,7 @@ namespace TurntNinja.GUI
             "data is collected if you opt in:\n";
 
         string _bodyText2 = 
-            "\nPlease press Enter to opt in, or any other key to opt out.\n\nThank you,\nPatrick";
+            "\nPlease press Enter to opt in, or Escape to opt out.\n\nThank you,\nPatrick";
 
         public FirstRunScene()
         {
@@ -101,7 +101,7 @@ namespace TurntNinja.GUI
 
                 SceneManager.RemoveScene(this, true);
             }
-            else if (InputSystem.NewKeys.Any())
+            else if (InputSystem.NewKeys.Contains(OpenTK.Input.Key.Escape))
             {
                 ServiceLocator.Settings["Analytics"] = false;
 
@@ -119,6 +119,14 @@ namespace TurntNinja.GUI
             _fontDrawing.Print(_bodyFont.Font, _bodyText1, new Vector3(0, headerOffset - (_headerSize.Height), 0), new SizeF(WindowWidth * _bodyTextWidth, -1), QFontAlignment.Centre);
             _fontDrawing.Print(_bodyFont.Font, _bodyList, new Vector3(-WindowWidth*0.25f, (headerOffset - (_headerSize.Height)) - _bodyText1Size.Height, 0), new SizeF(WindowWidth * _bodyTextWidth, -1), QFontAlignment.Left);
             _fontDrawing.Print(_bodyFont.Font, _bodyText2, new Vector3(0, (headerOffset - (_headerSize.Height)) - _bodyText1Size.Height - _bodyListSize.Height, 0), new SizeF(WindowWidth * _bodyTextWidth, -1), QFontAlignment.Centre);
+        }
+
+        public override void EnterFocus()
+        {
+        }
+
+        public override void ExitFocus()
+        {
         }
     }
 }

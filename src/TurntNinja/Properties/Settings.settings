@@ -30,7 +30,7 @@
       <Value Profile="(Default)">turnt-ninja</Value>
     </Setting>
     <Setting Name="OnsetActivationThreshold" Type="System.Single" Scope="User">
-      <Value Profile="(Default)">9</Value>
+      <Value Profile="(Default)">2.5</Value>
     </Setting>
     <Setting Name="OnsetAdaptiveWhitening" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -42,7 +42,7 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="OnsetOnline" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="OnsetSlicePaddingLength" Type="System.Single" Scope="User">
       <Value Profile="(Default)">0.2</Value>
@@ -76,6 +76,9 @@
     </Setting>
     <Setting Name="FirstRun" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ColourMode" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>
 </SettingsFile>

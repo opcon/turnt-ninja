@@ -22,6 +22,7 @@ let substructioDir = parentDir + substructioFolder + "/"
 let substructioBuildDir = substructioDir + buildDirBase + mode + "/"
 let contentDirDeployName = "Content"
 let licenseDirDeployName = "Licenses"
+let dllDirDeployName = "Dependencies"
 
 // MonoKickStart properties
 let monoKickStartRepo = @"https://github.com/MonoGame/MonoKickstart"
@@ -47,6 +48,9 @@ let deployName =
 let tempDirName = lazy 
                     tempDirBase + deployName.Value + "/"
 
+let tempDirZipName = lazy 
+                        tempDirBase + deployName.Value + "-zip/"
+
 let tempMergedDirName = lazy
                            tempDirBase + deployName.Value + "-merged/"
 
@@ -60,7 +64,7 @@ let deployZipMergedPath = lazy
                              deployDir + deployZipMergedName.Value
 
 // Tool names
-let squirrelToolName = "squirrel.exe"
+let squirrelToolName = "Squirrel.exe"
 let ILMergeToolName = "ILRepack.exe"
 
 // Targets
@@ -124,7 +128,7 @@ Target "CleanDeploy" (fun _ ->
     CleanDir deployDir
 )
 
-Target "DeployZip" (fun _ ->
+Target "CopyToTemp" (fun _ ->
     ensureDirectory deployDir
 
     let mainFiles = !! (sprintf "%s*.dll" buildDir) ++ (sprintf "%s*.config" buildDir) ++ (sprintf "%s*.exe" buildDir) -- (sprintf "%s*vshost*" buildDir)
@@ -132,9 +136,19 @@ Target "DeployZip" (fun _ ->
     CopyFiles tempDirName.Value mainFiles
     CopyDir (tempDirName.Value + contentDirDeployName) "src/TurntNinja/Content/" (fun x -> true)
     CopyDir (tempDirName.Value + licenseDirDeployName) "docs/licenses" (fun x-> true)
+)
 
-    let dInfo = new System.IO.DirectoryInfo(tempDirName.Value)
-    Zip tempDirName.Value deployZipPath.Value [ for f in dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories) do yield f.FullName]
+Target "DeployZip" (fun _ ->
+    CopyDir tempDirZipName.Value tempDirName.Value (fun x -> true)
+    
+    let filesToMove = !! (sprintf "%s*.dll" tempDirZipName.Value) ++ (sprintf "%s*.dll.config" tempDirZipName.Value)
+    
+    Copy (tempDirZipName.Value + dllDirDeployName) filesToMove
+    
+    DeleteFiles filesToMove
+
+    let dInfo = new System.IO.DirectoryInfo(tempDirZipName.Value)
+    Zip tempDirZipName.Value deployZipPath.Value [ for f in dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories) do yield f.FullName]
     //ArchiveHelper.Tar.GZip.CompressWithDefaults (directoryInfo artifactTempDir) (fileInfo (deployDir + deployName + ".tar.gz")) (dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories)) 
 )
 
@@ -154,15 +168,16 @@ Target "DeploySquirrel" (fun _ ->
                                 ("**/*.*", Some @"lib/net45", None)
                             ]
                     OutputPath = deployDir
-                    WorkingDir = tempDirName.Value
+                    WorkingDir = tempDirZipName.Value
             })
-            "src\TurntNinja\TurntNinja.nuspec"
+            "src/TurntNinja/TurntNinja.nuspec"
 
+    let squirrelPath = findToolInSubPath squirrelToolName ""
     // Create squirrel package
     Squirrel.SquirrelPack (fun p -> 
         {p with
             ReleaseDir = squirrelDeployDir
-            ToolPath = findToolInSubPath squirrelToolName ""
+            ToolPath = squirrelPath
         })
         packagePath
 )
@@ -201,6 +216,7 @@ Target "DeployKickStart" (fun _ ->
 )
 
 Target "Deploy" (fun _ -> ())
+Target "DeployAll" (fun _ -> ())
 
 Target "PushArtifacts" (fun _ ->
     match buildServer with
@@ -237,23 +253,35 @@ Target "Default" (fun _ ->
     ==> "CleanSubstructio"
 
 "CleanTemp"
+    ==> "CopyToTemp"
+
+"CopyToTemp"
     ==> "DeployZip"
 
 "DeployZip"
     ==> "PushArtifacts"
 
-"DeployZip"
+"CopyToTemp"
     ==> "DeployMerged"
 
 "DeployZip"
     ==> "DeploySquirrel"
 
-"DeploySquirrel"
+"DeployZip"
     ==> "Deploy"
+    
+"DeployZip"
+    ==> "DeployAll"
 
-// Deploy zip conditional target to ensure that we are built
+"DeployMerged"
+    ==> "DeployAll"
+
+"DeploySquirrel"
+    ==> "DeployAll"
+
+// CopyToTemp conditional target to ensure that we are built
 "Build"
-    =?> ("DeployZip", not (fileExists appPath))
+    =?> ("CopyToTemp", not (fileExists appPath))
 
 // start build
 RunTargetOrDefault "Default"

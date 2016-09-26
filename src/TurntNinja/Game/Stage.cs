@@ -147,6 +147,7 @@ namespace TurntNinja.Game
             StageGeometry.Player = player;
             StageGeometry.CenterPolygon = centerPolygon;
             StageGeometry.RotationSpeed = _difficultyOptions.RotationSpeed;
+            StageGeometry.CurrentColourMode = (ColourMode)ServiceLocator.Settings["ColourMode"];
 
             progress.Report("Load complete");
             Thread.Sleep(1000);
@@ -165,6 +166,7 @@ namespace TurntNinja.Game
         private void LoadAudioFeatures(CSCore.IWaveSource audioSource, float correction, IProgress<string> progress, Song s)
         {
             var options = DetectorOptions.Default;
+            options.MinimumTimeDelta = 7.5f;
             options.ActivationThreshold = (float)SceneManager.GameSettings["OnsetActivationThreshold"];
             options.AdaptiveWhitening = (bool)SceneManager.GameSettings["OnsetAdaptiveWhitening"];
             options.Online = (bool)SceneManager.GameSettings["OnsetOnline"];
@@ -243,12 +245,13 @@ namespace TurntNinja.Game
 
             MultiplierFontDrawing.DrawingPrimitives.Clear();
             MultiplierFontDrawing.Print(MultiplierFont.Font, _centerText, new Vector3(0, MultiplierFont.Font.Measure("0", QFontAlignment.Centre).Height * 0.5f, 0),
-                QFontAlignment.Centre);
+                QFontAlignment.Centre, (Color?)StageGeometry.TextColour);
             MultiplierFontDrawing.RefreshBuffers();
             MultiplierFontDrawing.Draw();
 
             ScoreFontDrawing.DrawingPrimitives.Clear();
-            ScoreFontDrawing.Print(MultiplierFont.Font, StageGeometry.Player.Score.ToString("N0", CultureInfo.CurrentCulture), new Vector3(-SceneManager.Width / 2 + 20, SceneManager.Height/2 - 10, 0), QFontAlignment.Left, Color.White);
+            ScoreFontDrawing.Print(MultiplierFont.Font, StageGeometry.Player.Score.ToString("N0", CultureInfo.CurrentCulture), new Vector3(-SceneManager.Width / 2 + 20, SceneManager.Height / 2 - 10, 0),
+                QFontAlignment.Left, (Color?)StageGeometry.TextColour);
             ScoreFontDrawing.RefreshBuffers();
             ScoreFontDrawing.Draw();
         }
@@ -264,7 +267,6 @@ namespace TurntNinja.Game
             MultiplierFontDrawing.Dispose();
             ScoreFontDrawing.Dispose();
             StageGeometry.Dispose();
-            //_stageAudio.Dispose();
         }
 
         public void Reset(bool resetPlayerScore)
@@ -272,8 +274,6 @@ namespace TurntNinja.Game
             _stageAudio.FadeOut(500, 0, 0.01f, FadeEndAction.Stop).ContinueWith((t) => _stageAudio.Dispose());
             StageGeometry.CenterPolygon.Position.Azimuth = 0;
             if (resetPlayerScore) StageGeometry.Player.Reset();
-            //reset hit hexagons
-            //StageGeometry.Player.Hits = 0;
         }
     }
 }
