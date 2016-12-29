@@ -118,6 +118,7 @@ namespace TurntNinja.GUI
 
         public override void Dispose()
         {
+            _stage.Reset(true);
             _stage.Dispose(); 
             _stage = null;
         }
