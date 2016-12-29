@@ -43,6 +43,19 @@ namespace TurntNinja
             : base(rX, rY, graphicsMode, title, GameWindowFlags.Default, DisplayDevice.Default,
                 major, minor, GraphicsContextFlags.Default)
         {
+            // Add OpenGL/GPU information tags to sentry
+            var glVersion = GL.GetString(StringName.Version);
+            var glslVersion = GL.GetString(StringName.ShadingLanguageVersion);
+            var gpuVendor = GL.GetString(StringName.Vendor);
+            var renderer = GL.GetString(StringName.Renderer);
+            ServiceLocator.ErrorReporting.AddTags(new Dictionary<string, string>
+            {
+                { "opengl", glVersion },
+                { "glsl", glslVersion },
+                { "vendor", gpuVendor },
+                { "gpu", renderer }
+            });
+
             KeyDown += Keyboard_KeyDown;
             this.VSync = (bool)gameSettings["VSync"] ? VSyncMode.On : VSyncMode.Off;
             this.WindowState = (WindowState)Enum.Parse(typeof(WindowState), (string)gameSettings["WindowState"]);
