@@ -44,7 +44,8 @@ namespace TurntNinja
             string gameVersion = $"{version.Major}.{version.Minor}.{version.Build}";
             var userID = (string)ServiceLocator.Settings["UserID"];
             // Generate or load user ID for Piwik
-            if (!Guid.TryParse(userID, out var userGUID)) userGUID = Guid.NewGuid();
+            Guid userGUID;
+            if (!Guid.TryParse(userID, out userGUID)) userGUID = Guid.NewGuid();
 
             // Save user GUID
             ServiceLocator.Settings["UserID"] = userGUID.ToString();
