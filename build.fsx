@@ -67,6 +67,10 @@ let deployZipMergedPath = lazy
 let squirrelToolName = "Squirrel.exe"
 let ILMergeToolName = "ILRepack.exe"
 
+// MSBuild location for VS2017 RC (Community)
+let msbuild2017Location = @"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin"
+
+
 // Targets
 Target "Clean" (fun _ -> 
     try
@@ -229,6 +233,11 @@ Target "PushArtifacts" (fun _ ->
     | _ -> ()
 )
 
+Target "SetupMSBuildPath" (fun _ ->
+    if (directoryExists msbuild2017Location) then
+        trace (sprintf "Found 2017 MSBuild directory at %s, setting MSBuild build parameter to this location" msbuild2017Location)
+        setBuildParam "MSBuild" msbuild2017Location
+)
 
 Target "Default" (fun _ ->
     ()
@@ -238,6 +247,9 @@ Target "Default" (fun _ ->
 "Clean"
     ==> "Build"
     ==> "Default"
+
+"SetupMSBuildPath"
+    ==> "Build"
 
 "CleanSubstructio"
     ==> "RestoreSubstructioPackages"
