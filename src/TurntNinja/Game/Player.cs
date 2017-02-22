@@ -62,6 +62,8 @@ namespace TurntNinja
             get { return _velocity; }
         }
 
+        public bool IsSlow { get { return _currentFramesInput.HasFlag(Input.Slow); } }
+
         public float Score;
 
         private Input _currentFramesInput;
@@ -70,6 +72,7 @@ namespace TurntNinja
         const float PLAYER_RADIUS = 180f;
         const float PLAYER_WIDTH = 20;
         const float PLAYER_LENGTH_DEGREES = 10;
+        const float SLOW_MULTIPLIER = 0.5f;
 
         public Player()
         {
@@ -84,6 +87,8 @@ namespace TurntNinja
         public void Update(double time, bool AI = false)
         {
             if (!AI) _currentFramesInput = GetUserInput();
+            if (_currentFramesInput.HasFlag(Input.Slow))
+                time *= SLOW_MULTIPLIER;
            // _position.Azimuth += time*0.5*Direction;
             if (_currentFramesInput.HasFlag(Input.Left))
             {
@@ -184,6 +189,8 @@ namespace TurntNinja
                 i |= Input.Up;
             if (InputSystem.CurrentKeys.Contains(Key.Down))
                 i |= Input.Down;
+            if (InputSystem.CurrentKeys.Contains(Key.ShiftLeft))
+                i |= Input.Slow;
             return i;
         }
 
@@ -211,11 +218,12 @@ namespace TurntNinja
     [Flags]
     public enum Input
     {
-        Default = 0x0,
-        Left = 0x1,
-        Right = 0x2,
-        Up = 0x4,
-        Down = 0x8
+        Default = 0,
+        Left = 1,
+        Right = 2,
+        Up = 4,
+        Down = 8,
+        Slow = 16
     }
 
 }

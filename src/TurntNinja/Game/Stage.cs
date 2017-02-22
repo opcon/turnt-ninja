@@ -227,6 +227,8 @@ namespace TurntNinja.Game
                                  Math.Min(1,
                                      ((StageGeometry.Onsets.BeatFrequencies[StageGeometry.CurrentOnset] - StageGeometry.Onsets.MinBeatFrequency)/(StageGeometry.Onsets.MaxBeatFrequency - StageGeometry.Onsets.MinBeatFrequency))*
                                      0.5f)));
+                if (StageGeometry.Player.IsSlow)
+                    SceneManager.ScreenCamera.TargetScale *= 0.1f;
                 SceneManager.ScreenCamera.ScaleChangeMultiplier = Math.Min(StageGeometry.Onsets.BeatFrequencies[StageGeometry.CurrentOnset], 2)*2;
             }
 
