@@ -1,5 +1,6 @@
 // include Fake lib
 #r @"packages/build/FAKE/tools/FakeLib.dll"
+#load "scripts/Butler.fs"
 open Fake
 open System.Net
 
@@ -115,7 +116,7 @@ let macInfoFile = """<?xml version="1.0" encoding="UTF-8"?>
 		<true/>
 	</dict>
 	<key>NSHumanReadableCopyright</key>
-	<string>© 2017 PTRK</string>
+	<string>ï¿½ 2017 PTRK</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>
@@ -319,6 +320,14 @@ Target "Default" (fun _ ->
     ()
 )
 
+Target "DownloadButler" (fun _ ->
+    Butler.DownloadButler "./"
+)
+
+Target "PushItch" (fun _ ->
+    Butler.PushBuild "./" deployZipPath.Value "opcon/turnt-ninja" "win-alpha" versionString.Value true |> string |> trace
+)
+
 // Dependencies
 "Clean"
     ==> "Build"
@@ -365,6 +374,12 @@ Target "Default" (fun _ ->
 
 "DeployMacApp"
     ==> "DeployAll"
+
+"DeployZip"
+    ==> "PushItch"
+
+"DownloadButler"
+    =?> ("PushItch", not (fileExists ("./" + Butler.butlerFileName)))
 
 // CopyToTemp conditional target to ensure that we are built
 "Build"
