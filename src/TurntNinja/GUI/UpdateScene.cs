@@ -35,7 +35,7 @@ namespace TurntNinja.GUI
         {
             get
             {
-                return File.Exists(ServiceLocator.Directories.Locate("Application", Path.Combine("..", "Update.exe")));
+                return DistributionMethod.GetDistributionMethod() == Distribution.Squirrel;
             }
         }
 
