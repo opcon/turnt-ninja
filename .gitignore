@@ -195,3 +195,6 @@ paket.exe
 
 # vim
 *.swp
+
+# kickstart files
+kickstart.zip
