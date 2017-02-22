@@ -15,12 +15,13 @@ namespace TurntNinja
 {
     public static class TurntNinjaGame
     {
-
         private static CrashReporter _crashReporter;
 
         [STAThread]
         public static void Main(string[] args)
         {
+            System.Net.ServicePointManager.ServerCertificateValidationCallback = (s, ce, ch, p) => true;
+
             // Load services
             var initialSettingsProvider = new PropertySettings();
             initialSettingsProvider.Load();
