@@ -57,6 +57,9 @@
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Content\Images\icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="clipper_library">
       <HintPath>..\..\lib\Clipper\clipper_library.dll</HintPath>
@@ -159,6 +162,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Images\icon.ico" />
     <Content Include="CSCore.dll.config">
       <Paket>True</Paket>
     </Content>

@@ -154,6 +154,7 @@ namespace TurntNinja
                         major, minor, directoryHandler))
             {
                 game.Title = "Turnt Ninja";
+                game.Icon = new System.Drawing.Icon(directoryHandler.Locate("Images", "icon.ico"));
                 game.Run();
             }
         }
