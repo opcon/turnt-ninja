@@ -24,13 +24,13 @@ let contentDirDeployName = "Content"
 let licenseDirDeployName = "Licenses"
 let dllDirDeployName = "Dependencies"
 
-// MonoKickStart properties
-let monoKickStartRepo = @"https://github.com/MonoGame/MonoKickstart"
-let monoKickStartArchive = @"https://github.com/MonoGame/MonoKickstart/archive/master.zip"
+// KickStart properties
+let kickstartArchive = @"https://my.mixtape.moe/egkfrh.zip"
+let kickstartArchivePath = "./kickstart.zip"
 
 // More directories
 
-let tempDirBase = "tmp/"
+let tempDirBase = "./tmp/"
 let deployDir = "./deploy/"
 let squirrelDeployDir = deployDir + "squirrel/"
 
@@ -39,29 +39,87 @@ let postFix = match mode.ToLower() with
                 | "release" -> ""
                 | _ -> "-" + mode.ToLower()
 
+let versionString = 
+    lazy
+    let ver = VersionHelper.GetAssemblyVersion appPath
+    sprintf "%i.%i.%i%s" ver.Major ver.Minor ver.Build postFix 
+
 let deployName = 
     lazy 
-    let ver = VersionHelper.GetAssemblyVersion appPath
-    sprintf "%s-%i.%i.%i%s" appName ver.Major ver.Minor ver.Build postFix 
+    sprintf "%s-%s" appName versionString.Value
 
 // Get temp directory name
 let tempDirName = lazy 
-                    tempDirBase + deployName.Value + "/"
+                    tempDirBase + appName + "/"
 
-let tempDirZipName = lazy 
-                        tempDirBase + deployName.Value + "-zip/"
-
-let tempMergedDirName = lazy
-                           tempDirBase + deployName.Value + "-merged/"
+let deployKickstartName = lazy
+                            deployName.Value + "-kickstart"
 
 let deployZipName = lazy
                         deployName.Value + ".zip"
 let deployZipPath = lazy
                         deployDir + deployZipName.Value
-let deployZipMergedName = lazy
-                             deployName.Value + "-merged.zip"
-let deployZipMergedPath = lazy
-                             deployDir + deployZipMergedName.Value
+let deployKickstartPath = lazy
+                            deployDir + deployKickstartName.Value + ".zip"
+let tempKickstartPath = lazy
+                            tempDirBase + deployKickstartName.Value + "/"
+let macAppName = "Turnt Ninja"
+let macAppFolder = macAppName + ".app"
+let macAppDeployName = lazy
+                        macAppFolder + "-" + versionString.Value + ".zip"
+let macAppDeployPath = lazy
+                        deployDir + macAppDeployName.Value
+let tempMacAppPath = lazy
+                        tempDirBase + macAppFolder + "/"
+let tempMacAppContents = lazy
+                            tempMacAppPath.Value + "Contents/"
+let tempMacAppResources = lazy
+                            tempMacAppContents.Value + "Resources/"
+let tempMacAppMacOS = lazy
+                        tempMacAppContents.Value + "MacOS/"
+let macIconOrigPath = lazy
+                        tempMacAppMacOS.Value + "Content/Images/icon.icns"
+
+// Info.plist mac file
+let macInfoFile = """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>turntninja</string>
+	<key>CFBundleIconFile</key>
+	<string>icon.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.ptrk.turntninja</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Turnt Ninja</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>1.0</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.7.0</string>
+	<key>LSUIElement</key>
+	<false/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2017 PTRK</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+</dict>
+</plist>"""
 
 // Tool names
 let squirrelToolName = "Squirrel.exe"
@@ -69,6 +127,19 @@ let ILMergeToolName = "ILRepack.exe"
 
 // MSBuild location for VS2017 RC (Community)
 let msbuild2017Location = @"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin"
+
+let ZipFolderWithWorkingDir (workingDir:string) (folderPath:string) (zipPath:string) =
+    let dInfo = new System.IO.DirectoryInfo(folderPath)
+    Zip workingDir zipPath [ for f in dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories) do yield f.FullName]
+
+let ZipFolder (folderPath:string) (zipPath:string) = ZipFolderWithWorkingDir folderPath folderPath zipPath
+
+let pushAppVeyorArtifact (appVeyorFileName:string) (localPath:string) =
+    AppVeyor.PushArtifact (fun p ->
+    {p with
+        FileName = appVeyorFileName
+        Path = localPath
+    })
 
 
 // Targets
@@ -134,25 +205,34 @@ Target "CleanDeploy" (fun _ ->
 
 Target "CopyToTemp" (fun _ ->
     ensureDirectory deployDir
+    ensureDirectory tempDirBase
 
     let mainFiles = !! (sprintf "%s*.dll" buildDir) ++ (sprintf "%s*.config" buildDir) ++ (sprintf "%s*.exe" buildDir) -- (sprintf "%s*vshost*" buildDir)
 
     CopyFiles tempDirName.Value mainFiles
     CopyDir (tempDirName.Value + contentDirDeployName) "src/TurntNinja/Content/" (fun x -> true)
     CopyDir (tempDirName.Value + licenseDirDeployName) "docs/licenses" (fun x-> true)
+
+    let filesToMove = !! (sprintf "%s*.dll" tempDirName.Value) ++ (sprintf "%s*.dll.config" tempDirName.Value)
+    
+    Copy (tempDirName.Value + dllDirDeployName) filesToMove
+    
+    DeleteFiles filesToMove
+)
+
+Target "DownloadKickstart" (fun _ ->
+    ensureDirectory (tempKickstartPath.Value)
+
+    trace ("Downloading kickstart from " + kickstartArchive)
+
+    // Download mono kickstart
+    let wc = new WebClient()
+    wc.DownloadFile(kickstartArchive, kickstartArchivePath)
 )
 
 Target "DeployZip" (fun _ ->
-    CopyDir tempDirZipName.Value tempDirName.Value (fun x -> true)
-    
-    let filesToMove = !! (sprintf "%s*.dll" tempDirZipName.Value) ++ (sprintf "%s*.dll.config" tempDirZipName.Value)
-    
-    Copy (tempDirZipName.Value + dllDirDeployName) filesToMove
-    
-    DeleteFiles filesToMove
-
-    let dInfo = new System.IO.DirectoryInfo(tempDirZipName.Value)
-    Zip tempDirZipName.Value deployZipPath.Value [ for f in dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories) do yield f.FullName]
+    let dInfo = new System.IO.DirectoryInfo(tempDirName.Value)
+    Zip tempDirName.Value deployZipPath.Value [ for f in dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories) do yield f.FullName]
     //ArchiveHelper.Tar.GZip.CompressWithDefaults (directoryInfo artifactTempDir) (fileInfo (deployDir + deployName + ".tar.gz")) (dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories)) 
 )
 
@@ -172,7 +252,7 @@ Target "DeploySquirrel" (fun _ ->
                                 ("**/*.*", Some @"lib/net45", None)
                             ]
                     OutputPath = deployDir
-                    WorkingDir = tempDirZipName.Value
+                    WorkingDir = tempDirName.Value
             })
             "src/TurntNinja/TurntNinja.nuspec"
 
@@ -186,37 +266,33 @@ Target "DeploySquirrel" (fun _ ->
         packagePath
 )
 
-Target "DeployMerged" (fun _ ->
-    //ensureDirectory tempMergedDirName.Value
-    let libraries =  [for x in (!! (tempDirName.Value + "*.dll") -- "**/freetype6.dll") do yield x |> filename |> combinePaths tempDirName.Value ]
-    // NuGet.Squirrel.dll is an already-merged assembly.
-    // To stop ILRepack from complaining about missing references, we need to add copies of
-    // NuGet.Squirrel.dll to the directory we're searching, but named the dlls we need to reference.
-    CopyFile (tempDirName.Value + "Microsoft.Data.OData.dll") (tempDirName.Value + "NuGet.Squirrel.dll")
-    CopyFile (tempDirName.Value + "Microsoft.Data.Services.Client.dll") (tempDirName.Value + "NuGet.Squirrel.dll")
-    let searchDir = [tempDirName.Value; "/usr/lib/mono/4.5/Facades/"; "/Library/Frameworks/Mono.framework/Versions/Current/lib/mono/4.5/Facades"]
-    ILMerge (fun p ->
-            {p with
-                ToolPath = findToolInSubPath ILMergeToolName ""
-                TargetKind = TargetKind.WinExe
-                Libraries = libraries
-                SearchDirectories = searchDir
-            })
-        (tempMergedDirName.Value + appName + ".exe")
-        (tempDirName.Value + appName + ".exe")
+Target "DeployKickstart" (fun _ ->
+    trace "Copying build files to kickstart folder"
+    CopyDir (tempKickstartPath.Value + appName) tempDirName.Value (fun x -> true)
 
-    CopyDir (tempMergedDirName.Value + contentDirDeployName) (tempDirName.Value + contentDirDeployName) (fun x -> true)
-    CopyDir (tempMergedDirName.Value + licenseDirDeployName) (tempDirName.Value + licenseDirDeployName) (fun x-> true)
-    CopyFile (tempMergedDirName.Value + "freetype6.dll") (tempDirName.Value + "freetype6.dll")
+    trace "Unzipping kickstart over top"
+    Unzip (tempKickstartPath.Value + appName) kickstartArchivePath
 
-    let dInfo = new System.IO.DirectoryInfo(tempMergedDirName.Value)
-    Zip tempMergedDirName.Value deployZipMergedPath.Value [ for f in dInfo.EnumerateFiles("*", System.IO.SearchOption.AllDirectories) do yield f.FullName]
+    trace "Zipping it all up"
+    ZipFolder tempKickstartPath.Value deployKickstartPath.Value
 )
-Target "DeployKickStart" (fun _ ->
-    ensureDirectory tempDirName.Value
-    // Download mono kickstart
-    let wc = new WebClient()
-    wc.DownloadFile(monoKickStartArchive, (tempDirName.Value + "kickstart.zip"))
+
+Target "DeployMacApp" (fun _ ->
+    ensureDirectory tempMacAppContents.Value
+    ensureDirectory tempMacAppMacOS.Value
+    ensureDirectory tempMacAppResources.Value
+
+    trace "Copying kickstart folder to mac app folder"
+    CopyDir tempMacAppMacOS.Value (tempKickstartPath.Value + appName) (fun x -> true)
+
+    trace "Copying icon to mac app folder"
+    CopyFile tempMacAppResources.Value macIconOrigPath.Value
+
+    trace "Writing Info.plist file"
+    WriteStringToFile false (tempMacAppContents.Value + "Info.plist") macInfoFile
+
+    trace "Zipping it all up"
+    ZipFolderWithWorkingDir tempDirBase tempMacAppPath.Value macAppDeployPath.Value
 )
 
 Target "Deploy" (fun _ -> ())
@@ -225,13 +301,13 @@ Target "DeployAll" (fun _ -> ())
 Target "PushArtifacts" (fun _ ->
     match buildServer with
     | BuildServer.AppVeyor ->
-        AppVeyor.PushArtifact (fun p ->
-            {p with
-                FileName = deployName.Value + "-appveyor.zip"
-                Path = deployZipPath.Value
-            })
+        pushAppVeyorArtifact (deployName.Value + "-appveyor.zip") deployZipPath.Value
+        pushAppVeyorArtifact macAppDeployName.Value macAppDeployPath.Value
+        pushAppVeyorArtifact (deployKickstartName.Value + ".zip") deployKickstartPath.Value
     | _ -> ()
 )
+
+
 
 Target "SetupMSBuildPath" (fun _ ->
     if (directoryExists msbuild2017Location) then
@@ -255,9 +331,6 @@ Target "Default" (fun _ ->
     ==> "RestoreSubstructioPackages"
     ==> "BuildSubstructio"
 
-"RestoreSubstructioPackages"
-    ==> "BuildSubstructio"
-
 "BuildSubstructio"
     ==> "Build"
 
@@ -269,31 +342,37 @@ Target "Default" (fun _ ->
 
 "CopyToTemp"
     ==> "DeployZip"
-
-"DeployZip"
-    ==> "PushArtifacts"
-
-"CopyToTemp"
-    ==> "DeployMerged"
+    ==> "Deploy"
+    ==> "DeployAll"
 
 "DeployZip"
     ==> "DeploySquirrel"
 
-"DeployZip"
-    ==> "Deploy"
-    
-"DeployZip"
-    ==> "DeployAll"
+"CopyToTemp"
+    ==> "DeployKickstart"
 
-"DeployMerged"
-    ==> "DeployAll"
+"DeployKickstart"
+    ==> "DeployMacApp"
+
+"DeployAll"
+    ==> "PushArtifacts"
 
 "DeploySquirrel"
+    ==> "DeployAll"
+
+"DeployKickstart"
+    ==> "DeployAll"
+
+"DeployMacApp"
     ==> "DeployAll"
 
 // CopyToTemp conditional target to ensure that we are built
 "Build"
     =?> ("CopyToTemp", not (fileExists appPath))
+
+// Conditional target for downloading the kickstart archive
+"DownloadKickstart"
+    =?> ("DeployKickstart", not (fileExists kickstartArchivePath))
 
 // start build
 RunTargetOrDefault "Default"
