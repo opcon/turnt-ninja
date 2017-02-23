@@ -56,6 +56,14 @@ namespace TurntNinja
                 { "gpu", renderer }
             });
 
+            // Add backend information tags to sentry
+            var sdl = Configuration.RunningOnSdl2;
+            Console.WriteLine("Running on SDL2: {0}", sdl);
+            ServiceLocator.ErrorReporting.AddTags(new Dictionary<string, string>
+            {
+                { "sdl", sdl.ToString() }
+            });
+
             KeyDown += Keyboard_KeyDown;
             this.VSync = (bool)gameSettings["VSync"] ? VSyncMode.On : VSyncMode.Off;
             this.WindowState = (WindowState)Enum.Parse(typeof(WindowState), (string)gameSettings["WindowState"]);
