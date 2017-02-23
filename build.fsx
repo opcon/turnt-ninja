@@ -26,7 +26,8 @@ let licenseDirDeployName = "Licenses"
 let dllDirDeployName = "Dependencies"
 
 // KickStart properties
-let kickstartArchive = @"https://my.mixtape.moe/egkfrh.zip"
+let kickstartArchive = @"https://my.mixtape.moe/boqboe.zip"
+let kickstartArchiveNoSSL = @"http://my.mixtape.moe/boqboe.zip"
 let kickstartArchivePath = "./kickstart.zip"
 
 // More directories
@@ -71,7 +72,7 @@ let macAppDeployName = lazy
 let macAppDeployPath = lazy
                         deployDir + macAppDeployName.Value
 let tempMacAppPath = lazy
-                        tempDirBase + macAppFolder + "/"
+                        tempDirBase + "mac/" + macAppFolder + "/"
 let tempMacAppContents = lazy
                             tempMacAppPath.Value + "Contents/"
 let tempMacAppResources = lazy
@@ -121,6 +122,15 @@ let macInfoFile = """<?xml version="1.0" encoding="UTF-8"?>
 	<string>NSApplication</string>
 </dict>
 </plist>"""
+
+// Itch.io Linux toml
+let itchLinuxConfig = """[[actions]]
+name = "Play"
+path = "turntninja" """
+
+let itchMacConfig = """[[actions]]
+name = "Play"
+path = "Turnt Ninja.app" """
 
 // Tool names
 let squirrelToolName = "Squirrel.exe"
@@ -228,7 +238,11 @@ Target "DownloadKickstart" (fun _ ->
 
     // Download mono kickstart
     let wc = new WebClient()
-    wc.DownloadFile(kickstartArchive, kickstartArchivePath)
+    try
+        wc.DownloadFile(kickstartArchive, kickstartArchivePath)
+    with
+    | _ -> (trace ("Download failed, using non-ssl url " + kickstartArchiveNoSSL)
+            wc.DownloadFile(kickstartArchiveNoSSL, kickstartArchivePath))
 )
 
 Target "DeployZip" (fun _ ->
@@ -293,7 +307,7 @@ Target "DeployMacApp" (fun _ ->
     WriteStringToFile false (tempMacAppContents.Value + "Info.plist") macInfoFile
 
     trace "Zipping it all up"
-    ZipFolderWithWorkingDir tempDirBase tempMacAppPath.Value macAppDeployPath.Value
+    ZipFolderWithWorkingDir (tempDirBase + "mac/") tempMacAppPath.Value macAppDeployPath.Value
 )
 
 Target "Deploy" (fun _ -> ())
@@ -324,8 +338,39 @@ Target "DownloadButler" (fun _ ->
     Butler.DownloadButler "./"
 )
 
-Target "PushItch" (fun _ ->
-    Butler.PushBuild "./" deployZipPath.Value "opcon/turnt-ninja" "win-alpha" versionString.Value true |> string |> trace
+let pushWinCI = 
+    lazy 
+    Butler.PushBuild "./" tempDirName.Value "opcon/turnt-ninja" "win-ci" versionString.Value true |> string |> trace
+
+let pushLinuxCI = 
+    lazy 
+    WriteStringToFile false (tempKickstartPath.Value + appName + "/.itch.toml") itchLinuxConfig
+    Butler.PushBuild "./" (tempKickstartPath.Value + appName) "opcon/turnt-ninja" "linux-ci" versionString.Value true |> string |> trace
+
+let pushMacCI = 
+    lazy
+    WriteStringToFile false (tempDirBase + "mac/" + ".itch.toml") itchMacConfig
+    Butler.PushBuild "./" (tempDirBase + "mac") "opcon/turnt-ninja" "mac-ci" versionString.Value true |> string |> trace
+
+Target "PushItchCI" (fun _ ->
+    match buildServer with
+    | BuildServer.AppVeyor ->
+        pushWinCI.Value
+    | BuildServer.Travis ->
+        match EnvironmentHelper.isMacOS with
+        | true ->
+            pushMacCI.Value
+        | false ->
+            pushLinuxCI.Value
+    | BuildServer.LocalBuild ->
+        pushWinCI.Value
+        pushLinuxCI.Value
+        pushMacCI.Value
+    | _ -> ()
+)
+
+Target "PushArtifactsandItchBuilds" (fun _ ->
+    ()
 )
 
 // Dependencies
@@ -366,20 +411,23 @@ Target "PushItch" (fun _ ->
 "DeployAll"
     ==> "PushArtifacts"
 
-"DeploySquirrel"
-    ==> "DeployAll"
-
 "DeployKickstart"
     ==> "DeployAll"
 
 "DeployMacApp"
     ==> "DeployAll"
 
-"DeployZip"
-    ==> "PushItch"
+"DeployAll"
+    ==> "PushItchCI"
 
 "DownloadButler"
-    =?> ("PushItch", not (fileExists ("./" + Butler.butlerFileName)))
+    =?> ("PushItchCI", not (fileExists ("./" + Butler.butlerFileName)))
+
+"PushItchCI"
+    ==> "PushArtifactsandItchBuilds"
+
+"PushArtifacts"
+    ==> "PushArtifactsandItchBuilds"
 
 // CopyToTemp conditional target to ensure that we are built
 "Build"
