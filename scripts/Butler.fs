@@ -35,6 +35,12 @@ let DownloadButler (butlerFolder:string) =
             let nonSSLURL = uriBuilder.ToString()
             trace ("Download failed, trying non-ssl url " + nonSSLURL)
             wc.DownloadFile(nonSSLURL, butlerFolder + butlerFileName))
+    match EnvironmentHelper.isWindows with
+        | false -> (let result = ProcessHelper.ExecProcess (fun info ->
+                                    info.FileName <- "chmod"
+                                    info.Arguments <- "u+x " + butlerFolder + butlerFileName) (System.TimeSpan.FromSeconds 10.0)
+                   if result <> 0 then failwithf "Couldn't set executable permissions on bulter")
+        | _ -> ()
     trace ("Butler downloaded to " + (butlerFolder + butlerFileName))
 
 let PushBuild (butlerFolder:string) (buildFileOrDir:string) (target:string) (channel:string) (version:string) (fixPermissions:bool) =
