@@ -353,23 +353,26 @@ let pushMacCI =
     Butler.PushBuild "./" (tempDirBase + "mac") "opcon/turnt-ninja" "mac-ci" versionString.Value true |> string |> trace
 
 Target "PushItchCI" (fun _ ->
-    match buildServer with
-    | BuildServer.AppVeyor ->
-        pushWinCI.Value
-    | BuildServer.Travis ->
-        match EnvironmentHelper.isMacOS with
-        | true ->
-            pushMacCI.Value
-        | false ->
+    match mode.ToLower() with
+    | "release" ->
+        match buildServer with
+        | BuildServer.AppVeyor ->
+            pushWinCI.Value
+        | BuildServer.Travis ->
+            match EnvironmentHelper.isMacOS with
+            | true ->
+                pushMacCI.Value
+            | false ->
+                pushLinuxCI.Value
+        | BuildServer.LocalBuild ->
+            pushWinCI.Value
             pushLinuxCI.Value
-    | BuildServer.LocalBuild ->
-        pushWinCI.Value
-        pushLinuxCI.Value
-        pushMacCI.Value
+            pushMacCI.Value
+        | _ -> ()
     | _ -> ()
 )
 
-Target "PushArtifactsandItchBuilds" (fun _ ->
+Target "PushArtifactsAndItchBuilds" (fun _ ->
     ()
 )
 
@@ -424,10 +427,10 @@ Target "PushArtifactsandItchBuilds" (fun _ ->
     =?> ("PushItchCI", not (fileExists ("./" + Butler.butlerFileName)))
 
 "PushItchCI"
-    ==> "PushArtifactsandItchBuilds"
+    ==> "PushArtifactsAndItchBuilds"
 
 "PushArtifacts"
-    ==> "PushArtifactsandItchBuilds"
+    ==> "PushArtifactsAndItchBuilds"
 
 // CopyToTemp conditional target to ensure that we are built
 "Build"

@@ -10,7 +10,7 @@ env:
     secure: Hgz9igzcHhxN8gSxaaVqRN3YuNEeGPDoeMhv8rfZhXrfVaVXebZhiPO1A7r9ZElzNu2XlbheAPAUhSbmG5wx6N8DIypUqqRUwPyPzAB3N/zmBzh6rJtLnauzG/hmOemNApQ8VY9A89vS9+c22h+e8ULlPzd2U2D14mNC31TcoLM1foaougmLdtedWXGoS4W8WGi6tiuBIiyJxomlS6kUMhvRuLddzHGb9ctbu1NbyAk1TmGIWbVPLoOJ46ali9wdqBDsU8QGLasHZvcIMB51dld2/NxOlzWrgu6Q1GWTNW51uld/yErmuZzRg9jJebPUfWqOIOVcv9UmTH9wFPj4J2S+18uiO1o+UEPMRfDVY+apSgfepTRJ5WCZrSKseDzqUL9ObjM7bGEpTChk/fNQM2RXAO7yXevGp9GvRK/vLxQuIAhwyOG7uvT3xqMKR2ZoiXZrLhmpWu/4T3K5P09dn/m57DgZe37DRnWMEckqNbPfGsIg4l0EMx3jSFKNF/ZDMpy2DMn9Iy8FgWAGB1OysVxXy+yuDthgqUkUsGIdiQKIa/EswTWB9XwzjABTlo1NoDqDJZUXMdkvVuMCrIMZshfEA4DkI7ZaFoVMEeXADcjZ9c5oi4Xt/0XfOjxAeTfFSXcw+BInytCel37SM7/3hKbe7utuM3nNqgUA3vszNa0=
 script: 
   - "./build.sh mode=$CONFIGURATION"
-  - "./build.sh PushArtifactsandItchBuilds"
+  - "./build.sh PushArtifactsAndItchBuilds mode=$CONFIGURATION"
 notifications:
   email:
     on_success: change
