@@ -372,11 +372,19 @@ Target "PushItchCI" (fun _ ->
     | _ -> ()
 )
 
+Target "StampAssembly" (fun _ ->
+    let stamp = sprintf "Head:%s Sha:%s" (Git.Information.getBranchName "./") (Git.Information.getCurrentHash())
+    AssemblyInfoFile.UpdateAttributes ("src/TurntNinja/Properties/AssemblyInfo.cs") [AssemblyInfoFile.Attribute.InformationalVersion stamp]
+)
+
 Target "PushArtifactsAndItchBuilds" (fun _ ->
     ()
 )
 
 // Dependencies
+"StampAssembly"
+    ==> "Build"
+
 "Clean"
     ==> "Build"
     ==> "Default"
