@@ -154,7 +154,9 @@ namespace TurntNinja
                         major, minor, directoryHandler))
             {
                 game.Title = "Turnt Ninja";
-                game.Icon = new System.Drawing.Icon(directoryHandler.Locate("Images", "icon.ico"));
+                // Only set icon if we're on Windows or Linux
+                if (runningPlatform != Platform.MacOSX)
+                    game.Icon = new System.Drawing.Icon(directoryHandler.Locate("Images", "icon.ico"));
                 game.Run();
             }
         }
