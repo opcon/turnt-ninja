@@ -165,6 +165,7 @@
     <Content Include="Content\Images\icon.ico" />
     <Content Include="CSCore.dll.config">
       <Paket>True</Paket>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="..\..\packages\SharpFont.Dependencies\bin\msvc10\x64\freetype6.dll">
       <Link>freetype6.dll</Link>
