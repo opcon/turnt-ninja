@@ -54,7 +54,11 @@ namespace TurntNinja.GUI
             catch (Exception ex)
             {
                 // this is an old version of the database, delete the file and try again
-                File.Delete(dbFile);
+                try
+                {
+                    File.Delete(dbFile);
+                }
+                catch (Exception) { }
             }
             
             // This shouldn't fail, because we checked for old version of the database
@@ -66,7 +70,10 @@ namespace TurntNinja.GUI
         
         private void SaveHighScore(string dbFile)
         {
-            using (var db = new LiteDatabase(dbFile))
+            var cs = new ConnectionString();
+            cs.Filename = dbFile;
+            cs.Upgrade = true;
+            using (var db = new LiteDatabase(cs))
             {
                 var highSccoreCollection = db.GetCollection<HighScoreEntry>("highscores");
                 long hash = (long)Utilities.FNV1aHash64(Encoding.Default.GetBytes(_stage.CurrentSong.SongBase.InternalName));
