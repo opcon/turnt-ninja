@@ -28,14 +28,14 @@ let DownloadButler (butlerFolder:string) =
     try
         wc.DownloadFile(butlerURL, butlerFolder + butlerFileName)
     with
-    | _ -> 
-            let SSLUri = new System.Uri(butlerURL)
+    | _ -> (let SSLUri = new System.Uri(butlerURL)
             let uriBuilder = new System.UriBuilder(butlerURL)
             uriBuilder.Scheme <- System.Uri.UriSchemeHttp
             uriBuilder.Port <- -1
             let nonSSLURL = uriBuilder.ToString()
             trace ("Download failed, trying non-ssl url " + nonSSLURL)
-            wc.DownloadFile(nonSSLURL, butlerFolder + butlerFileName)
+            wc.DownloadFile(nonSSLURL, butlerFolder + butlerFileName))
+    trace ("Butler downloaded to " + (butlerFolder + butlerFileName))
 
 let PushBuild (butlerFolder:string) (buildFileOrDir:string) (target:string) (channel:string) (version:string) (fixPermissions:bool) =
     let butlerFullPath = butlerFolder + butlerFileName
