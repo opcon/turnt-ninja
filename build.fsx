@@ -124,13 +124,13 @@ let macInfoFile = """<?xml version="1.0" encoding="UTF-8"?>
 </plist>"""
 
 // Itch.io Linux toml
-let itchLinuxConfig = """[[actions]]
-name = "Play"
-path = "turntninja" """
+let itchLinuxConfig = @"[[actions]]
+name = ""Play""
+path = ""turntninja"""
 
-let itchMacConfig = """[[actions]]
-name = "Play"
-path = "Turnt Ninja.app" """
+let itchMacConfig = @"[[actions]]
+name = ""Play""
+path = ""Turnt Ninja.app"""
 
 // Tool names
 let squirrelToolName = "Squirrel.exe"
