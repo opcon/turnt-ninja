@@ -163,6 +163,16 @@ let itchMacConfig = @"[[actions]]
 name = ""Play""
 path = ""Turnt Ninja.app"""
 
+let itchWindowsConfig = @"[[actions]]
+name = ""Play""
+path = ""turnt_ninja.exe""
+
+[[prereqs]]
+name = ""vcredist-2010-x86""
+
+[[prereqs]]
+name = ""vcredist-2010-x64"""
+
 let itchPushTarget = "opcon/turnt-ninja"
 let itchChannelSuffix = 
     match Git.Information.getBranchName "./" with
@@ -378,6 +388,7 @@ Target "DownloadButler" (fun _ ->
 )
 
 let pushWin (channel:string) =
+    WriteStringToFile false (tempDirName.Value + "/.itch.toml") itchWindowsConfig
     Butler.PushBuild "./" tempDirName.Value itchPushTarget channel versionString.Value true |> string |> trace
 
 let pushLinux (channel:string) = 
