@@ -12,6 +12,8 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.IO;
 using System.Threading;
+using System.Net.Http;
+using System.Diagnostics;
 
 namespace TurntNinja.GUI
 {
@@ -27,9 +29,15 @@ namespace TurntNinja.GUI
         Exception _ex = null;
         CancellationTokenSource _cancellationTokenSource;
         GameFont _updateFont;
+        System.Drawing.SizeF _fontBounds;
+        QuickFont.QFontRenderOptions _fontRenderOptions = new QuickFont.QFontRenderOptions { Colour = System.Drawing.Color.White };
 
         const string LOCALPACKAGEHOST = @"D:\Patrick\Documents\Development\Game Related\turnt-ninja\Releases";
         const string GITHUBPACKAGEHOST = "https://github.com/opcon/turnt-ninja";
+        const string ITCHRELEASEAPI = @"https://itch.io/api/1/x/wharf/latest";
+        const string ITCHTARGET = @"opcon/turnt-ninja";
+        const string ITCHALPHACHANNEL = "-ci";
+        const string ALPHATAGSUFFIX = "alpha";
 
         private bool _isSquirrel
         {
@@ -46,14 +54,16 @@ namespace TurntNinja.GUI
 
         public override void Draw(double time)
         {
-            var tSize = _updateFont.Font.Measure(_statusString);
-            SceneManager.DrawTextLine(_statusString, new OpenTK.Vector3(0, tSize.Height/2, 0), Color4.White, font: _updateFont.Font);
+            var tSize = _updateFont.Font.Measure(_statusString, _fontBounds, QuickFont.QFontAlignment.Centre);
+            SceneManager.FontDrawing.Print(_updateFont.Font, _statusString, new OpenTK.Vector3(0, tSize.Height / 2, 0), _fontBounds, QuickFont.QFontAlignment.Centre, _fontRenderOptions);
         }
 
         public override void Load()
         {
+            _fontBounds = new System.Drawing.SizeF(WindowWidth * 0.75f, -1f);
             _updateFont = SceneManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Heading);
             _cancellationTokenSource = new CancellationTokenSource();
+            _statusString = "Checking for updates...";
 
             if (_isSquirrel)
             {
@@ -62,19 +72,19 @@ namespace TurntNinja.GUI
                 {
                 //Check if local package host exists first - if so then update from that
                 string packageHost = (Directory.Exists(LOCALPACKAGEHOST)) ? LOCALPACKAGEHOST : GITHUBPACKAGEHOST;
-                    using (var upmgr = Directory.Exists(LOCALPACKAGEHOST) ? new UpdateManager(packageHost) : UpdateManager.GitHubUpdateManager(packageHost).Result)
+                using (var upmgr = Directory.Exists(LOCALPACKAGEHOST) ? new UpdateManager(packageHost) : UpdateManager.GitHubUpdateManager(packageHost).Result)
+                {
+                    UpdateInfo updateInfo = null;
+                    try
                     {
-                        UpdateInfo updateInfo = null;
-                        try
-                        {
-                            updateInfo = upmgr.CheckForUpdate().Result;
-                        }
-                        catch (Exception ex)
-                        {
-                            _ex = ex;
-                        }
-                        var needToUpdate = (updateInfo.ReleasesToApply.Count > 0);
-                        Dictionary<ReleaseEntry, string> releaseNotes = null;
+                        updateInfo = upmgr.CheckForUpdate().Result;
+                    }
+                    catch (Exception ex)
+                    {
+                        _ex = ex;
+                    }
+                    var needToUpdate = (updateInfo.ReleasesToApply.Count > 0);
+                    Dictionary<ReleaseEntry, string> releaseNotes = null;
 
                     //if we need to update
                     if (needToUpdate)
@@ -106,13 +116,64 @@ namespace TurntNinja.GUI
                                 _ex = ex;
                             }
                         }
-
                     }
                 }, _cancellationTokenSource.Token);
             }
             else
             {
-                _statusString = "This installation does not support automatic updates";
+                Task.Run(() =>
+                {
+                    var informationalVersionAttribute = System.Reflection.Assembly.GetExecutingAssembly().CustomAttributes.FirstOrDefault(cad => cad.AttributeType == typeof(System.Reflection.AssemblyInformationalVersionAttribute));
+                    string channelBase = "";
+                    switch (PlatformDetection.RunningPlatform())
+                    {
+                        case Platform.Windows:
+                            channelBase = "win";
+                            break;
+                        case Platform.Linux:
+                            channelBase = "linux";
+                            break;
+                        case Platform.MacOSX:
+                            channelBase = "mac";
+                            break;
+                    }
+                    string tag = ((string)informationalVersionAttribute.ConstructorArguments.First().Value).Split(' ')[0].Split(':')[1];
+                    string channelName = tag.Contains(ALPHATAGSUFFIX) ? channelBase + ITCHALPHACHANNEL : channelBase;
+
+                    UriBuilder ub = new UriBuilder(ITCHRELEASEAPI);
+                    ub.Query = $"target={ITCHTARGET}&channel_name={channelName}";
+
+                    HttpClient hc = new HttpClient();
+                    var resp = hc.GetAsync(ub.Uri).Result;
+                    var content = Newtonsoft.Json.Linq.JObject.Parse(resp.Content.ReadAsStringAsync().Result);
+                    var versionString = content.Value<string>("latest").Split('-');
+
+                    var ver = Version.Parse(versionString[0]);
+                    var currentVer = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                    var newVersionAvailable = ver > currentVer;
+
+                    // Check tag if we don't need to update based purely on version string
+                    if (!newVersionAvailable)
+                    {
+                        var ctp = tag.Split('-');
+                        if (ctp.Length > 1 || (bool)ServiceLocator.Settings["GetAlphaReleases"])
+                        {
+                            if (versionString.Length > 1)
+                            {
+                                var currentTag = ctp[1];
+                                var serverTag = versionString[1];
+                                newVersionAvailable = serverTag.CompareTo(currentTag) == 1;
+                            }
+                            else
+                                newVersionAvailable = true;
+                        }
+                    }
+
+                    if (newVersionAvailable)
+                        _statusString = $"Version {string.Join("-", versionString)} is available.\nYou can update through the Itch.io app, or download the latest release from {@"https://opcon.itch.io/turnt-ninja"}.";
+                    else
+                        _statusString = "You have the latest version!";
+                }, _cancellationTokenSource.Token);
             }
 
             Loaded = true;
