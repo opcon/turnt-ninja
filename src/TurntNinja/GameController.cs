@@ -213,9 +213,6 @@ namespace TurntNinja
             {
                 Console.WriteLine("Exiting");
                 Exit();
-                Console.WriteLine("This shouldn't appear, because we have exited");
-                Console.WriteLine("As a last resort, do Environment.Exit");
-                Environment.Exit(0);
             }
 
             _lag += e.Time;
