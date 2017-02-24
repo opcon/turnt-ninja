@@ -41,10 +41,41 @@ let postFix = match mode.ToLower() with
                 | "release" -> ""
                 | _ -> "-" + mode.ToLower()
 
+let (|Prefix|_|) (p:string) (s:string) =
+    if s.StartsWith(p) then
+        Some(s.Substring(p.Length))
+    else
+        None
+
+let isTagged (repoDir:string) = 
+    let _,msg,error = Git.CommandHelper.runGitCommand repoDir "describe --abbrev=0 --exact-match"
+    let success = 
+        match error with
+        | Prefix "fatal: " rest -> 
+            trace rest
+            false
+        | "" -> true
+        | _ -> true
+    let tag = 
+        match success with
+        | false -> ""
+        | true -> msg |> Seq.head
+    (tag, success)
+
 let versionString = 
     lazy
     let ver = VersionHelper.GetAssemblyVersion appPath
-    sprintf "%i.%i.%i%s" ver.Major ver.Minor ver.Build postFix 
+    let vs1 = sprintf "%i.%i.%i%s" ver.Major ver.Minor ver.Build postFix
+    let t,s = isTagged "./"
+    let vs =
+        match s with
+        | true -> 
+            let split = StringHelper.split('-') t
+            match split.Length with
+            | 1 -> vs1
+            | _ -> (sprintf "%s-%s" vs1 (List.last split))
+        | false -> vs1
+    vs
 
 let deployName = 
     lazy 
@@ -132,6 +163,12 @@ let itchMacConfig = @"[[actions]]
 name = ""Play""
 path = ""Turnt Ninja.app"""
 
+let itchPushTarget = "opcon/turnt-ninja"
+let itchChannelSuffix = 
+    match Git.Information.getBranchName "./" with
+    | "develop" -> "-ci"
+    | _ -> ""
+
 // Tool names
 let squirrelToolName = "Squirrel.exe"
 let ILMergeToolName = "ILRepack.exe"
@@ -151,6 +188,8 @@ let pushAppVeyorArtifact (appVeyorFileName:string) (localPath:string) =
         FileName = appVeyorFileName
         Path = localPath
     })
+
+
 
 
 // Targets
@@ -338,42 +377,54 @@ Target "DownloadButler" (fun _ ->
     Butler.DownloadButler "./"
 )
 
-let pushWinCI = 
-    lazy 
-    Butler.PushBuild "./" tempDirName.Value "opcon/turnt-ninja" "win-ci" versionString.Value true |> string |> trace
+let pushWin (channel:string) =
+    Butler.PushBuild "./" tempDirName.Value itchPushTarget channel versionString.Value true |> string |> trace
 
-let pushLinuxCI = 
-    lazy 
+let pushLinux (channel:string) = 
     WriteStringToFile false (tempKickstartPath.Value + appName + "/.itch.toml") itchLinuxConfig
-    Butler.PushBuild "./" (tempKickstartPath.Value + appName) "opcon/turnt-ninja" "linux-ci" versionString.Value true |> string |> trace
+    Butler.PushBuild "./" (tempKickstartPath.Value + appName) itchPushTarget channel versionString.Value true |> string |> trace
 
-let pushMacCI = 
-    lazy
+let pushMac (channel:string) = 
     WriteStringToFile false (tempDirBase + "mac/" + ".itch.toml") itchMacConfig
-    Butler.PushBuild "./" (tempDirBase + "mac") "opcon/turnt-ninja" "mac-ci" versionString.Value true |> string |> trace
+    Butler.PushBuild "./" (tempDirBase + "mac") itchPushTarget channel versionString.Value true |> string |> trace
 
 Target "PushItchCI" (fun _ ->
     match mode.ToLower() with
-    | "release" ->
-        match buildServer with
-        | BuildServer.AppVeyor ->
-            pushWinCI.Value
-        | BuildServer.Travis ->
-            match EnvironmentHelper.isMacOS with
-            | true ->
-                pushMacCI.Value
-            | false ->
-                pushLinuxCI.Value
-        | BuildServer.LocalBuild ->
-            pushWinCI.Value
-            pushLinuxCI.Value
-            pushMacCI.Value
-        | _ -> ()
+    | "release" | "develop" ->
+        let t,s = isTagged "./"
+        ()
+        match s with
+        | true ->
+            match buildServer with
+            | BuildServer.AppVeyor ->
+                pushWin ("win" + itchChannelSuffix)
+            | BuildServer.Travis ->
+                match EnvironmentHelper.isMacOS with
+                | true ->
+                    pushMac ("mac" + itchChannelSuffix)
+                | false ->
+                    pushLinux ("linux" + itchChannelSuffix)
+            | BuildServer.LocalBuild ->
+                pushWin ("win" + itchChannelSuffix)
+                pushLinux ("linux" + itchChannelSuffix)
+                pushMac ("mac" + itchChannelSuffix)
+            | _ -> ()
+        | false -> ()
     | _ -> ()
 )
 
+Target "PrintVersion" (fun _ ->
+    trace versionString.Value
+)
+
 Target "StampAssembly" (fun _ ->
-    let stamp = sprintf "Head:%s Sha:%s" (Git.Information.getBranchName "./") (Git.Information.getCurrentHash())
+    let t,s = isTagged "./"
+    let stamp1 = sprintf "Head:%s Sha:%s" (Git.Information.getBranchName "./") (Git.Information.getCurrentHash())
+    let stamp = 
+        match s with
+        | true ->
+            (sprintf "Tag:%s %s" t stamp1)
+        | false -> stamp1
     AssemblyInfoFile.UpdateAttributes ("src/TurntNinja/Properties/AssemblyInfo.cs") [AssemblyInfoFile.Attribute.InformationalVersion stamp]
 )
 
