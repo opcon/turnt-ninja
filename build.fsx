@@ -77,6 +77,10 @@ let versionString =
         | false -> vs1
     vs
 
+let alphaBuild =
+    lazy
+    ((StringHelper.split('-') versionString.Value).Length > 1)
+
 let deployName = 
     lazy 
     sprintf "%s-%s" appName versionString.Value
@@ -198,8 +202,6 @@ let pushAppVeyorArtifact (appVeyorFileName:string) (localPath:string) =
         FileName = appVeyorFileName
         Path = localPath
     })
-
-
 
 
 // Targets
@@ -401,26 +403,29 @@ let pushMac (channel:string) =
 
 Target "PushItchCI" (fun _ ->
     match mode.ToLower() with
-    | "release" | "develop" ->
-        let t,s = isTagged "./"
-        ()
-        match s with
-        | true ->
-            match buildServer with
-            | BuildServer.AppVeyor ->
-                pushWin ("win" + itchChannelSuffix)
-            | BuildServer.Travis ->
-                match EnvironmentHelper.isMacOS with
-                | true ->
-                    pushMac ("mac" + itchChannelSuffix)
-                | false ->
+    | "release" ->
+        match (Git.Information.getBranchName "./").ToLower() with
+        | "master" | "develop" ->
+            let t,s = isTagged "./"
+            ()
+            match s with
+            | true ->
+                match buildServer with
+                | BuildServer.AppVeyor ->
+                    pushWin ("win" + itchChannelSuffix)
+                | BuildServer.Travis ->
+                    match EnvironmentHelper.isMacOS with
+                    | true ->
+                        pushMac ("mac" + itchChannelSuffix)
+                    | false ->
+                        pushLinux ("linux" + itchChannelSuffix)
+                | BuildServer.LocalBuild ->
+                    pushWin ("win" + itchChannelSuffix)
                     pushLinux ("linux" + itchChannelSuffix)
-            | BuildServer.LocalBuild ->
-                pushWin ("win" + itchChannelSuffix)
-                pushLinux ("linux" + itchChannelSuffix)
-                pushMac ("mac" + itchChannelSuffix)
-            | _ -> ()
-        | false -> ()
+                    pushMac ("mac" + itchChannelSuffix)
+                | _ -> ()
+            | false -> ()
+        | _ -> ()
     | _ -> ()
 )
 
