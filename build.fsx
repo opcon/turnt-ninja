@@ -161,11 +161,13 @@ let macInfoFile = """<?xml version="1.0" encoding="UTF-8"?>
 // Itch.io Linux toml
 let itchLinuxConfig = @"[[actions]]
 name = ""Play""
-path = ""turntninja"""
+path = ""turntninja""
+"
 
 let itchMacConfig = @"[[actions]]
 name = ""Play""
-path = ""Turnt Ninja.app"""
+path = ""Turnt Ninja.app""
+"
 
 let itchWindowsConfig = @"[[actions]]
 name = ""Play""
@@ -175,7 +177,8 @@ path = ""turnt_ninja.exe""
 name = ""vcredist-2010-x86""
 
 [[prereqs]]
-name = ""vcredist-2010-x64"""
+name = ""vcredist-2010-x64""
+"
 
 let itchPushTarget = "opcon/turnt-ninja"
 let itchChannelSuffix = 
@@ -390,16 +393,27 @@ Target "DownloadButler" (fun _ ->
 )
 
 let pushWin (channel:string) =
-    WriteStringToFile false (tempDirName.Value + "/.itch.toml") itchWindowsConfig
+    WriteStringToFileNoBom false (tempDirName.Value + "/.itch.toml") itchWindowsConfig
     Butler.PushBuild "./" tempDirName.Value itchPushTarget channel versionString.Value true |> string |> trace
 
 let pushLinux (channel:string) = 
-    WriteStringToFile false (tempKickstartPath.Value + appName + "/.itch.toml") itchLinuxConfig
+    WriteStringToFileNoBom false (tempKickstartPath.Value + appName + "/.itch.toml") itchLinuxConfig
     Butler.PushBuild "./" (tempKickstartPath.Value + appName) itchPushTarget channel versionString.Value true |> string |> trace
 
 let pushMac (channel:string) = 
-    WriteStringToFile false (tempDirBase + "mac/" + ".itch.toml") itchMacConfig
+    WriteStringToFileNoBom false (tempDirBase + "mac/" + ".itch.toml") itchMacConfig
     Butler.PushBuild "./" (tempDirBase + "mac") itchPushTarget channel versionString.Value true |> string |> trace
+
+let WriteStringToFileNoBom append fileName (text : string) = 
+    let fi = fileInfo fileName
+    use writer = new System.IO.StreamWriter(fileName, append && fi.Exists, System.Text.UTF8Encoding(false))
+    writer.Write text
+
+Target "WriteItchConfig" (fun _ ->
+    WriteStringToFileNoBom false (tempDirName.Value + "/.itch.toml") itchWindowsConfig
+    WriteStringToFileNoBom false (tempKickstartPath.Value + appName + "/.itch.toml") itchLinuxConfig
+    WriteStringToFileNoBom false (tempDirBase + "mac/" + ".itch.toml") itchMacConfig
+)
 
 Target "PushItchCI" (fun _ ->
     match mode.ToLower() with
