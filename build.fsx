@@ -186,6 +186,12 @@ let itchChannelSuffix =
     | "develop" -> "-ci"
     | _ -> ""
 
+let WriteStringToFileNoBom append fileName (text : string) = 
+    let fi = fileInfo fileName
+    use writer = new System.IO.StreamWriter(fileName, append && fi.Exists, System.Text.UTF8Encoding(false))
+    writer.Write text
+
+
 // Tool names
 let squirrelToolName = "Squirrel.exe"
 let ILMergeToolName = "ILRepack.exe"
@@ -403,11 +409,6 @@ let pushLinux (channel:string) =
 let pushMac (channel:string) = 
     WriteStringToFileNoBom false (tempDirBase + "mac/" + ".itch.toml") itchMacConfig
     Butler.PushBuild "./" (tempDirBase + "mac") itchPushTarget channel versionString.Value true |> string |> trace
-
-let WriteStringToFileNoBom append fileName (text : string) = 
-    let fi = fileInfo fileName
-    use writer = new System.IO.StreamWriter(fileName, append && fi.Exists, System.Text.UTF8Encoding(false))
-    writer.Write text
 
 Target "WriteItchConfig" (fun _ ->
     WriteStringToFileNoBom false (tempDirName.Value + "/.itch.toml") itchWindowsConfig
