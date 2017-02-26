@@ -62,6 +62,10 @@ let isTagged (repoDir:string) =
         | true -> msg |> Seq.head
     (tag, success)
 
+let tag = 
+    let t,s = isTagged "./"
+    t
+
 let versionString = 
     lazy
     let ver = VersionHelper.GetAssemblyVersion appPath
@@ -400,15 +404,15 @@ Target "DownloadButler" (fun _ ->
 
 let pushWin (channel:string) =
     WriteStringToFileNoBom false (tempDirName.Value + "/.itch.toml") itchWindowsConfig
-    Butler.PushBuild "./" tempDirName.Value itchPushTarget channel versionString.Value true |> string |> trace
+    Butler.PushBuild "./" tempDirName.Value itchPushTarget channel tag true |> string |> trace
 
 let pushLinux (channel:string) = 
     WriteStringToFileNoBom false (tempKickstartPath.Value + appName + "/.itch.toml") itchLinuxConfig
-    Butler.PushBuild "./" (tempKickstartPath.Value + appName) itchPushTarget channel versionString.Value true |> string |> trace
+    Butler.PushBuild "./" (tempKickstartPath.Value + appName) itchPushTarget channel tag true |> string |> trace
 
 let pushMac (channel:string) = 
     WriteStringToFileNoBom false (tempDirBase + "mac/" + ".itch.toml") itchMacConfig
-    Butler.PushBuild "./" (tempDirBase + "mac") itchPushTarget channel versionString.Value true |> string |> trace
+    Butler.PushBuild "./" (tempDirBase + "mac") itchPushTarget channel tag true |> string |> trace
 
 Target "WriteItchConfig" (fun _ ->
     WriteStringToFileNoBom false (tempDirName.Value + "/.itch.toml") itchWindowsConfig
