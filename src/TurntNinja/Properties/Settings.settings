@@ -78,7 +78,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="ColourMode" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="GetAlphaReleases" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
