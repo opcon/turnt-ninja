@@ -421,14 +421,26 @@ Target "WriteItchConfig" (fun _ ->
 )
 
 Target "PushItchCI" (fun _ ->
+    let branchName =
+        match buildServer with
+        | BuildServer.AppVeyor ->
+            match AppVeyor.AppVeyorEnvironment.PullRequestNumber with
+            | "" | null | "false" -> AppVeyor.AppVeyorEnvironment.RepoBranch
+            | _ -> ""
+        | BuildServer.Travis ->
+            match EnvironmentHelper.environVar "TRAVIS_PULL_REQUEST" with
+            | "false" -> EnvironmentHelper.environVar "TRAVIS_BRANCH"
+            | _ -> ""
+        | BuildServer.LocalBuild -> (Git.Information.getBranchName "./").ToLower()
+        | _ -> ""
     match mode.ToLower() with
     | "release" ->
-        match (Git.Information.getBranchName "./").ToLower() with
-        | "master" | "develop" ->
-            let t,s = isTagged "./"
-            ()
-            match s with
-            | true ->
+        let t,s = isTagged "./"
+        ()
+        match s with
+        | true ->
+            match branchName with
+            | "master" | "develop" ->
                 match buildServer with
                 | BuildServer.AppVeyor ->
                     pushWin ("win" + itchChannelSuffix)
@@ -442,9 +454,9 @@ Target "PushItchCI" (fun _ ->
                     pushWin ("win" + itchChannelSuffix)
                     pushLinux ("linux" + itchChannelSuffix)
                     pushMac ("mac" + itchChannelSuffix)
-                | _ -> ()
-            | false -> ()
-        | _ -> ()
+                | _ -> ()    
+            | _ -> ()
+        | false -> ()
     | _ -> ()
 )
 
