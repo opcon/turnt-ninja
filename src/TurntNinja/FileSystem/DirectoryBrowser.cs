@@ -135,7 +135,7 @@ namespace TurntNinja.FileSystem
                 SwitchFileSystem(_fileSystemCollection[(index + 1 + _fileSystemCollection.Count) % _fileSystemCollection.Count]);
             }
 
-            if (InputSystem.NewKeys.Contains(Key.Enter) && !_fileSystemEntries[_directoryBrowserEntryIndex].EntryType.HasFlag(FileBrowserEntryType.Separator))
+            if (InputSystem.NewKeys.Contains(Key.Enter) && _fileSystemEntries.Count > 0 && !_fileSystemEntries[_directoryBrowserEntryIndex].EntryType.HasFlag(FileBrowserEntryType.Separator))
             {
                 SoundCloudFileSystem sfc;
                 if (!string.IsNullOrWhiteSpace(_searchString) && (sfc = _currentFileSystem as SoundCloudFileSystem) != null)
