@@ -38,6 +38,9 @@ namespace TurntNinja
 
         public ValueWrapper<bool> DebugMode = new ValueWrapper<bool>();
 
+        private const int MIN_WIDTH = 600;
+        private const int MIN_HEIGHT = 400;
+
         public GameController(IGameSettings gameSettings, int rX, int rY, GraphicsMode graphicsMode,
             string title, int major, int minor, IDirectoryHandler directoryHandler)
             : base(rX, rY, graphicsMode, title, GameWindowFlags.Default, DisplayDevice.Default,
@@ -197,6 +200,11 @@ namespace TurntNinja
         /// <remarks>There is no need to call the base implementation.</remarks>
         protected override void OnResize(EventArgs e)
         {
+            if (Size.Width < MIN_WIDTH)
+                Size = new Size(MIN_WIDTH, Size.Height);
+            if (Size.Height < MIN_HEIGHT)
+                Size = new Size(Size.Width, MIN_HEIGHT);
+
             GL.Viewport(0, 0, Width, Height);
 
             _gameSceneManager.Resize(e);
