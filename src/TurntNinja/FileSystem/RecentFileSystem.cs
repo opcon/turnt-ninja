@@ -30,11 +30,8 @@ namespace TurntNinja.FileSystem
 
         public bool EntrySelected(ref int entryIndex)
         {
-            //return true if we've found a song
-            if (_recentSongs[entryIndex].EntryType.HasFlag(FileBrowserEntryType.Song)) return true;
-
-            //something has gone wrong
-            return false;
+            //return true if we've found a song, or false if something has gone wrong
+            return (_recentSongs.Count >= entryIndex && _recentSongs[entryIndex].EntryType.HasFlag(FileBrowserEntryType.Song));
         }
 
         public int Initialise(FileBrowserEntry separator)
