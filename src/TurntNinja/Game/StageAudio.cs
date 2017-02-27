@@ -212,21 +212,30 @@ namespace TurntNinja.Game
 
         public void Dispose()
         {
-            if (_soundOut != null)
+            try
             {
-                _soundOut.Stop();
-                _soundOut.Dispose();
-                if (_soundOut is ALSoundOut)
+                if (_soundOut != null)
                 {
-                    CSCore.SoundOut.AL.ALDevice.DefaultDevice.Dispose();
+                    _soundOut.Stop();
+                    _soundOut.Dispose();
+                    if (_soundOut is ALSoundOut)
+                    {
+                        CSCore.SoundOut.AL.ALDevice.DefaultDevice.Dispose();
+                    }
+                    _soundOut = null;
                 }
-                _soundOut = null;
             }
-            if (_soundSource != null)
+            catch { }
+
+            try
             {
-                _soundSource.Dispose();
-                _soundSource = null;
+                if (_soundSource != null)
+                {
+                    _soundSource.Dispose();
+                    _soundSource = null;
+                }
             }
+            catch { }
         }
 
         public PlaybackState PlaybackState
