@@ -67,9 +67,13 @@ namespace TurntNinja.GUI
             ServiceLocator.Settings["FirstRun"] = false;
 
             var informationalVersionAttribute = System.Reflection.Assembly.GetExecutingAssembly().CustomAttributes.FirstOrDefault(cad => cad.AttributeType == typeof(System.Reflection.AssemblyInformationalVersionAttribute));
-            string tag = ((string)informationalVersionAttribute.ConstructorArguments.First().Value).Split(' ')[0].Split(':')[1];
-            if (tag.Length > 1)
-                ServiceLocator.Settings["GetAlphaReleases"] = true;
+            try
+            {
+                string tag = ((string)informationalVersionAttribute.ConstructorArguments.First().Value).Split(' ')[0].Split(':')[1];
+                if (tag.Length > 1)
+                    ServiceLocator.Settings["GetAlphaReleases"] = true;
+            }
+            catch { }
 
             Loaded = true;
         }
