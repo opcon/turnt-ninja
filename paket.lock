@@ -22,9 +22,9 @@ NUGET
       Splat (>= 1.6.2)
     TagLib.Portable (1.0.4) - framework: >= net45
   remote: https://ci.appveyor.com/nuget/cscore-lt381sf5ht3e
-    CSCore (1.1.34)
-    CSCore.OSX (1.1.34)
-      CSCore (>= 1.1.34)
+    CSCore (1.1.35)
+    CSCore.OSX (1.1.35)
+      CSCore (>= 1.1.35)
   remote: https://ci.appveyor.com/nuget/gwen-nolegacy-opentk-renderer-y8bf4l8s9nxo
     Gwen (4.0.6207.13461) - framework: >= net45
       OpenTK (>= 2.0)
