@@ -107,8 +107,14 @@ namespace TurntNinja.FileSystem
             var sctrack = _scclient.Resolve.GetTrack(song.SongBase.InternalName);
             var url = sctrack.StreamUrl + "?client_id=" + clientID;
             var wr = WebRequest.Create(url);
-            var response = wr.GetResponse();
-            song.SongAudio = CSCore.Codecs.CodecFactory.Instance.GetCodec(response.ResponseUri);
+            Uri responseUri;
+
+            using (var resp = wr.GetResponse())
+            {
+                responseUri = resp.ResponseUri;
+            }
+
+            song.SongAudio = CSCore.Codecs.CodecFactory.Instance.GetCodec(responseUri);
         }
 
         public Song LoadSongInformation(int entryIndex)
