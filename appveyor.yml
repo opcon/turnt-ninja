@@ -1,5 +1,6 @@
-version: 0.11.{build}-appveyor
+version: 0.15.{build}-appveyor
 image: Visual Studio 2015
+skip_tags: true
 environment:
   BUTLER_API_KEY:
     secure: 1YditInrUO36VFxX37IzVWUC16FEwJ238DsqhKpgMxuRzyTCR8MTFMbEs6LiNY1f
