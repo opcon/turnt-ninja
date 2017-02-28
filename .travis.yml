@@ -2,6 +2,9 @@ os:
 - linux
 - osx
 language: csharp
+branches:
+    except:
+    - /^[0-9]+\..*/
 env:
   matrix:
   - CONFIGURATION=Release
