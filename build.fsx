@@ -184,9 +184,22 @@ name = ""vcredist-2010-x86""
 name = ""vcredist-2010-x64""
 "
 
+let branchName =
+    match buildServer with
+    | BuildServer.AppVeyor ->
+        match AppVeyor.AppVeyorEnvironment.PullRequestNumber with
+        | "" | null | "false" -> AppVeyor.AppVeyorEnvironment.RepoBranch
+        | _ -> ""
+    | BuildServer.Travis ->
+        match EnvironmentHelper.environVar "TRAVIS_PULL_REQUEST" with
+        | "false" -> EnvironmentHelper.environVar "TRAVIS_BRANCH"
+        | _ -> ""
+    | BuildServer.LocalBuild -> (Git.Information.getBranchName "./").ToLower()
+    | _ -> ""
+
 let itchPushTarget = "opcon/turnt-ninja"
 let itchChannelSuffix = 
-    match Git.Information.getBranchName "./" with
+    match branchName with
     | "develop" -> "-ci"
     | _ -> ""
 
@@ -421,18 +434,6 @@ Target "WriteItchConfig" (fun _ ->
 )
 
 Target "PushItchCI" (fun _ ->
-    let branchName =
-        match buildServer with
-        | BuildServer.AppVeyor ->
-            match AppVeyor.AppVeyorEnvironment.PullRequestNumber with
-            | "" | null | "false" -> AppVeyor.AppVeyorEnvironment.RepoBranch
-            | _ -> ""
-        | BuildServer.Travis ->
-            match EnvironmentHelper.environVar "TRAVIS_PULL_REQUEST" with
-            | "false" -> EnvironmentHelper.environVar "TRAVIS_BRANCH"
-            | _ -> ""
-        | BuildServer.LocalBuild -> (Git.Information.getBranchName "./").ToLower()
-        | _ -> ""
     match mode.ToLower() with
     | "release" ->
         let t,s = isTagged "./"
