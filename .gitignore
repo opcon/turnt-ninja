@@ -195,3 +195,10 @@ paket.exe
 
 # vim
 *.swp
+
+# kickstart files
+kickstart.zip
+
+# butler
+butler
+butler.exe

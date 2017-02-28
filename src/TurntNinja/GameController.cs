@@ -43,6 +43,27 @@ namespace TurntNinja
             : base(rX, rY, graphicsMode, title, GameWindowFlags.Default, DisplayDevice.Default,
                 major, minor, GraphicsContextFlags.Default)
         {
+            // Add OpenGL/GPU information tags to sentry
+            var glVersion = GL.GetString(StringName.Version);
+            var glslVersion = GL.GetString(StringName.ShadingLanguageVersion);
+            var gpuVendor = GL.GetString(StringName.Vendor);
+            var renderer = GL.GetString(StringName.Renderer);
+            ServiceLocator.ErrorReporting.AddTags(new Dictionary<string, string>
+            {
+                { "opengl", glVersion },
+                { "glsl", glslVersion },
+                { "vendor", gpuVendor },
+                { "gpu", renderer }
+            });
+
+            // Add backend information tags to sentry
+            var sdl = Configuration.RunningOnSdl2;
+            Console.WriteLine("Running on SDL2: {0}", sdl);
+            ServiceLocator.ErrorReporting.AddTags(new Dictionary<string, string>
+            {
+                { "sdl", sdl.ToString() }
+            });
+
             KeyDown += Keyboard_KeyDown;
             this.VSync = (bool)gameSettings["VSync"] ? VSyncMode.On : VSyncMode.Off;
             this.WindowState = (WindowState)Enum.Parse(typeof(WindowState), (string)gameSettings["WindowState"]);
@@ -88,15 +109,22 @@ namespace TurntNinja
             var selectedFontPath = Path.Combine(_directoryHandler["Fonts"].FullName, "./Oswald-Bold.ttf");
 
             Console.WriteLine("Initializing");
+
+            Console.WriteLine("Creating game camera");
             var gameCamera = new Camera(prefWidth, prefHeight, Width, Height, Mouse);
             gameCamera.CameraBounds = gameCamera.OriginalBounds = new Polygon(new Vector2(-prefWidth * 10, -prefHeight * 10), (int)prefWidth * 20, (int)(prefHeight * 20));
 
             // Register OSX codecs if running on OSX
             if (PlatformDetection.RunningPlatform() == Platform.MacOSX)
+            {
+                Console.WriteLine("Registering OSX Audio codecs");
                 CSCore.OSXCoreAudio.OSXAudio.RegisterCodecs();
+            }
 
+            Console.WriteLine("Creating font library");
             var fontLibrary = new FontLibrary();
 
+            Console.WriteLine("Loading fonts");
             // Default font
             var gameFont = new QFont(bodyFontPath, 18, new QFontBuilderConfiguration() { SuperSampleLevels = 2 });
             fontLibrary.AddFont(new GameFont(gameFont, GameFontType.Default, new Vector2(Width, Height)));
@@ -137,12 +165,15 @@ namespace TurntNinja
                     "selected",
                     new Vector2(Width, Height)));
 
+            Console.WriteLine("Creating scene manager");
             _gameSceneManager = new SceneManager(this, gameCamera, fontLibrary, bodyFontPath, _directoryHandler, _gameSettings, DebugMode);
             _gameSceneManager.AddScene(new MenuScene(), null);
 
+            Console.WriteLine("Checking for first run scene");
             if ((bool)ServiceLocator.Settings["FirstRun"])
                 _gameSceneManager.AddScene(new FirstRunScene(), null);
 
+            Console.WriteLine("Setting up input system callbacks");
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
             Keyboard.KeyUp += (o, args) => InputSystem.KeyUp(args);
             Mouse.ButtonDown += (o, args) => InputSystem.MouseDown(args);
@@ -150,9 +181,13 @@ namespace TurntNinja
             Mouse.WheelChanged += (o, args) => InputSystem.MouseWheelChanged(args);
             Mouse.Move += (o, args) => InputSystem.MouseMoved(args);
 
+            Console.WriteLine("Setting clear color");
             GL.ClearColor(Color.Black);
 
+            Console.WriteLine("Creating stopwatch");
             _watch = new Stopwatch();
+
+            Console.WriteLine("Finished OnLoad");
         }
 
         /// <summary>
@@ -176,8 +211,8 @@ namespace TurntNinja
         {
             if (_gameSceneManager.ExitRequested)
             {
+                Console.WriteLine("Exiting");
                 Exit();
-                return;
             }
 
             _lag += e.Time;
@@ -210,11 +245,21 @@ namespace TurntNinja
 
         protected override void OnUnload(EventArgs e)
         {
-            ServiceLocator.Analytics.TrackApplicationShutdown();
-            _gameSceneManager.Dispose();
-            _gameSettings["Debug"] = DebugMode.Value;
-            ServiceLocator.Settings.Save();
-            base.OnUnload(e);
+            try
+            {
+                Console.WriteLine("Unloading app");
+                ServiceLocator.Analytics.TrackApplicationShutdown();
+                _gameSceneManager.Dispose();
+                _gameSettings["Debug"] = DebugMode.Value;
+                ServiceLocator.Settings.Save();
+                base.OnUnload(e);
+                Console.WriteLine("Finished unloading");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception caught while unloading:");
+                Console.WriteLine(ex.ToString());
+            }
         }
     }
 }

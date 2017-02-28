@@ -10,7 +10,7 @@ MathNet.Numerics
 Mono.Cecil
 Newtonsoft.Json
 OnsetDetection
-OpenTK.Next
+OpenTK content: none
 QuickFont.Desktop
 SharpFont import_targets: false
 SharpFont.Dependencies

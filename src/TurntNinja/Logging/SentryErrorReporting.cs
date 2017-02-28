@@ -17,7 +17,8 @@ namespace TurntNinja.Logging
 
         RavenClient _sentryClient;
 
-        public SentryErrorReporting(string sentryURL, string environment, string version, string userGUID, Platform platform, string platformVersion, bool scrubUserName = false)
+        public SentryErrorReporting(string sentryURL, string environment, string version, string userGUID, Platform platform, string platformVersion, bool scrubUserName = false,
+            Dictionary<string, string> extraTags = null)
         {
             _sentryDsn = new Dsn(sentryURL);
             _userGUID = userGUID;
@@ -26,6 +27,8 @@ namespace TurntNinja.Logging
             _sentryClient.Environment = environment;
             _sentryClient.Release = version;
             _sentryClient.Tags["OS"] = $"{platform} {platformVersion}";
+            if (extraTags != null)
+                AddTags(extraTags);
 
             if (scrubUserName) _sentryClient.LogScrubber = new SentryUserScrubber();
         }
@@ -33,6 +36,12 @@ namespace TurntNinja.Logging
         private void InitialiseSentryClient()
         {
             _sentryClient = new RavenClient(_sentryDsn, new CustomJsonPacketFactory(), null, new SentryUserGUIDFactory(_userGUID));
+        }
+
+        public void AddTags(IDictionary<string, string> tags)
+        {
+            foreach (var t in tags)
+                if (!_sentryClient.Tags.ContainsKey(t.Key)) _sentryClient.Tags.Add(t);
         }
 
         public string ReportError(Exception ex)

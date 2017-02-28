@@ -55,7 +55,7 @@ namespace TurntNinja.Game
         {
             get
             {
-                return new DifficultyOptions(600f, 0.15f, 0.35f, 1.5f, 0.0f, 9.0f);
+                return new DifficultyOptions(600f, 0.15f, 0.35f, 1.5f, 0.125f, 9.0f);
             }
         }
 
