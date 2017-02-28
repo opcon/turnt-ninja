@@ -51,10 +51,8 @@ let PushBuild (butlerFolder:string) (buildFileOrDir:string) (target:string) (cha
         + ("--userversion=" + version + " ")
 
     ProcessHelper.redirectOutputToTrace = true |> ignore
-    let result = ProcessHelper.ExecProcessAndReturnMessages (fun info -> 
+    let result = ProcessHelper.ExecProcess (fun info -> 
                 info.FileName <- butlerFullPath
                 info.Arguments <- (sprintf "push %s%s %s:%s" flags buildFileOrDir target channel)) (System.TimeSpan.FromMinutes 5.0)
-    if result.ExitCode <> 0 then
-        if (result.Messages.[0]).Contains("unique versions") then
-            trace ("Not uploading version " + version + ", because it already exists for channel " + channel)
-        else failwithf "Butler push failed. Error message: %s" result.Messages.[0]
+    if result <> 0 then traceError "Butler push failed"
+    result
