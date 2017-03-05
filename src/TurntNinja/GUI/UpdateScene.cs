@@ -137,42 +137,50 @@ namespace TurntNinja.GUI
                             channelBase = "mac";
                             break;
                     }
-                    string tag = ((string)informationalVersionAttribute.ConstructorArguments.First().Value).Split(' ')[0].Split(':')[1];
-                    string channelName = tag.Contains(ALPHATAGSUFFIX) ? channelBase + ITCHALPHACHANNEL : channelBase;
-
-                    UriBuilder ub = new UriBuilder(ITCHRELEASEAPI);
-                    ub.Query = $"target={ITCHTARGET}&channel_name={channelName}";
-
-                    HttpClient hc = new HttpClient();
-                    var resp = hc.GetAsync(ub.Uri).Result;
-                    var content = Newtonsoft.Json.Linq.JObject.Parse(resp.Content.ReadAsStringAsync().Result);
-                    var versionString = content.Value<string>("latest").Split('-');
-
-                    var ver = Version.Parse(versionString[0]);
-                    var currentVer = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-                    var newVersionAvailable = ver > currentVer;
-
-                    // Check tag if we don't need to update based purely on version string
-                    if (!newVersionAvailable)
+                    try
                     {
-                        var ctp = tag.Split('-');
-                        if (ctp.Length > 1 || (bool)ServiceLocator.Settings["GetAlphaReleases"])
+                        string tag = ((string)informationalVersionAttribute.ConstructorArguments.First().Value).Split(' ')[0].Split(':')[1];
+                        string channelName = tag.Contains(ALPHATAGSUFFIX) ? channelBase + ITCHALPHACHANNEL : channelBase;
+
+                        UriBuilder ub = new UriBuilder(ITCHRELEASEAPI);
+                        ub.Query = $"target={ITCHTARGET}&channel_name={channelName}";
+
+                        HttpClient hc = new HttpClient();
+                        var resp = hc.GetAsync(ub.Uri).Result;
+                        var content = Newtonsoft.Json.Linq.JObject.Parse(resp.Content.ReadAsStringAsync().Result);
+                        var versionString = content.Value<string>("latest").Split('-');
+
+                        var ver = Version.Parse(versionString[0]);
+                        var currentVer = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                        var newVersionAvailable = ver > currentVer;
+
+                        // Check tag if we don't need to update based purely on version string
+                        if (!newVersionAvailable)
                         {
-                            if (versionString.Length > 1)
+                            var ctp = tag.Split('-');
+                            if (ctp.Length > 1 || (bool)ServiceLocator.Settings["GetAlphaReleases"])
                             {
-                                var currentTag = ctp[1];
-                                var serverTag = versionString[1];
-                                newVersionAvailable = serverTag.CompareTo(currentTag) == 1;
+                                if (versionString.Length > 1)
+                                {
+                                    var currentTag = ctp[1];
+                                    var serverTag = versionString[1];
+                                    newVersionAvailable = serverTag.CompareTo(currentTag) == 1;
+                                }
+                                else
+                                    newVersionAvailable = true;
                             }
-                            else
-                                newVersionAvailable = true;
                         }
+
+                        if (newVersionAvailable)
+                            _statusString = $"Version {string.Join("-", versionString)} is available.\nYou can update through the Itch.io app, or download the latest release from {@"https://opcon.itch.io/turnt-ninja"}.";
+                        else
+                            _statusString = "You have the latest version!";
+                    }
+                    catch
+                    {
+                        _statusString = "Error checking for updates";
                     }
 
-                    if (newVersionAvailable)
-                        _statusString = $"Version {string.Join("-", versionString)} is available.\nYou can update through the Itch.io app, or download the latest release from {@"https://opcon.itch.io/turnt-ninja"}.";
-                    else
-                        _statusString = "You have the latest version!";
                 }, _cancellationTokenSource.Token);
             }
 
