@@ -110,6 +110,7 @@
     <Compile Include="GUI\EndGameScene.cs" />
     <Compile Include="GUI\FirstRunScene.cs" />
     <Compile Include="GUI\GameScene.cs" />
+    <Compile Include="GUI\IntroScene.cs" />
     <Compile Include="GUI\LoadingScene.cs" />
     <Compile Include="GUI\MenuScene.cs" />
     <Compile Include="Game\Player.cs" />

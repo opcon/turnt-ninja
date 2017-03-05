@@ -172,9 +172,7 @@ namespace TurntNinja
             _gameSceneManager = new SceneManager(this, gameCamera, fontLibrary, bodyFontPath, _directoryHandler, _gameSettings, DebugMode);
             _gameSceneManager.AddScene(new MenuScene(), null);
 
-            Console.WriteLine("Checking for first run scene");
-            if ((bool)ServiceLocator.Settings["FirstRun"])
-                _gameSceneManager.AddScene(new FirstRunScene(), null);
+            _gameSceneManager.AddScene(new IntroScene((bool)ServiceLocator.Settings["FirstRun"]), null);
 
             Console.WriteLine("Setting up input system callbacks");
             Keyboard.KeyDown += (o, args) => InputSystem.KeyDown(args);
