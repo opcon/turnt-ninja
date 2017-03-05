@@ -50,6 +50,12 @@ namespace TurntNinja.GUI
             InputSystem.KeyRemappings.Add(Key.KeypadEnter, Key.Enter);
 
             _gameVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            try
+            {
+                var informationalVersionAttribute = System.Reflection.Assembly.GetExecutingAssembly().CustomAttributes.FirstOrDefault(cad => cad.AttributeType == typeof(System.Reflection.AssemblyInformationalVersionAttribute));
+                _gameVersion = ((string)informationalVersionAttribute.ConstructorArguments.First().Value).Split(' ')[0].Split(':')[1];
+            }
+            catch { }
 
             // Choose correct version directive because OSX is dumb
             string version = "#version 130";
@@ -172,8 +178,8 @@ namespace TurntNinja.GUI
                 case MainMenuOptions.Update:
                     _selectedMenuItemText = "Update";
                     break;
-                case MainMenuOptions.ComingSoon:
-                    _selectedMenuItemText = "Coming Soon";
+                case MainMenuOptions.Credits:
+                    _selectedMenuItemText = "Credits";
                     break;
                 default:
                     _selectedMenuItem = MainMenuOptions.None;
@@ -262,8 +268,8 @@ namespace TurntNinja.GUI
         Scores = 2,
         Options = 3,
         Exit = 4,
-        Update = 5,
-        ComingSoon = 0,
+        Update = 0,
+        Credits = 5,
         None = -1
     }
 }
