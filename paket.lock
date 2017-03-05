@@ -39,7 +39,7 @@ NUGET
       CSCore (>= 1.1.15)
       MathNet.Numerics (>= 3.11.1)
   remote: https://ci.appveyor.com/nuget/quickfont-m6wdxb2yf1v5
-    QuickFont.Desktop (4.4.6239.14169) - framework: >= net45
+    QuickFont.Desktop (4.4.6273.17496) - framework: >= net45
       OpenTK (>= 2.0)
       SharpFont (>= 4.0)
       SharpFont.Dependencies (>= 2.6)
