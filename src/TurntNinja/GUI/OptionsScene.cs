@@ -12,6 +12,7 @@ using OpenTK.Input;
 using QuickFont;
 using OpenTK;
 using OpenTK.Graphics;
+using System.Text.RegularExpressions;
 
 namespace TurntNinja.GUI
 {
@@ -23,6 +24,7 @@ namespace TurntNinja.GUI
         private QFontDrawing _optionsDrawing;
         private GameFont _optionsFont;
         private GameFont _valueFont;
+        private GameFont _titleFont;
 
         List<OptionBase> _options;
         int _currentlySelectedOption = 0;
@@ -36,6 +38,7 @@ namespace TurntNinja.GUI
         {
             _optionsFont = SceneManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Heading);
             _valueFont = SceneManager.GameFontLibrary.GetFirstOrDefault(GameFontType.Heading);
+            _titleFont = SceneManager.GameFontLibrary.GetFirstOrDefault("selected");
             _optionsDrawing = new QFontDrawing();
             _optionsDrawing.ProjectionMatrix = SceneManager.ScreenCamera.ScreenProjectionMatrix;
 
@@ -163,6 +166,12 @@ namespace TurntNinja.GUI
         {
             _optionsDrawing.DrawingPrimitives.Clear();
 
+            var titledp = new QFontDrawingPrimitive(_titleFont.Font, new QFontRenderOptions { Colour = Color.Black });
+            titledp.Print("Options", new Vector3(0, WindowHeight * 0.5f, 0), QFontAlignment.Centre);
+            _optionsDrawing.DrawingPrimitives.Add(titledp);
+
+            _optionsDrawing.Print(_optionsFont.Font, "Back [Escape]", new Vector3(-WindowWidth * 0.5f + 10.0f, -WindowHeight * 0.5f + _optionsFont.MaxLineHeight, 0), QFontAlignment.Left, Color.Black);
+
             float lineStep = Math.Max(_optionsFont.MaxLineHeight, _valueFont.MaxLineHeight);
             float height = lineStep * _options.Count;
 
@@ -179,7 +188,7 @@ namespace TurntNinja.GUI
                 }
 
                 var dp = new QFontDrawingPrimitive(_optionsFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
-                dp.Print(op.FriendlyName + ":", Vector3.Zero, QFontAlignment.Centre);
+                dp.Print(op.FriendlyName.ToUpper() + ":", Vector3.Zero, QFontAlignment.Centre);
                 dp.ModelViewMatrix = Matrix4.CreateTranslation(0, _optionsFont.MaxLineHeight * 0.5f, 0)
                                         * Matrix4.CreateTranslation(-WindowWidth * 0.15f, currentY, 0);
                 _optionsDrawing.DrawingPrimitives.Add(dp);
@@ -195,7 +204,7 @@ namespace TurntNinja.GUI
                     dp = new QFontDrawingPrimitive(_valueFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
                     dp.Print(op.GetNextValue(), Vector3.Zero, QFontAlignment.Left);
                     dp.ModelViewMatrix = Matrix4.CreateScale(unselectedValueScale)
-                                            * Matrix4.CreateTranslation(WindowWidth * 0.15f + valueSize.Width * 1.25f, currentY + _valueFont.Font.MaxLineHeight * 0.5f * unselectedValueScale, 0);
+                                            * Matrix4.CreateTranslation(WindowWidth * 0.15f + valueSize.Width, currentY + _valueFont.Font.MaxLineHeight * 0.5f * unselectedValueScale, 0);
                     _optionsDrawing.DrawingPrimitives.Add(dp);
                 }
                 if (op.CanMoveBackward())
@@ -203,7 +212,7 @@ namespace TurntNinja.GUI
                     dp = new QFontDrawingPrimitive(_valueFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
                     dp.Print(op.GetPrevValue(), Vector3.Zero, QFontAlignment.Right);
                     dp.ModelViewMatrix = Matrix4.CreateScale(unselectedValueScale)
-                                            * Matrix4.CreateTranslation(WindowWidth * 0.15f - valueSize.Width * 1.25f, currentY + _valueFont.Font.MaxLineHeight * 0.5f * unselectedValueScale, 0);
+                                            * Matrix4.CreateTranslation(WindowWidth * 0.15f - valueSize.Width, currentY + _valueFont.Font.MaxLineHeight * 0.5f * unselectedValueScale, 0);
                     _optionsDrawing.DrawingPrimitives.Add(dp);
                 }
 
@@ -288,17 +297,17 @@ namespace TurntNinja.GUI
 
         public override string GetNextValue()
         {
-            return (!Value).ToString();
+            return BoolToString(!Value);
         }
 
         public override string GetPrevValue()
         {
-            return (!Value).ToString();
+            return BoolToString(!Value);
         }
 
         public override string GetValue()
         {
-            return Value.ToString();
+            return BoolToString(Value);
         }
 
         public override void MoveNext()
@@ -313,6 +322,11 @@ namespace TurntNinja.GUI
 
         public override void Sanitise()
         {
+        }
+
+        private string BoolToString(bool value)
+        {
+            return value ? "On" : "Off";
         }
 
         public override void SaveSettings()
@@ -384,6 +398,26 @@ namespace TurntNinja.GUI
 
     public class EnumOption<T> : StringOption
     {
+        string EnumToSentence(string enumName)
+        {
+            return string.Join(" ", Regex.Split(enumName, @"(?<!^)(?=[A-Z])"));
+        }
+
+        public override string GetValue()
+        {
+            return EnumToSentence(CurrentValue);
+        }
+
+        public override string GetNextValue()
+        {
+            return EnumToSentence(base.GetNextValue());
+        }
+
+        public override string GetPrevValue()
+        {
+            return EnumToSentence(base.GetPrevValue());
+        }
+
         public override void SaveSettings()
         {
             ServiceLocator.Settings[SettingName] = (int)Enum.Parse(typeof(T), CurrentValue);
