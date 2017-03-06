@@ -13,6 +13,7 @@ using QuickFont;
 using OpenTK;
 using OpenTK.Graphics;
 using System.Text.RegularExpressions;
+using TurntNinja.Audio;
 
 namespace TurntNinja.GUI
 {
@@ -50,6 +51,7 @@ namespace TurntNinja.GUI
             var analytics = (bool)ServiceLocator.Settings["Analytics"];
             var windowMode = (string)ServiceLocator.Settings["WindowState"];
             var colourMode = (ColourMode)ServiceLocator.Settings["ColourMode"];
+            var audioDevice = AudioDeviceMethods.GetAudioDeviceNameOrDefault((string)ServiceLocator.Settings["AudioDevice"]);
 
             _options.Add(new NumericOption
             {
@@ -108,6 +110,17 @@ namespace TurntNinja.GUI
                 CurrentIndex = Enum.GetNames(typeof(ColourMode)).ToList().IndexOf(colourMode.ToString())
             });
 
+            var audioDevices = AudioDeviceMethods.GetAudioDeviceNames();
+            audioDevices.Insert(0, "Default");
+            _options.Add(new StringOption
+            {
+                FriendlyName = "Audio Device",
+                SettingName = "AudioDevice",
+                Values = audioDevices,
+                CurrentIndex = audioDevices.IndexOf(audioDevice),
+                MaxLength = 18
+            });
+
             foreach (var op in _options)
             {
                 op.Sanitise();
@@ -164,6 +177,7 @@ namespace TurntNinja.GUI
 
         public override void Draw(double time)
         {
+            float widthMultiplier = 0.1f;
             _optionsDrawing.DrawingPrimitives.Clear();
 
             var titledp = new QFontDrawingPrimitive(_titleFont.Font, new QFontRenderOptions { Colour = Color.Black });
@@ -187,32 +201,35 @@ namespace TurntNinja.GUI
                     settingColour.A = 0.50f;
                 }
 
+                var otherOptionsColour = Color4.Black;
+                otherOptionsColour.A = 0.50f;
+
                 var dp = new QFontDrawingPrimitive(_optionsFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
                 dp.Print(op.FriendlyName.ToUpper() + ":", Vector3.Zero, QFontAlignment.Centre);
                 dp.ModelViewMatrix = Matrix4.CreateTranslation(0, _optionsFont.MaxLineHeight * 0.5f, 0)
-                                        * Matrix4.CreateTranslation(-WindowWidth * 0.15f, currentY, 0);
+                                        * Matrix4.CreateTranslation(-WindowWidth * 0.35f, currentY, 0);
                 _optionsDrawing.DrawingPrimitives.Add(dp);
 
                 dp = new QFontDrawingPrimitive(_valueFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
                 var valueSize = dp.Print(op.GetValue(), Vector3.Zero, QFontAlignment.Centre);
                 dp.ModelViewMatrix = Matrix4.CreateTranslation(0, _valueFont.MaxLineHeight * 0.5f, 0)
-                                        * Matrix4.CreateTranslation(WindowWidth * 0.15f, currentY, 0);
+                                        * Matrix4.CreateTranslation(WindowWidth * widthMultiplier, currentY, 0);
                 _optionsDrawing.DrawingPrimitives.Add(dp);
 
                 if (op.CanMoveForward())
                 {
-                    dp = new QFontDrawingPrimitive(_valueFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
+                    dp = new QFontDrawingPrimitive(_valueFont.Font, new QFontRenderOptions { Colour = (Color)otherOptionsColour });
                     dp.Print(op.GetNextValue(), Vector3.Zero, QFontAlignment.Left);
-                    dp.ModelViewMatrix = Matrix4.CreateScale(unselectedValueScale)
-                                            * Matrix4.CreateTranslation(WindowWidth * 0.15f + valueSize.Width, currentY + _valueFont.Font.MaxLineHeight * 0.5f * unselectedValueScale, 0);
+                    dp.ModelViewMatrix = Matrix4.CreateScale(1)
+                                            * Matrix4.CreateTranslation(WindowWidth * widthMultiplier + valueSize.Width * 0.75f, currentY + _valueFont.Font.MaxLineHeight * 0.5f, 0);
                     _optionsDrawing.DrawingPrimitives.Add(dp);
                 }
                 if (op.CanMoveBackward())
                 {
-                    dp = new QFontDrawingPrimitive(_valueFont.Font, new QFontRenderOptions { Colour = (Color)settingColour });
+                    dp = new QFontDrawingPrimitive(_valueFont.Font, new QFontRenderOptions { Colour = (Color)otherOptionsColour });
                     dp.Print(op.GetPrevValue(), Vector3.Zero, QFontAlignment.Right);
-                    dp.ModelViewMatrix = Matrix4.CreateScale(unselectedValueScale)
-                                            * Matrix4.CreateTranslation(WindowWidth * 0.15f - valueSize.Width, currentY + _valueFont.Font.MaxLineHeight * 0.5f * unselectedValueScale, 0);
+                    dp.ModelViewMatrix = Matrix4.CreateScale(1)
+                                            * Matrix4.CreateTranslation(WindowWidth * widthMultiplier - valueSize.Width * 0.75f, currentY + _valueFont.Font.MaxLineHeight * 0.5f, 0);
                     _optionsDrawing.DrawingPrimitives.Add(dp);
                 }
 
@@ -342,6 +359,14 @@ namespace TurntNinja.GUI
         public string CurrentValue { get { return Values[CurrentIndex]; } }
         public int CurrentIndex { get; set; } = 0;
         public List<string> Values { get; set; }
+        public int MaxLength { get; set; } = 100;
+
+        public string TruncateString(string s)
+        {
+            if (s.Length > MaxLength)
+                return s.Substring(0, MaxLength) + "...";
+            return s;
+        }
 
         public StringOption()
         {
@@ -360,17 +385,17 @@ namespace TurntNinja.GUI
 
         public override string GetNextValue()
         {
-            return Values[CurrentIndex + 1];
+            return TruncateString(Values[CurrentIndex + 1]);
         }
 
         public override string GetPrevValue()
         {
-            return Values[CurrentIndex - 1];
+            return TruncateString(Values[CurrentIndex - 1]);
         }
 
         public override string GetValue()
         {
-            return CurrentValue;
+            return TruncateString(CurrentValue);
         }
 
         public override void MoveNext()
