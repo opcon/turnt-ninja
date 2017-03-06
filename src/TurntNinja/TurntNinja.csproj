@@ -84,8 +84,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio\AcoustIDCSCore.cs" />
+    <Compile Include="Audio\AudioDeviceMethods.cs" />
     <Compile Include="Audio\AudioFeatures.cs" />
+    <Compile Include="Audio\OpenALDeviceMethods.cs" />
     <Compile Include="Audio\SongBase.cs" />
+    <Compile Include="Audio\WasapiDeviceMethods.cs" />
     <Compile Include="Core\Settings\JsonSettings.cs" />
     <Compile Include="FileSystem\FileBrowserEntry.cs" />
     <Compile Include="Audio\PlaylistHelper.cs" />
