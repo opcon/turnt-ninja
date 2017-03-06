@@ -11,6 +11,7 @@ using CSCore.SoundOut;
 using CSCore.Streams;
 using OpenTK;
 using Substructio.Core;
+using TurntNinja.Audio;
 
 
 namespace TurntNinja.Game
@@ -270,9 +271,21 @@ namespace TurntNinja.Game
         public void Init(IWaveSource source)
         {
             _soundSource = source;
-            // Use ALSound out if we are running on Mac/Linux
-            _soundOut = (PlatformDetection.RunningPlatform() == Platform.Windows) ? 
-                (ISoundOut) new WasapiOut() : new ALSoundOut();
+
+            var preferredDevice = ServiceLocator.Settings["AudioDevice"] as string;
+
+            var plat = PlatformDetection.RunningPlatform();
+            switch (plat)
+            {
+                case Platform.Windows:
+                    _soundOut = WasapiDeviceMethods.CreateWithPreferredDevice(preferredDevice);
+                    break;
+                case Platform.Linux:
+                case Platform.MacOSX:
+                    _soundOut = OpenALDeviceMethods.CreateWithPreferredDevice(preferredDevice);
+                    break;
+            }
+
             _soundOut.Initialize(_soundSource);
             _soundOut.Stopped += (sender, args) => { if (args.HasError) throw new Exception("exception thrown on stoping audio", args.Exception); };
         }
